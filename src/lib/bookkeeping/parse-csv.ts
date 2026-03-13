@@ -48,6 +48,15 @@ function normalizeHeader(h: string): string {
   return h.toLowerCase().replace(/[^a-z0-9]/g, "");
 }
 
+const HEADER_KEYWORDS = ["date", "amount", "description", "memo", "credit", "debit", "payee", "name", "details", "merchant", "withdrawal", "deposit", "balance", "type", "category", "transaction"];
+
+function looksLikeHeaderRow(cols: string[]): boolean {
+  return cols.some((col) => {
+    const normalized = col.toLowerCase().replace(/[^a-z]/g, "");
+    return HEADER_KEYWORDS.some((kw) => normalized === kw || normalized.includes(kw));
+  });
+}
+
 export function detectColumns(headers: string[]): ColumnMap {
   const normalized = headers.map(normalizeHeader);
 
@@ -144,17 +153,33 @@ export function parseCSV(csvString: string): ParseResult {
     }
   }
 
+  // If no header row found, check if the first non-empty line looks like Wells Fargo format
+  // (no header row, columns: date, amount, *, empty, description)
+  let dataStartIdx: number;
+  let isWellsFargoFormat = false;
+
   if (!columnMap) {
-    return {
-      transactions,
-      errors: [{ row: lines[0], reason: "Could not detect required columns (date, description)" }],
-    };
+    const firstDataLine = lines.find((l) => l.trim());
+    const firstCols = firstDataLine ? parseCSVLine(firstDataLine.trim()) : [];
+    if (!looksLikeHeaderRow(firstCols) && firstCols.length >= 5) {
+      isWellsFargoFormat = true;
+      dataStartIdx = 0;
+    } else {
+      return {
+        transactions,
+        errors: [{ row: lines[0], reason: "Could not detect required columns (date, description)" }],
+      };
+    }
+  } else {
+    dataStartIdx = headerLineIdx + 1;
   }
 
-  const { dateIdx, descriptionIdx, amountIdx, creditIdx, debitIdx } = columnMap;
-  const hasSeparateDebitCredit = creditIdx !== -1 || debitIdx !== -1;
+  const { dateIdx, descriptionIdx, amountIdx, creditIdx, debitIdx } = isWellsFargoFormat
+    ? { dateIdx: 0, descriptionIdx: 4, amountIdx: 1, creditIdx: -1, debitIdx: -1 }
+    : columnMap!;
+  const hasSeparateDebitCredit = !isWellsFargoFormat && (creditIdx !== -1 || debitIdx !== -1);
 
-  for (let i = headerLineIdx + 1; i < lines.length; i++) {
+  for (let i = dataStartIdx; i < lines.length; i++) {
     const raw = lines[i];
     if (!raw.trim()) continue;
 
