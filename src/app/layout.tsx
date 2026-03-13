@@ -40,8 +40,7 @@ export default function RootLayout({
       <body className="font-grotesk antialiased">
         <ThemeProvider
           attribute="class"
-          defaultTheme="light"
-          enableSystem
+          defaultTheme="dark"
           disableTransitionOnChange
         >
           {children}

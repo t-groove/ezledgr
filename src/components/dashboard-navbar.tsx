@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from './ui/dropdown-menu'
 import { Button } from './ui/button'
-import { UserCircle, Home } from 'lucide-react'
+import { UserCircle } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
 export default function DashboardNavbar() {
@@ -17,24 +17,24 @@ export default function DashboardNavbar() {
   const router = useRouter()
 
   return (
-    <nav className="w-full border-b border-gray-200 bg-white py-4">
+    <nav className="w-full border-b border-border bg-card py-4">
       <div className="container mx-auto px-4 flex justify-between items-center">
         <div className="flex items-center gap-4">
-          <Link href="/" prefetch className="text-xl font-bold">
-            Logo
+          <Link href="/" prefetch className="font-syne text-xl font-bold text-foreground hover:text-primary transition-colors">
+            Centerbase
           </Link>
         </div>
         <div className="flex gap-4 items-center">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon">
-                <UserCircle className="h-6 w-6" />
+                <UserCircle className="h-6 w-6 text-foreground" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={async () => {
                 await supabase.auth.signOut()
-                router.refresh()
+                router.push('/sign-in')
               }}>
                 Sign out
               </DropdownMenuItem>

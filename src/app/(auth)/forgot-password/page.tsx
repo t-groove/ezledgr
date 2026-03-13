@@ -5,7 +5,6 @@ import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { SmtpMessage } from "../smtp-message";
 import { forgotPasswordAction } from "@/app/actions";
-import Navbar from "@/components/navbar";
 import { UrlProvider } from "@/components/url-provider";
 
 export default async function ForgotPassword(props: {
@@ -22,16 +21,20 @@ export default async function ForgotPassword(props: {
   }
 
   return (
-    <>
-      <Navbar />
-      <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-8">
-        <div className="w-full max-w-md rounded-lg border border-border bg-card p-6 shadow-sm">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-8">
+      <div className="w-full max-w-md space-y-6">
+        <div className="text-center">
+          <Link href="/" className="font-syne text-2xl font-bold text-foreground hover:text-primary transition-colors">
+            Centerbase
+          </Link>
+        </div>
+        <div className="rounded-xl border border-border bg-card p-8 shadow-lg">
           <UrlProvider>
             <form className="flex flex-col space-y-6">
               <div className="space-y-2 text-center">
-                <h1 className="text-3xl font-semibold tracking-tight">Reset Password</h1>
+                <h1 className="font-syne text-3xl font-bold tracking-tight text-foreground">Reset Password</h1>
                 <p className="text-sm text-muted-foreground">
-                  Already have an account?{" "}
+                  Remember your password?{" "}
                   <Link
                     className="text-primary font-medium hover:underline transition-all"
                     href="/sign-in"
@@ -43,7 +46,7 @@ export default async function ForgotPassword(props: {
 
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-sm font-medium">
+                  <Label htmlFor="email" className="text-sm font-medium text-foreground">
                     Email
                   </Label>
                   <Input
@@ -52,7 +55,7 @@ export default async function ForgotPassword(props: {
                     type="email"
                     placeholder="you@example.com"
                     required
-                    className="w-full"
+                    className="w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
                   />
                 </div>
               </div>
@@ -62,7 +65,7 @@ export default async function ForgotPassword(props: {
                 pendingText="Sending reset link..."
                 className="w-full"
               >
-                Reset Password
+                Send Reset Link
               </SubmitButton>
 
               <FormMessage message={searchParams} />
@@ -71,6 +74,6 @@ export default async function ForgotPassword(props: {
         </div>
         <SmtpMessage />
       </div>
-    </>
+    </div>
   );
 }

@@ -5,7 +5,6 @@ import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { SmtpMessage } from "../smtp-message";
 import { signUpAction } from "@/app/actions";
-import Navbar from "@/components/navbar";
 import { UrlProvider } from "@/components/url-provider";
 
 export default async function Signup(props: {
@@ -21,14 +20,18 @@ export default async function Signup(props: {
   }
 
   return (
-    <>
-      <Navbar />
-      <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-8">
-        <div className="w-full max-w-md rounded-lg border border-border bg-card p-6 shadow-sm">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-8">
+      <div className="w-full max-w-md space-y-6">
+        <div className="text-center">
+          <Link href="/" className="font-syne text-2xl font-bold text-foreground hover:text-primary transition-colors">
+            Centerbase
+          </Link>
+        </div>
+        <div className="rounded-xl border border-border bg-card p-8 shadow-lg">
           <UrlProvider>
             <form className="flex flex-col space-y-6">
               <div className="space-y-2 text-center">
-                <h1 className="text-3xl font-semibold tracking-tight">Sign up</h1>
+                <h1 className="font-syne text-3xl font-bold tracking-tight text-foreground">Sign up</h1>
                 <p className="text-sm text-muted-foreground">
                   Already have an account?{" "}
                   <Link
@@ -42,7 +45,7 @@ export default async function Signup(props: {
 
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="full_name" className="text-sm font-medium">
+                  <Label htmlFor="full_name" className="text-sm font-medium text-foreground">
                     Full Name
                   </Label>
                   <Input
@@ -51,12 +54,12 @@ export default async function Signup(props: {
                     type="text"
                     placeholder="John Doe"
                     required
-                    className="w-full"
+                    className="w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-sm font-medium">
+                  <Label htmlFor="email" className="text-sm font-medium text-foreground">
                     Email
                   </Label>
                   <Input
@@ -65,12 +68,12 @@ export default async function Signup(props: {
                     type="email"
                     placeholder="you@example.com"
                     required
-                    className="w-full"
+                    className="w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="password" className="text-sm font-medium">
+                  <Label htmlFor="password" className="text-sm font-medium text-foreground">
                     Password
                   </Label>
                   <Input
@@ -80,7 +83,7 @@ export default async function Signup(props: {
                     placeholder="Your password"
                     minLength={6}
                     required
-                    className="w-full"
+                    className="w-full bg-background border-border text-foreground placeholder:text-muted-foreground"
                   />
                 </div>
               </div>
@@ -99,6 +102,6 @@ export default async function Signup(props: {
         </div>
         <SmtpMessage />
       </div>
-    </>
+    </div>
   );
 }
