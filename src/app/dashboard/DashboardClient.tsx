@@ -290,9 +290,27 @@ export default function DashboardClient({
                 key={acc.id}
                 className="bg-[#111827] border border-[#1E2A45] rounded-xl p-5 flex flex-col"
               >
-                {acc.bank_name && acc.bank_name !== "None" && (
-                  <p className="text-xs text-[#6B7A99] mb-1">{acc.bank_name}</p>
-                )}
+                <div className="flex items-start justify-between mb-1">
+                  {acc.bank_name && acc.bank_name !== "None" ? (
+                    <p className="text-xs text-[#6B7A99]">{acc.bank_name}</p>
+                  ) : (
+                    <span />
+                  )}
+                  {acc.transaction_count > 0 && (
+                    <p
+                      className={`font-syne font-bold text-lg leading-none ${
+                        acc.net > 0
+                          ? "text-[#22C55E]"
+                          : acc.net < 0
+                          ? "text-[#EF4444]"
+                          : "text-[#6B7A99]"
+                      }`}
+                    >
+                      {acc.net > 0 ? "+" : ""}
+                      {formatCurrency(acc.net)}
+                    </p>
+                  )}
+                </div>
                 <p className="font-syne font-semibold text-[#E8ECF4] text-base mb-3">
                   {acc.name}
                 </p>
@@ -308,31 +326,6 @@ export default function DashboardClient({
                     <span className="text-sm text-[#6B7A99] font-mono">
                       ••••{acc.last_four}
                     </span>
-                  )}
-                </div>
-                <div className="mb-4">
-                  <p className="text-xs text-[#6B7A99] mb-1">Current Balance</p>
-                  {acc.transaction_count === 0 ? (
-                    <p className="text-sm text-[#6B7A99]">No transactions yet</p>
-                  ) : (
-                    <>
-                      <p
-                        className={`font-syne text-xl font-bold ${
-                          acc.net > 0
-                            ? "text-[#22C55E]"
-                            : acc.net < 0
-                            ? "text-[#EF4444]"
-                            : "text-[#6B7A99]"
-                        }`}
-                      >
-                        {acc.net > 0 ? "+" : ""}
-                        {formatCurrency(acc.net)}
-                      </p>
-                      <p className="text-xs text-[#6B7A99] mt-1">
-                        ↑ {formatCurrency(acc.total_income)} income&nbsp;&nbsp;↓{" "}
-                        {formatCurrency(acc.total_expenses)} expenses
-                      </p>
-                    </>
                   )}
                 </div>
                 <Link
