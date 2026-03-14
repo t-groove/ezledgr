@@ -5,7 +5,11 @@ import BookkeepingClient from "./BookkeepingClient";
 import { getTransactions } from "./actions";
 import { getBankAccounts } from "../accounts/actions";
 
-export default async function BookkeepingPage() {
+export default async function BookkeepingPage({
+  searchParams,
+}: {
+  searchParams: { account?: string; category?: string };
+}) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -36,6 +40,8 @@ export default async function BookkeepingPage() {
           <BookkeepingClient
             initialTransactions={transactions}
             initialBankAccounts={bankAccounts}
+            initialAccountFilter={searchParams.account}
+            initialCategoryFilter={searchParams.category}
           />
         </div>
       </main>

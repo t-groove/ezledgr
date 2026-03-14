@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback, useMemo, useTransition } from "react";
+import { useState, useRef, useCallback, useMemo, useTransition, useEffect } from "react";
 import { parseCSV } from "@/lib/bookkeeping/parse-csv";
 import type { ParsedTransaction } from "@/lib/bookkeeping/parse-csv";
 import {
@@ -434,20 +434,34 @@ function UploadPanel({ bankAccounts, onImportSuccess, onAccountCreated }: Upload
 interface BookkeepingClientProps {
   initialTransactions: Transaction[];
   initialBankAccounts: BankAccount[];
+  initialAccountFilter?: string;
+  initialCategoryFilter?: string;
 }
 
 export default function BookkeepingClient({
   initialTransactions,
   initialBankAccounts,
+  initialAccountFilter,
+  initialCategoryFilter,
 }: BookkeepingClientProps) {
   const [transactions, setTransactions] = useState<Transaction[]>(initialTransactions);
   const [bankAccounts, setBankAccounts] = useState<BankAccount[]>(initialBankAccounts);
   const [search, setSearch] = useState("");
   const [filterType, setFilterType] = useState("all");
-  const [filterCategory, setFilterCategory] = useState("all");
+  const [filterCategory, setFilterCategory] = useState(initialCategoryFilter ?? "all");
   const [filterStart, setFilterStart] = useState("");
   const [filterEnd, setFilterEnd] = useState("");
-  const [filterAccount, setFilterAccount] = useState("all");
+  const [filterAccount, setFilterAccount] = useState(initialAccountFilter ?? "all");
+
+  useEffect(() => {
+    if (initialAccountFilter || initialCategoryFilter) {
+      setTimeout(() => {
+        document
+          .getElementById("transaction-table")
+          ?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 300);
+    }
+  }, []);
   const [page, setPage] = useState(1);
   const [toast, setToast] = useState<ToastState | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -654,7 +668,7 @@ export default function BookkeepingClient({
       />
 
       {/* Transaction List Card */}
-      <div className="bg-[#111827] border border-[#1E2A45] rounded-xl p-6">
+      <div id="transaction-table" className="bg-[#111827] border border-[#1E2A45] rounded-xl p-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
           <div className="flex items-center gap-3">
