@@ -1,7 +1,6 @@
 export const INCOME_CATEGORIES = [
   "Sales Revenue",
   "Service Revenue",
-  "Consulting",
   "Interest Income",
   "Refunds Received",
   "Other Income",
@@ -13,21 +12,28 @@ export const EXPENSE_CATEGORIES = [
   "Contract Labor",
   "Equipment",
   "Insurance",
-  "Meals & Entertainment",
+  "Interest",
+  "Meals and Entertainment",
   "Office Supplies",
   "Professional Services",
-  "Rent & Utilities",
+  "Rent - Equipment",
+  "Rent - Property",
+  "Repairs & Maintenance",
   "Software & Subscriptions",
+  "Supplies",
+  "Taxes and licenses",
   "Travel",
+  "Utilities",
   "Vehicle & Mileage",
+  "Employee benefit programs",
   "Wages & Salaries",
   "Other Expense",
 ] as const;
 
 export const TRANSFER_CATEGORIES = [
-  "Owner Contribution",
+  "Owner Contributions",
   "Owner Draw",
-  "Transfer Between Accounts",
+  "Transfer",
 ] as const;
 
 export const ALL_CATEGORIES = [

@@ -5,9 +5,9 @@ import DashboardClient from "./DashboardClient";
 import type { BankAccount } from "./accounts/actions";
 
 const TRANSFER_CATS = [
-  "Owner Contribution",
+  "Owner Contributions",
   "Owner Draw",
-  "Transfer Between Accounts",
+  "Transfer",
 ];
 
 export default async function DashboardPage() {
