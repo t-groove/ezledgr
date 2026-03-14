@@ -22,6 +22,7 @@ import {
 import { TrendingUp, TrendingDown, Printer, FileDown } from "lucide-react";
 import { getReportData } from "./actions";
 import type { ReportData, CategoryData } from "./actions";
+import type { BankAccount } from "../accounts/actions";
 
 // ── Formatting helpers ────────────────────────────────────────────────────────
 
@@ -232,23 +233,34 @@ function CategoryBreakdown({
 interface Props {
   initialData: ReportData;
   initialYear: number;
+  initialAccounts: BankAccount[];
 }
 
-export default function ReportsClient({ initialData, initialYear }: Props) {
+export default function ReportsClient({ initialData, initialYear, initialAccounts }: Props) {
   const [data, setData] = useState<ReportData>(initialData);
   const [year, setYear] = useState(initialYear);
+  const [selectedAccountId, setSelectedAccountId] = useState("");
   const [isPending, startTransition] = useTransition();
   const [showComingSoon, setShowComingSoon] = useState(false);
 
   const { monthly, expensesByCategory, incomeByCategory, totals, availableYears } = data;
   const hasData = totals.income > 0 || totals.expenses > 0;
 
-  function handleYearChange(newYear: number) {
-    setYear(newYear);
+  function refetch(newYear: number, newAccountId: string) {
     startTransition(async () => {
-      const newData = await getReportData(newYear);
+      const newData = await getReportData(newYear, newAccountId || undefined);
       setData(newData);
     });
+  }
+
+  function handleYearChange(newYear: number) {
+    setYear(newYear);
+    refetch(newYear, selectedAccountId);
+  }
+
+  function handleAccountChange(newAccountId: string) {
+    setSelectedAccountId(newAccountId);
+    refetch(year, newAccountId);
   }
 
   function handleExportPDF() {
@@ -284,6 +296,21 @@ export default function ReportsClient({ initialData, initialYear }: Props) {
           <p className="text-sm text-[#6B7A99] mt-1">Cash basis accounting</p>
         </div>
         <div className="flex items-center gap-3 flex-wrap">
+          {/* Account filter */}
+          {initialAccounts.length > 0 && (
+            <select
+              value={selectedAccountId}
+              onChange={(e) => handleAccountChange(e.target.value)}
+              className="bg-[#111827] border border-[#1E2A45] text-[#E8ECF4] text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-[#4F7FFF] cursor-pointer"
+            >
+              <option value="">All Accounts</option>
+              {initialAccounts.map((acc) => (
+                <option key={acc.id} value={acc.id}>
+                  {acc.bank_name} — {acc.name}
+                </option>
+              ))}
+            </select>
+          )}
           {/* Year selector */}
           <select
             value={year}

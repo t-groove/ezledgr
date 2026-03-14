@@ -3,6 +3,7 @@ import { createClient } from "../../../../supabase/server";
 import DashboardNavbar from "@/components/dashboard-navbar";
 import BookkeepingClient from "./BookkeepingClient";
 import { getTransactions } from "./actions";
+import { getBankAccounts } from "../accounts/actions";
 
 export default async function BookkeepingPage() {
   const supabase = await createClient();
@@ -14,7 +15,10 @@ export default async function BookkeepingPage() {
     redirect("/sign-in");
   }
 
-  const transactions = await getTransactions();
+  const [transactions, bankAccounts] = await Promise.all([
+    getTransactions(),
+    getBankAccounts(),
+  ]);
 
   return (
     <>
@@ -29,7 +33,10 @@ export default async function BookkeepingPage() {
               Cash basis accounting — track your income and expenses
             </p>
           </header>
-          <BookkeepingClient initialTransactions={transactions} />
+          <BookkeepingClient
+            initialTransactions={transactions}
+            initialBankAccounts={bankAccounts}
+          />
         </div>
       </main>
     </>

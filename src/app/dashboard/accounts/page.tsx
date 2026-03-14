@@ -1,11 +1,10 @@
 import { redirect } from "next/navigation";
 import { createClient } from "../../../../supabase/server";
 import DashboardNavbar from "@/components/dashboard-navbar";
-import ReportsClient from "./ReportsClient";
-import { getReportData } from "./actions";
-import { getBankAccounts } from "../accounts/actions";
+import AccountsClient from "./AccountsClient";
+import { getAccountSummary } from "./actions";
 
-export default async function ReportsPage() {
+export default async function AccountsPage() {
   const supabase = await createClient();
   const {
     data: { user },
@@ -15,17 +14,14 @@ export default async function ReportsPage() {
     redirect("/sign-in");
   }
 
-  const [data, bankAccounts] = await Promise.all([
-    getReportData(2026),
-    getBankAccounts(),
-  ]);
+  const accounts = await getAccountSummary();
 
   return (
     <>
       <DashboardNavbar />
       <main className="w-full bg-[#0A0F1E] min-h-screen">
         <div className="container mx-auto px-4 py-8">
-          <ReportsClient initialData={data} initialYear={2026} initialAccounts={bankAccounts} />
+          <AccountsClient initialAccounts={accounts} />
         </div>
       </main>
     </>

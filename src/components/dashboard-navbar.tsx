@@ -25,6 +25,12 @@ export default function DashboardNavbar() {
           </Link>
           <div className="flex items-center gap-1">
             <Link
+              href="/dashboard/accounts"
+              className="text-sm text-[#6B7A99] hover:text-[#E8ECF4] px-3 py-1.5 rounded-lg hover:bg-[#1E2A45] transition-colors"
+            >
+              Accounts
+            </Link>
+            <Link
               href="/dashboard/bookkeeping"
               className="text-sm text-[#6B7A99] hover:text-[#E8ECF4] px-3 py-1.5 rounded-lg hover:bg-[#1E2A45] transition-colors"
             >

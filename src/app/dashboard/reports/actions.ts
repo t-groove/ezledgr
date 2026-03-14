@@ -33,7 +33,7 @@ export interface ReportData {
   availableYears: number[];
 }
 
-export async function getReportData(year: number): Promise<ReportData> {
+export async function getReportData(year: number, accountId?: string): Promise<ReportData> {
   const supabase = await createClient();
   const {
     data: { user },
@@ -50,12 +50,18 @@ export async function getReportData(year: number): Promise<ReportData> {
   if (!user) return empty;
 
   // Fetch transactions for the given year
-  const { data: transactions } = await supabase
+  let query = supabase
     .from("transactions")
     .select("date, amount, type, category")
     .eq("user_id", user.id)
     .gte("date", `${year}-01-01`)
     .lte("date", `${year}-12-31`);
+
+  if (accountId) {
+    query = query.eq("account_id", accountId);
+  }
+
+  const { data: transactions } = await query;
 
   // Fetch all transaction dates to derive available years
   const { data: allDates } = await supabase
@@ -84,7 +90,6 @@ export async function getReportData(year: number): Promise<ReportData> {
   const incomeCategoryMap = new Map<string, number>();
 
   for (const t of plTransactions) {
-    // Parse month index from date string to avoid timezone issues
     const monthIndex = parseInt(t.date.substring(5, 7), 10) - 1;
     if (t.type === "income") {
       monthlyIncome[monthIndex] += t.amount;

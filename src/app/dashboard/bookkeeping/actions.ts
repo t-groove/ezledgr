@@ -4,7 +4,8 @@ import { createClient } from "../../../../supabase/server";
 import type { ParsedTransaction } from "@/lib/bookkeeping/parse-csv";
 
 export async function uploadTransactions(
-  transactions: ParsedTransaction[]
+  transactions: ParsedTransaction[],
+  accountId: string
 ): Promise<{ success: true; count: number } | { success: false; error: string }> {
   try {
     const supabase = await createClient();
@@ -23,6 +24,7 @@ export async function uploadTransactions(
       amount: t.amount,
       type: t.type,
       category: "Uncategorized",
+      account_id: accountId,
       raw_csv_row: t.raw_csv_row,
     }));
 
@@ -43,6 +45,7 @@ export interface TransactionFilters {
   endDate?: string;
   type?: string;
   category?: string;
+  accountId?: string;
 }
 
 export interface Transaction {
@@ -53,6 +56,7 @@ export interface Transaction {
   amount: number;
   type: "income" | "expense";
   category: string;
+  account_id: string | null;
   account_name: string | null;
   raw_csv_row: string | null;
   created_at: string;
@@ -85,6 +89,9 @@ export async function getTransactions(
   }
   if (filters?.category && filters.category !== "all") {
     query = query.eq("category", filters.category);
+  }
+  if (filters?.accountId && filters.accountId !== "all") {
+    query = query.eq("account_id", filters.accountId);
   }
 
   const { data, error } = await query;
