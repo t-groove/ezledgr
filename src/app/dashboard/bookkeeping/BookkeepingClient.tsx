@@ -698,6 +698,27 @@ export default function BookkeepingClient({
           />
         </div>
 
+        {/* Summary Bar */}
+        {transactions.length > 0 && (
+          <div className="grid grid-cols-3 gap-3 mb-5">
+            <div className="bg-[#0A0F1E] border border-[#1E2A45] rounded-lg p-4">
+              <p className="text-xs text-[#6B7A99] mb-1">Total Income</p>
+              <p className="text-lg font-bold text-[#22C55E]">{formatCurrency(totalIncome)}</p>
+            </div>
+            <div className="bg-[#0A0F1E] border border-[#1E2A45] rounded-lg p-4">
+              <p className="text-xs text-[#6B7A99] mb-1">Total Expenses</p>
+              <p className="text-lg font-bold text-[#EF4444]">{formatCurrency(totalExpenses)}</p>
+            </div>
+            <div className="bg-[#0A0F1E] border border-[#1E2A45] rounded-lg p-4">
+              <p className="text-xs text-[#6B7A99] mb-1">Net Profit / Loss</p>
+              <p className={`text-lg font-bold ${netProfit >= 0 ? "text-[#22C55E]" : "text-[#EF4444]"}`}>
+                {netProfit >= 0 ? "+" : ""}
+                {formatCurrency(netProfit)}
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Bulk action bar */}
         <div
           className={`mb-5 overflow-hidden transition-all duration-200 ease-in-out ${
@@ -741,27 +762,6 @@ export default function BookkeepingClient({
             </button>
           </div>
         </div>
-
-        {/* Summary Bar */}
-        {transactions.length > 0 && (
-          <div className="grid grid-cols-3 gap-3 mb-5">
-            <div className="bg-[#0A0F1E] border border-[#1E2A45] rounded-lg p-4">
-              <p className="text-xs text-[#6B7A99] mb-1">Total Income</p>
-              <p className="text-lg font-bold text-[#22C55E]">{formatCurrency(totalIncome)}</p>
-            </div>
-            <div className="bg-[#0A0F1E] border border-[#1E2A45] rounded-lg p-4">
-              <p className="text-xs text-[#6B7A99] mb-1">Total Expenses</p>
-              <p className="text-lg font-bold text-[#EF4444]">{formatCurrency(totalExpenses)}</p>
-            </div>
-            <div className="bg-[#0A0F1E] border border-[#1E2A45] rounded-lg p-4">
-              <p className="text-xs text-[#6B7A99] mb-1">Net Profit / Loss</p>
-              <p className={`text-lg font-bold ${netProfit >= 0 ? "text-[#22C55E]" : "text-[#EF4444]"}`}>
-                {netProfit >= 0 ? "+" : ""}
-                {formatCurrency(netProfit)}
-              </p>
-            </div>
-          </div>
-        )}
 
         {/* Empty State */}
         {transactions.length === 0 ? (
