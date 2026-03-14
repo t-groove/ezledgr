@@ -2,6 +2,7 @@ export const INCOME_CATEGORIES = [
   "Sales Revenue",
   "Service Revenue",
   "Consulting",
+  "Interest Income",
   "Refunds Received",
   "Other Income",
 ] as const;
