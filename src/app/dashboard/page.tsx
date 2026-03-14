@@ -2,7 +2,8 @@ import { redirect } from "next/navigation";
 import { createClient } from "../../../supabase/server";
 import DashboardNavbar from "@/components/dashboard-navbar";
 import DashboardClient from "./DashboardClient";
-import type { BankAccount } from "./accounts/actions";
+import { getAccountSummary } from "./accounts/actions";
+import type { AccountSummary } from "./accounts/actions";
 
 const TRANSFER_CATS = [
   "Owner Contributions",
@@ -24,7 +25,7 @@ export default async function DashboardPage() {
   const yearStart = `${currentYear}-01-01`;
   const today = new Date().toISOString().split("T")[0];
 
-  const [ytdTransactions, bankAccountsResult, uncategorizedResult] =
+  const [ytdTransactions, accountSummaries, uncategorizedResult] =
     await Promise.all([
       supabase
         .from("transactions")
@@ -33,12 +34,7 @@ export default async function DashboardPage() {
         .gte("date", yearStart)
         .lte("date", today),
 
-      supabase
-        .from("bank_accounts")
-        .select("*")
-        .eq("user_id", user.id)
-        .eq("is_active", true)
-        .order("created_at", { ascending: true }),
+      getAccountSummary(),
 
       supabase
         .from("transactions")
@@ -62,7 +58,7 @@ export default async function DashboardPage() {
   const ytdProfit = ytdIncome - ytdExpenses;
   const profitMargin = ytdIncome > 0 ? (ytdProfit / ytdIncome) * 100 : 0;
 
-  const bankAccounts = (bankAccountsResult.data ?? []) as BankAccount[];
+  const bankAccounts = accountSummaries as AccountSummary[];
   const uncategorizedCount = uncategorizedResult.count ?? 0;
   const userName = (user.email ?? "").split("@")[0];
 

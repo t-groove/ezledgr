@@ -11,7 +11,7 @@ import {
   FileText,
   CheckCircle,
 } from "lucide-react";
-import type { BankAccount } from "./accounts/actions";
+import type { AccountSummary } from "./accounts/actions";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -138,7 +138,7 @@ interface Props {
   ytdExpenses: number;
   ytdProfit: number;
   profitMargin: number;
-  bankAccounts: BankAccount[];
+  bankAccounts: AccountSummary[];
   uncategorizedCount: number;
   userName: string;
   currentYear: number;
@@ -288,9 +288,11 @@ export default function DashboardClient({
             {bankAccounts.map((acc) => (
               <div
                 key={acc.id}
-                className="bg-[#111827] border border-[#1E2A45] rounded-xl p-5"
+                className="bg-[#111827] border border-[#1E2A45] rounded-xl p-5 flex flex-col"
               >
-                <p className="text-xs text-[#6B7A99] mb-1">{acc.bank_name}</p>
+                {acc.bank_name && acc.bank_name !== "None" && (
+                  <p className="text-xs text-[#6B7A99] mb-1">{acc.bank_name}</p>
+                )}
                 <p className="font-syne font-semibold text-[#E8ECF4] text-base mb-3">
                   {acc.name}
                 </p>
@@ -308,9 +310,34 @@ export default function DashboardClient({
                     </span>
                   )}
                 </div>
+                <div className="mb-4">
+                  <p className="text-xs text-[#6B7A99] mb-1">Current Balance</p>
+                  {acc.transaction_count === 0 ? (
+                    <p className="text-sm text-[#6B7A99]">No transactions yet</p>
+                  ) : (
+                    <>
+                      <p
+                        className={`font-syne text-xl font-bold ${
+                          acc.net > 0
+                            ? "text-[#22C55E]"
+                            : acc.net < 0
+                            ? "text-[#EF4444]"
+                            : "text-[#6B7A99]"
+                        }`}
+                      >
+                        {acc.net > 0 ? "+" : ""}
+                        {formatCurrency(acc.net)}
+                      </p>
+                      <p className="text-xs text-[#6B7A99] mt-1">
+                        ↑ {formatCurrency(acc.total_income)} income&nbsp;&nbsp;↓{" "}
+                        {formatCurrency(acc.total_expenses)} expenses
+                      </p>
+                    </>
+                  )}
+                </div>
                 <Link
                   href={`/dashboard/bookkeeping?account=${acc.id}`}
-                  className="text-sm text-[#4F7FFF] hover:underline"
+                  className="text-sm text-[#4F7FFF] hover:underline mt-auto"
                 >
                   View transactions →
                 </Link>
