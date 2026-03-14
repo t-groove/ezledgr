@@ -319,7 +319,7 @@ function UploadPanel({ bankAccounts, onImportSuccess, onAccountCreated }: Upload
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-[#1E2A45] bg-[#0A0F1E]">
-                  {["Date", "Description", "Amount", "Type"].map((h) => (
+                  {["Date", "Description", "Amount", "Type", "Category"].map((h) => (
                     <th
                       key={h}
                       className="text-left px-4 py-3 text-[#6B7A99] font-medium"
@@ -362,6 +362,15 @@ function UploadPanel({ bankAccounts, onImportSuccess, onAccountCreated }: Upload
                       >
                         {t.type === "income" ? "Income" : "Expense"}
                       </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      {t.category ? (
+                        <span className="text-sm text-[#6B7A99]">{t.category}</span>
+                      ) : (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[#1E2A45] text-[#6B7A99]">
+                          Uncategorized
+                        </span>
+                      )}
                     </td>
                   </tr>
                 ))}

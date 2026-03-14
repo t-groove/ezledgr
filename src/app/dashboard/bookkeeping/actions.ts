@@ -23,7 +23,7 @@ export async function uploadTransactions(
       description: t.description,
       amount: t.amount,
       type: t.type,
-      category: "Uncategorized",
+      category: t.category ?? "Uncategorized",
       account_id: accountId,
       raw_csv_row: t.raw_csv_row,
     }));

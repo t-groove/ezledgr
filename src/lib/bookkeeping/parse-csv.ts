@@ -1,8 +1,11 @@
+import { ALL_CATEGORIES } from "./categories";
+
 export interface ParsedTransaction {
   date: string;
   description: string;
   amount: number;
   type: "income" | "expense";
+  category?: string;
   raw_csv_row: string;
 }
 
@@ -17,6 +20,7 @@ export interface ColumnMap {
   amountIdx: number;
   creditIdx: number;
   debitIdx: number;
+  categoryIdx: number;
 }
 
 function parseCSVLine(line: string): string[] {
@@ -100,7 +104,11 @@ export function detectColumns(headers: string[], dataRows?: string[][]): ColumnM
     ["debit", "debitamount", "withdrawal", "withdrawals", "debits"].includes(h)
   );
 
-  return { dateIdx, descriptionIdx, amountIdx, creditIdx, debitIdx };
+  const categoryIdx = normalized.findIndex((h) =>
+    ["category", "categories", "type", "classification", "expensetype"].includes(h)
+  );
+
+  return { dateIdx, descriptionIdx, amountIdx, creditIdx, debitIdx, categoryIdx };
 }
 
 function parseDate(raw: string): string | null {
@@ -195,8 +203,8 @@ export function parseCSV(csvString: string): ParseResult {
     dataStartIdx = headerLineIdx + 1;
   }
 
-  const { dateIdx, descriptionIdx, amountIdx, creditIdx, debitIdx } = isWellsFargoFormat
-    ? { dateIdx: 0, descriptionIdx: 4, amountIdx: 1, creditIdx: -1, debitIdx: -1 }
+  const { dateIdx, descriptionIdx, amountIdx, creditIdx, debitIdx, categoryIdx } = isWellsFargoFormat
+    ? { dateIdx: 0, descriptionIdx: 4, amountIdx: 1, creditIdx: -1, debitIdx: -1, categoryIdx: -1 }
     : columnMap!;
   const hasSeparateDebitCredit = !isWellsFargoFormat && (creditIdx !== -1 || debitIdx !== -1);
 
@@ -253,11 +261,23 @@ export function parseCSV(csvString: string): ParseResult {
       continue;
     }
 
+    let category: string | undefined;
+    if (categoryIdx !== -1 && cols[categoryIdx]) {
+      const rawCat = (cols[categoryIdx] ?? "").replace(/^["']|["']$/g, "").trim();
+      if (rawCat) {
+        const matched = ALL_CATEGORIES.find(
+          (c) => c.toLowerCase() === rawCat.toLowerCase()
+        );
+        if (matched) category = matched;
+      }
+    }
+
     transactions.push({
       date: dateStr,
       description,
       amount,
       type,
+      category,
       raw_csv_row: raw,
     });
   }
