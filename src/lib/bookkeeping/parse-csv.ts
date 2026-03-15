@@ -17,6 +17,8 @@ export interface ParseResult {
 export interface ColumnMap {
   dateIdx: number;
   descriptionIdx: number;
+  referenceIdx: number;
+  payeeIdx: number;
   amountIdx: number;
   creditIdx: number;
   debitIdx: number;
@@ -60,35 +62,54 @@ export function detectColumns(headers: string[], dataRows?: string[][]): ColumnM
     ["date", "transactiondate", "postdate", "posteddate", "settledate"].includes(h)
   );
 
+  // Find description column — excludes "payee" and "reference" so they don't
+  // shadow a dedicated Description column (e.g. Relay CSV has both).
   let descriptionIdx = normalized.findIndex((h) =>
     [
       "description",
       "memo",
       "name",
-      "payee",
       "details",
       "merchant",
       "narrative",
       "transactiondescription",
       "extendeddescription",
-      "reference",
       "notes",
       "particulars",
       "remarks",
     ].includes(h)
   );
-
-  // If the detected description column is empty in the first 3 data rows,
-  // fall back to a "reference" column if one exists (e.g. Relay CSV format).
-  if (descriptionIdx !== -1 && dataRows && dataRows.length >= 3) {
-    const first3Empty = dataRows.slice(0, 3).every(
-      (row) => !(row[descriptionIdx] ?? "").trim()
+  // Fall back to payee/vendor only when no dedicated description column exists
+  if (descriptionIdx === -1) {
+    descriptionIdx = normalized.findIndex((h) =>
+      ["payee", "vendor", "party"].includes(h)
     );
-    if (first3Empty) {
-      const refIdx = normalized.findIndex((h) => h === "reference");
-      if (refIdx !== -1) {
-        descriptionIdx = refIdx;
-      }
+  }
+
+  // Reference column — used as smart fallback for formats where Description is empty
+  const referenceIdx = normalized.findIndex((h) =>
+    ["reference", "ref", "memo", "notes", "particulars", "remarks", "narrative"].includes(h)
+  );
+
+  // Payee column — fallback when both description and reference are empty for a row
+  const payeeIdx = normalized.findIndex((h) =>
+    ["payee", "vendor", "merchant", "party"].includes(h)
+  );
+
+  // Smart fallback: if both description and reference columns exist, check which
+  // has more content in the first 5 data rows and prefer that one (handles Relay
+  // CSV where Description is always empty but Reference has the actual detail).
+  let finalDescriptionIdx = descriptionIdx;
+  if (descriptionIdx !== -1 && referenceIdx !== -1 && dataRows && dataRows.length > 0) {
+    const sampleRows = dataRows.slice(0, 5);
+    let descriptionContent = 0;
+    let referenceContent = 0;
+    sampleRows.forEach((row) => {
+      if (row[descriptionIdx]?.trim()) descriptionContent++;
+      if (row[referenceIdx]?.trim()) referenceContent++;
+    });
+    if (referenceContent > descriptionContent) {
+      finalDescriptionIdx = referenceIdx;
     }
   }
 
@@ -108,7 +129,16 @@ export function detectColumns(headers: string[], dataRows?: string[][]): ColumnM
     ["category", "categories", "type", "classification", "expensetype"].includes(h)
   );
 
-  return { dateIdx, descriptionIdx, amountIdx, creditIdx, debitIdx, categoryIdx };
+  return {
+    dateIdx,
+    descriptionIdx: finalDescriptionIdx,
+    referenceIdx,
+    payeeIdx,
+    amountIdx,
+    creditIdx,
+    debitIdx,
+    categoryIdx,
+  };
 }
 
 function parseDate(raw: string): string | null {
@@ -139,7 +169,8 @@ function parseDate(raw: string): string | null {
 
 function parseAmount(raw: string): number | null {
   if (!raw || raw.trim() === "" || raw.trim() === "-") return null;
-  const cleaned = raw.replace(/[$,\s'"]/g, "");
+  // Strip currency symbols, commas, whitespace, quotes, and leading + sign
+  const cleaned = raw.replace(/[$,\s+'"]/g, "");
   const num = parseFloat(cleaned);
   return isNaN(num) ? null : num;
 }
@@ -184,7 +215,7 @@ export function parseCSV(csvString: string): ParseResult {
       if (!line) continue;
       const headers = parseCSVLine(line);
       const dataRows = lines
-        .slice(i + 1, i + 4)
+        .slice(i + 1, i + 6)
         .filter((l) => l.trim())
         .map((l) => parseCSVLine(l));
       const map = detectColumns(headers, dataRows);
@@ -203,9 +234,10 @@ export function parseCSV(csvString: string): ParseResult {
     dataStartIdx = headerLineIdx + 1;
   }
 
-  const { dateIdx, descriptionIdx, amountIdx, creditIdx, debitIdx, categoryIdx } = isWellsFargoFormat
-    ? { dateIdx: 0, descriptionIdx: 4, amountIdx: 1, creditIdx: -1, debitIdx: -1, categoryIdx: -1 }
-    : columnMap!;
+  const { dateIdx, descriptionIdx, referenceIdx, payeeIdx, amountIdx, creditIdx, debitIdx, categoryIdx } =
+    isWellsFargoFormat
+      ? { dateIdx: 0, descriptionIdx: 4, referenceIdx: -1, payeeIdx: -1, amountIdx: 1, creditIdx: -1, debitIdx: -1, categoryIdx: -1 }
+      : columnMap!;
   const hasSeparateDebitCredit = !isWellsFargoFormat && (creditIdx !== -1 || debitIdx !== -1);
 
   for (let i = dataStartIdx; i < lines.length; i++) {
@@ -221,7 +253,17 @@ export function parseCSV(csvString: string): ParseResult {
       continue;
     }
 
-    const description = (cols[descriptionIdx] ?? "").replace(/^["']|["']$/g, "").trim();
+    // Build description with fallback chain: primary → payee → reference
+    let description = (cols[descriptionIdx] ?? "").replace(/^["']|["']$/g, "").trim();
+
+    if (!description && payeeIdx !== -1) {
+      description = (cols[payeeIdx] ?? "").replace(/^["']|["']$/g, "").trim();
+    }
+
+    if (!description && referenceIdx !== -1 && referenceIdx !== descriptionIdx) {
+      description = (cols[referenceIdx] ?? "").replace(/^["']|["']$/g, "").trim();
+    }
+
     if (!description) {
       errors.push({ row: raw, reason: "Empty description" });
       continue;
