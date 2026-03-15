@@ -194,11 +194,17 @@ interface UploadPanelProps {
 function UploadPanel({ bankAccounts, onImportSuccess, onAccountCreated }: UploadPanelProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [preview, setPreview] = useState<ParsedTransaction[] | null>(null);
+  const [parsedTransactions, setParsedTransactions] = useState<ParsedTransaction[]>([]);
   const [parseError, setParseError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [toast, setToast] = useState<ToastState | null>(null);
   const [selectedAccountId, setSelectedAccountId] = useState("");
-  const [showMiniForm, setShowMiniForm] = useState(false);
+  const [showAccountPopup, setShowAccountPopup] = useState(false);
+  const [showMiniAccountForm, setShowMiniAccountForm] = useState(false);
+  const [newAccountName, setNewAccountName] = useState("");
+  const [newAccountBank, setNewAccountBank] = useState("");
+  const [newAccountType, setNewAccountType] = useState("checking");
+  const [newAccountLastFour, setNewAccountLastFour] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFile = useCallback((file: File) => {
@@ -219,7 +225,9 @@ function UploadPanel({ bankAccounts, onImportSuccess, onAccountCreated }: Upload
         );
         setPreview(null);
       } else {
-        setPreview(result.transactions);
+        setParsedTransactions(result.transactions);
+        setShowAccountPopup(true);
+        setPreview(null);
       }
     };
     reader.readAsText(file);
@@ -235,20 +243,44 @@ function UploadPanel({ bankAccounts, onImportSuccess, onAccountCreated }: Upload
     [handleFile]
   );
 
-  const handleAccountSelectChange = (val: string) => {
-    if (val === "__new__") {
-      setShowMiniForm(true);
-      setSelectedAccountId("");
-    } else {
-      setShowMiniForm(false);
-      setSelectedAccountId(val);
+  const handleAccountSelected = () => {
+    if (!selectedAccountId) return;
+    setShowAccountPopup(false);
+    setPreview(parsedTransactions);
+  };
+
+  const handleCancelUpload = () => {
+    setShowAccountPopup(false);
+    setParsedTransactions([]);
+    setSelectedAccountId("");
+    setShowMiniAccountForm(false);
+    setNewAccountName("");
+    setNewAccountBank("");
+    setNewAccountType("checking");
+    setNewAccountLastFour("");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
     }
   };
 
-  const handleMiniFormSave = (account: BankAccount) => {
-    onAccountCreated(account);
-    setSelectedAccountId(account.id);
-    setShowMiniForm(false);
+  const handleCreateAccountInline = async () => {
+    const result = await createBankAccount({
+      name: newAccountName,
+      bank_name: newAccountBank,
+      account_type: newAccountType,
+      last_four: newAccountLastFour || undefined,
+    });
+    if (result.success && result.account) {
+      onAccountCreated(result.account);
+      setSelectedAccountId(result.account.id);
+      setShowMiniAccountForm(false);
+      setNewAccountName("");
+      setNewAccountBank("");
+      setNewAccountType("checking");
+      setNewAccountLastFour("");
+    } else if (!result.success) {
+      setParseError(result.error ?? "Failed to create account");
+    }
   };
 
   const handleImport = () => {
@@ -274,7 +306,7 @@ function UploadPanel({ bankAccounts, onImportSuccess, onAccountCreated }: Upload
     "bg-[#0A0F1E] border border-[#1E2A45] text-[#E8ECF4] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#4F7FFF] placeholder:text-[#6B7A99]";
 
   return (
-    <div className="bg-[#111827] border border-[#1E2A45] rounded-xl p-6 mb-6">
+    <div className="bg-[#111827] border border-[#1E2A45] rounded-xl p-6 mb-6 relative">
       {!preview ? (
         <div className="flex flex-col sm:flex-row gap-6 items-start">
           {/* Left: text content */}
@@ -400,43 +432,24 @@ function UploadPanel({ bankAccounts, onImportSuccess, onAccountCreated }: Upload
             </table>
           </div>
 
-          {/* Account selector */}
-          <div className="mb-5">
-            <p className="text-sm font-medium text-[#E8ECF4] mb-2">
-              Which account are these transactions from?
-            </p>
-            <select
-              value={showMiniForm ? "__new__" : selectedAccountId}
-              onChange={(e) => handleAccountSelectChange(e.target.value)}
-              className={`${inputCls} w-full sm:w-auto min-w-[280px]`}
+          {/* Selected account confirmation */}
+          <div className="flex items-center gap-2 mb-4 text-sm text-[#6B7A99]">
+            <span>Importing to:</span>
+            <span className="text-[#E8ECF4] font-medium">
+              {bankAccounts.find((a) => a.id === selectedAccountId)?.name ?? "Unknown"}
+            </span>
+            <button
+              onClick={() => setShowAccountPopup(true)}
+              className="text-[#4F7FFF] hover:underline text-xs"
             >
-              <option value="">Select an account…</option>
-              {bankAccounts.map((acc) => (
-                <option key={acc.id} value={acc.id}>
-                  {accountLabel(acc)}
-                </option>
-              ))}
-              <option value="__new__">+ Create new account</option>
-            </select>
-
-            {showMiniForm && (
-              <MiniAccountForm
-                onSave={handleMiniFormSave}
-                onCancel={() => setShowMiniForm(false)}
-              />
-            )}
-
-            {!selectedAccountId && !showMiniForm && preview && (
-              <p className="mt-2 text-xs text-[#F59E0B]">
-                Please select an account to continue
-              </p>
-            )}
+              Change
+            </button>
           </div>
 
           <div className="flex gap-3">
             <button
               onClick={handleImport}
-              disabled={isPending || !selectedAccountId}
+              disabled={isPending}
               className="flex items-center gap-2 px-5 py-2.5 bg-[#4F7FFF] hover:bg-[#3D6FEF] disabled:opacity-60 text-white font-medium rounded-lg text-sm transition-colors"
             >
               <Upload size={16} />
@@ -445,12 +458,123 @@ function UploadPanel({ bankAccounts, onImportSuccess, onAccountCreated }: Upload
                 : `Import ${preview.length} transactions`}
             </button>
             <button
-              onClick={() => { setPreview(null); setSelectedAccountId(""); setShowMiniForm(false); }}
+              onClick={() => { setPreview(null); setParsedTransactions([]); setSelectedAccountId(""); }}
               disabled={isPending}
               className="px-5 py-2.5 border border-[#1E2A45] text-[#6B7A99] hover:text-[#E8ECF4] hover:border-[#4F7FFF]/50 rounded-lg text-sm transition-colors"
             >
               Cancel
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Account selection popup */}
+      {showAccountPopup && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-[#0A0F1E]/80 backdrop-blur-sm rounded-xl">
+          <div className="bg-[#111827] border border-[#1E2A45] rounded-xl p-6 w-full max-w-md mx-4 shadow-2xl">
+            <h3 className="font-syne font-bold text-lg text-[#E8ECF4] mb-1">
+              Which account is this?
+            </h3>
+            <p className="text-sm text-[#6B7A99] mb-5">
+              Select the bank account these transactions belong to before importing.
+            </p>
+
+            <div className="bg-[#0A0F1E] border border-[#1E2A45] rounded-lg px-4 py-3 mb-5 flex items-center justify-between">
+              <span className="text-sm text-[#6B7A99]">Transactions found</span>
+              <span className="text-[#E8ECF4] font-semibold">{parsedTransactions.length}</span>
+            </div>
+
+            <label className="block text-sm text-[#6B7A99] mb-2">Select account</label>
+            <select
+              value={selectedAccountId}
+              onChange={(e) => {
+                if (e.target.value === "__new__") {
+                  setShowMiniAccountForm(true);
+                } else {
+                  setSelectedAccountId(e.target.value);
+                  setShowMiniAccountForm(false);
+                }
+              }}
+              className="w-full bg-[#0A0F1E] border border-[#1E2A45] text-[#E8ECF4] rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#4F7FFF] mb-4"
+            >
+              <option value="">Choose an account...</option>
+              {bankAccounts.map((account) => (
+                <option key={account.id} value={account.id}>
+                  {account.bank_name && account.bank_name !== "None"
+                    ? `${account.bank_name} — `
+                    : ""}
+                  {account.name}
+                  {account.last_four ? ` (••••${account.last_four})` : ""}
+                </option>
+              ))}
+              <option value="__new__">+ Create new account</option>
+            </select>
+
+            {showMiniAccountForm && (
+              <div className="bg-[#0A0F1E] border border-[#1E2A45] rounded-lg p-4 mb-4">
+                <p className="text-sm font-medium text-[#E8ECF4] mb-3">New account</p>
+                <div className="space-y-3">
+                  <input
+                    type="text"
+                    placeholder="Account nickname *"
+                    value={newAccountName}
+                    onChange={(e) => setNewAccountName(e.target.value)}
+                    className="w-full bg-[#111827] border border-[#1E2A45] text-[#E8ECF4] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#4F7FFF]"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Bank name *"
+                    value={newAccountBank}
+                    onChange={(e) => setNewAccountBank(e.target.value)}
+                    className="w-full bg-[#111827] border border-[#1E2A45] text-[#E8ECF4] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#4F7FFF]"
+                  />
+                  <div className="flex gap-2">
+                    <select
+                      value={newAccountType}
+                      onChange={(e) => setNewAccountType(e.target.value)}
+                      className="flex-1 bg-[#111827] border border-[#1E2A45] text-[#E8ECF4] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#4F7FFF]"
+                    >
+                      <option value="checking">Checking</option>
+                      <option value="savings">Savings</option>
+                      <option value="credit_card">Credit Card</option>
+                      <option value="cash">Cash</option>
+                      <option value="other">Other</option>
+                    </select>
+                    <input
+                      type="text"
+                      placeholder="Last 4"
+                      maxLength={4}
+                      value={newAccountLastFour}
+                      onChange={(e) => setNewAccountLastFour(e.target.value)}
+                      className="w-20 bg-[#111827] border border-[#1E2A45] text-[#E8ECF4] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#4F7FFF]"
+                    />
+                  </div>
+                  <button
+                    onClick={handleCreateAccountInline}
+                    disabled={!newAccountName || !newAccountBank}
+                    className="w-full bg-[#4F7FFF] hover:bg-[#3D6FEF] disabled:opacity-50 text-white font-medium rounded-lg py-2 text-sm transition-colors"
+                  >
+                    Create account
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <div className="flex gap-3">
+              <button
+                onClick={handleAccountSelected}
+                disabled={!selectedAccountId}
+                className="flex-1 bg-[#4F7FFF] hover:bg-[#3D6FEF] disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-lg py-2.5 text-sm transition-colors"
+              >
+                Continue →
+              </button>
+              <button
+                onClick={handleCancelUpload}
+                className="px-4 py-2.5 border border-[#1E2A45] text-[#6B7A99] hover:text-[#E8ECF4] rounded-lg text-sm transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}
