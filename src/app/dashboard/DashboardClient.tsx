@@ -253,94 +253,7 @@ export default function DashboardClient({
         </div>
       </section>
 
-      {/* ── Section 2: Bank Accounts ─────────────────────────────────────── */}
-      <section>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-syne text-xl font-semibold text-[#E8ECF4]">
-            Bank Accounts
-          </h2>
-          <Link
-            href="/dashboard/accounts"
-            className="text-sm text-[#4F7FFF] hover:underline"
-          >
-            Manage accounts →
-          </Link>
-        </div>
-
-        {bankAccounts.length === 0 ? (
-          <div className="bg-[#111827] border border-[#1E2A45] rounded-xl p-8 text-center">
-            <Building2 size={32} className="text-[#6B7A99] mx-auto mb-3" />
-            <p className="text-[#E8ECF4] font-medium mb-1">
-              No bank accounts connected yet
-            </p>
-            <p className="text-sm text-[#6B7A99] mb-4">
-              Add a bank account to start organizing your transactions.
-            </p>
-            <Link
-              href="/dashboard/accounts"
-              className="inline-flex items-center px-4 py-2 bg-[#4F7FFF] hover:bg-[#3D6FEF] text-white text-sm font-medium rounded-lg transition-colors"
-            >
-              Add account
-            </Link>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {bankAccounts.map((acc) => (
-              <div
-                key={acc.id}
-                className="bg-[#111827] border border-[#1E2A45] rounded-xl p-5 flex flex-col"
-              >
-                <div className="flex items-start justify-between mb-1">
-                  {acc.bank_name && acc.bank_name !== "None" ? (
-                    <p className="text-xs text-[#6B7A99]">{acc.bank_name}</p>
-                  ) : (
-                    <span />
-                  )}
-                  {acc.transaction_count > 0 && (
-                    <p
-                      className={`font-syne font-bold text-lg leading-none ${
-                        acc.net > 0
-                          ? "text-[#22C55E]"
-                          : acc.net < 0
-                          ? "text-[#EF4444]"
-                          : "text-[#6B7A99]"
-                      }`}
-                    >
-                      {acc.net > 0 ? "+" : ""}
-                      {formatCurrency(acc.net)}
-                    </p>
-                  )}
-                </div>
-                <p className="font-syne font-semibold text-[#E8ECF4] text-base mb-3">
-                  {acc.name}
-                </p>
-                <div className="flex items-center gap-2 mb-4">
-                  <span
-                    className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-                      TYPE_COLORS[acc.account_type] ?? TYPE_COLORS.other
-                    }`}
-                  >
-                    {TYPE_LABELS[acc.account_type] ?? "Other"}
-                  </span>
-                  {acc.last_four && (
-                    <span className="text-sm text-[#6B7A99] font-mono">
-                      ••••{acc.last_four}
-                    </span>
-                  )}
-                </div>
-                <Link
-                  href={`/dashboard/bookkeeping?account=${acc.id}`}
-                  className="text-sm text-[#4F7FFF] hover:underline mt-auto"
-                >
-                  View transactions →
-                </Link>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
-
-      {/* ── Section 3: Action Items ───────────────────────────────────────── */}
+      {/* ── Section 2: Action Items ───────────────────────────────────────── */}
       <section>
         <div className="mb-4">
           <h2 className="font-syne text-xl font-semibold text-[#E8ECF4]">
@@ -406,6 +319,93 @@ export default function DashboardClient({
             linkLabel="View report →"
           />
         </div>
+      </section>
+
+      {/* ── Section 3: Bank Accounts ─────────────────────────────────────── */}
+      <section>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-syne text-xl font-semibold text-[#E8ECF4]">
+            Bank Accounts
+          </h2>
+          <Link
+            href="/dashboard/accounts"
+            className="text-sm text-[#4F7FFF] hover:underline"
+          >
+            Manage accounts →
+          </Link>
+        </div>
+
+        {bankAccounts.length === 0 ? (
+          <div className="bg-[#111827] border border-[#1E2A45] rounded-xl p-8 text-center">
+            <Building2 size={32} className="text-[#6B7A99] mx-auto mb-3" />
+            <p className="text-[#E8ECF4] font-medium mb-1">
+              No bank accounts connected yet
+            </p>
+            <p className="text-sm text-[#6B7A99] mb-4">
+              Add a bank account to start organizing your transactions.
+            </p>
+            <Link
+              href="/dashboard/accounts"
+              className="inline-flex items-center px-4 py-2 bg-[#4F7FFF] hover:bg-[#3D6FEF] text-white text-sm font-medium rounded-lg transition-colors"
+            >
+              Add account
+            </Link>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {bankAccounts.map((acc) => (
+              <div
+                key={acc.id}
+                className="bg-[#111827] border border-[#1E2A45] rounded-xl p-5 flex flex-col"
+              >
+                <div className="flex items-start justify-between mb-1">
+                  {acc.bank_name && acc.bank_name !== "None" ? (
+                    <p className="text-xs text-[#6B7A99]">{acc.bank_name}</p>
+                  ) : (
+                    <span />
+                  )}
+                  {acc.transaction_count > 0 && (
+                    <p
+                      className={`font-syne font-bold text-2xl leading-none mt-1 ${
+                        acc.net > 0
+                          ? "text-[#22C55E]"
+                          : acc.net < 0
+                          ? "text-[#EF4444]"
+                          : "text-[#6B7A99]"
+                      }`}
+                    >
+                      {acc.net > 0 ? "+" : ""}
+                      {formatCurrency(acc.net)}
+                    </p>
+                  )}
+                </div>
+                <p className="font-syne font-semibold text-[#E8ECF4] text-base mb-3">
+                  {acc.name}
+                </p>
+                <div className="flex items-center gap-2 mb-4">
+                  <span
+                    className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                      TYPE_COLORS[acc.account_type] ?? TYPE_COLORS.other
+                    }`}
+                  >
+                    {TYPE_LABELS[acc.account_type] ?? "Other"}
+                  </span>
+                  {acc.last_four && (
+                    <span className="text-sm text-[#6B7A99] font-mono">
+                      ••••{acc.last_four}
+                    </span>
+                  )}
+                </div>
+                <Link
+                  href={`/dashboard/bookkeeping?account=${acc.id}`}
+                  className="text-sm text-[#4F7FFF] hover:underline mt-auto"
+                >
+                  View transactions →
+                </Link>
+              </div>
+            ))}
+          </div>
+        )}
       </section>
     </div>
   );
