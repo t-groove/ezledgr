@@ -32,14 +32,25 @@ export interface StatementRow {
 
 export interface StatementData {
   months: string[];
+  // Income
   incomeRows: StatementRow[];
   totalIncome: number[];
   totalIncomeAnnual: number;
+  // COGS (empty for service business)
+  cogsRows: StatementRow[];
+  totalCogs: number[];
+  totalCogsAnnual: number;
+  // Gross Profit = Total Income - Total COGS
+  grossProfit: number[];
+  grossProfitAnnual: number;
+  // Operating Expenses
   expenseRows: StatementRow[];
   totalExpenses: number[];
   totalExpensesAnnual: number;
-  grossProfit: number[];
-  grossProfitAnnual: number;
+  // Net Operating Income = Gross Profit - Total Expenses
+  netOperatingIncome: number[];
+  netOperatingIncomeAnnual: number;
+  // Net Income = Net Operating Income
   netIncome: number[];
   netIncomeAnnual: number;
   dateRange: string;
@@ -85,17 +96,23 @@ export async function getReportData(year: number, accountId?: string): Promise<R
   } = await supabase.auth.getUser();
 
   function emptyStatement(year: number): StatementData {
+    const zeros = new Array(12).fill(0);
     return {
       months: MONTH_NAMES,
       incomeRows: [],
-      totalIncome: new Array(12).fill(0),
+      totalIncome: zeros,
       totalIncomeAnnual: 0,
-      expenseRows: [],
-      totalExpenses: new Array(12).fill(0),
-      totalExpensesAnnual: 0,
-      grossProfit: new Array(12).fill(0),
+      cogsRows: [],
+      totalCogs: zeros,
+      totalCogsAnnual: 0,
+      grossProfit: zeros,
       grossProfitAnnual: 0,
-      netIncome: new Array(12).fill(0),
+      expenseRows: [],
+      totalExpenses: zeros,
+      totalExpensesAnnual: 0,
+      netOperatingIncome: zeros,
+      netOperatingIncomeAnnual: 0,
+      netIncome: zeros,
       netIncomeAnnual: 0,
       dateRange: `January – December ${year}`,
       companyLabel: "Profit and Loss",
@@ -214,21 +231,35 @@ export async function getReportData(year: number, accountId?: string): Promise<R
     .filter((r) => r.monthly.some((val) => val !== 0))
     .sort((a, b) => b.total - a.total);
 
-  const grossProfit = monthlyIncome.map((inc, i) => inc - monthlyExpenses[i]);
+  // COGS = 0 for service business
+  const totalCogs = new Array(12).fill(0);
+  const totalCogsAnnual = 0;
+
+  // Gross Profit = Total Income - Total COGS (= Total Income for service biz)
+  const grossProfit = monthlyIncome.map((inc, i) => inc - totalCogs[i]);
   const grossProfitAnnual = grossProfit.reduce((s, v) => s + v, 0);
+
+  // Net Operating Income = Gross Profit - Total Expenses
+  const netOperatingIncome = grossProfit.map((gp, i) => gp - monthlyExpenses[i]);
+  const netOperatingIncomeAnnual = netOperatingIncome.reduce((s, v) => s + v, 0);
 
   const statement: StatementData = {
     months: MONTH_NAMES,
     incomeRows,
     totalIncome: monthlyIncome,
     totalIncomeAnnual: totalIncome,
+    cogsRows: [],
+    totalCogs,
+    totalCogsAnnual,
+    grossProfit,
+    grossProfitAnnual,
     expenseRows,
     totalExpenses: monthlyExpenses,
     totalExpensesAnnual: totalExpenses,
-    grossProfit,
-    grossProfitAnnual,
-    netIncome: grossProfit,
-    netIncomeAnnual: grossProfitAnnual,
+    netOperatingIncome,
+    netOperatingIncomeAnnual,
+    netIncome: netOperatingIncome,
+    netIncomeAnnual: netOperatingIncomeAnnual,
     dateRange: `January – December ${year}`,
     companyLabel: "Profit and Loss",
   };

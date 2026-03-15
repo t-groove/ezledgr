@@ -17,43 +17,54 @@ function fmt(v: number): string {
   return fmtCurrency.format(v);
 }
 
-function fmtSign(v: number): string {
-  if (v === 0) return "—";
-  return fmtCurrency.format(v);
-}
-
 // ── CSV export ────────────────────────────────────────────────────────────────
 
 function downloadStatementCSV(statement: StatementData, year: number) {
-  const { months, incomeRows, totalIncome, totalIncomeAnnual,
-          expenseRows, totalExpenses, totalExpensesAnnual,
-          grossProfit, grossProfitAnnual, netIncome, netIncomeAnnual, dateRange } = statement;
+  const {
+    months, incomeRows, totalIncome, totalIncomeAnnual,
+    cogsRows, totalCogs, totalCogsAnnual,
+    grossProfit, grossProfitAnnual,
+    expenseRows, totalExpenses, totalExpensesAnnual,
+    netOperatingIncome, netOperatingIncomeAnnual,
+    netIncome, netIncomeAnnual, dateRange,
+  } = statement;
 
   const rows: string[][] = [];
   const header = ["", ...months, "Total"];
-
   const csvVal = (v: number) => v === 0 ? "" : v.toFixed(2);
 
   rows.push(["Profit and Loss"]);
   rows.push([dateRange]);
   rows.push([]);
   rows.push(header);
+
   rows.push(["INCOME"]);
   for (const r of incomeRows) {
     rows.push([r.category, ...r.monthly.map(csvVal), csvVal(r.total)]);
   }
   rows.push(["Total Income", ...totalIncome.map(csvVal), csvVal(totalIncomeAnnual)]);
   rows.push([]);
+
+  rows.push(["COST OF GOODS SOLD"]);
+  for (const r of cogsRows) {
+    rows.push([r.category, ...r.monthly.map(csvVal), csvVal(r.total)]);
+  }
+  rows.push(["Total COGS", ...totalCogs.map(csvVal), csvVal(totalCogsAnnual)]);
+  rows.push([]);
+
   rows.push(["Gross Profit", ...grossProfit.map(csvVal), csvVal(grossProfitAnnual)]);
   rows.push([]);
-  rows.push(["EXPENSES"]);
+
+  rows.push(["OPERATING EXPENSES"]);
   for (const r of expenseRows) {
     rows.push([r.category, ...r.monthly.map(csvVal), csvVal(r.total)]);
   }
   rows.push(["Total Expenses", ...totalExpenses.map(csvVal), csvVal(totalExpensesAnnual)]);
   rows.push([]);
-  rows.push(["Net Operating Income", ...grossProfit.map(csvVal), csvVal(grossProfitAnnual)]);
+
+  rows.push(["Net Operating Income", ...netOperatingIncome.map(csvVal), csvVal(netOperatingIncomeAnnual)]);
   rows.push([]);
+
   rows.push(["Net Income", ...netIncome.map(csvVal), csvVal(netIncomeAnnual)]);
 
   const csv = rows
@@ -69,10 +80,12 @@ function downloadStatementCSV(statement: StatementData, year: number) {
   URL.revokeObjectURL(url);
 }
 
-// ── Sub-components ────────────────────────────────────────────────────────────
+// ── Sticky shadow constants ────────────────────────────────────────────────────
 
 const stickyLeft = { boxShadow: '4px 0 8px rgba(0,0,0,0.3)' } as const;
 const stickyRight = { boxShadow: '-4px 0 8px rgba(0,0,0,0.3)' } as const;
+
+// ── Sub-components ────────────────────────────────────────────────────────────
 
 function SectionHeaderRow({ label, colCount }: { label: string; colCount: number }) {
   return (
@@ -107,13 +120,14 @@ interface CategoryRowProps {
   monthly: number[];
   total: number;
   indent?: boolean;
+  muted?: boolean;
 }
 
-function CategoryRow({ label, monthly, total, indent = true }: CategoryRowProps) {
+function CategoryRow({ label, monthly, total, indent = true, muted = false }: CategoryRowProps) {
   return (
     <tr className="hover:bg-[#1E2A45]/20 transition-colors">
       <td
-        className={`sticky left-0 bg-[#111827] px-4 py-1.5 text-sm text-[#E8ECF4] min-w-[180px] lg:min-w-[220px] z-10 ${indent ? "pl-8" : "pl-4"}`}
+        className={`sticky left-0 bg-[#111827] px-4 py-1.5 text-sm min-w-[180px] lg:min-w-[220px] z-10 ${indent ? "pl-8" : "pl-4"} ${muted ? "text-[#6B7A99] italic" : "text-[#E8ECF4]"}`}
         style={stickyLeft}
       >
         {label}
@@ -122,19 +136,19 @@ function CategoryRow({ label, monthly, total, indent = true }: CategoryRowProps)
         <td
           key={i}
           className={`px-3 py-1.5 text-right text-sm min-w-[80px] lg:min-w-[100px] tabular-nums ${
-            v === 0 ? "text-[#6B7A99]" : v < 0 ? "text-[#EF4444]" : "text-[#E8ECF4]"
+            muted ? "text-[#6B7A99]" : v === 0 ? "text-[#6B7A99]" : v < 0 ? "text-[#EF4444]" : "text-[#E8ECF4]"
           }`}
         >
-          {fmt(v)}
+          {muted ? "—" : fmt(v)}
         </td>
       ))}
       <td
         className={`sticky right-0 bg-[#111827] px-3 py-1.5 text-right text-sm font-semibold min-w-[110px] tabular-nums border-l border-[#1E2A45] z-10 ${
-          total === 0 ? "text-[#6B7A99]" : total < 0 ? "text-[#EF4444]" : "text-[#E8ECF4]"
+          muted ? "text-[#6B7A99]" : total === 0 ? "text-[#6B7A99]" : total < 0 ? "text-[#EF4444]" : "text-[#E8ECF4]"
         }`}
         style={stickyRight}
       >
-        {fmt(total)}
+        {muted ? "—" : fmt(total)}
       </td>
     </tr>
   );
@@ -177,13 +191,41 @@ function TotalRow({ label, monthly, total }: TotalRowProps) {
   );
 }
 
-interface ProfitRowProps {
-  label: string;
-  monthly: number[];
-  total: number;
+// Gross Profit row — blue when positive (distinguishes from Net Income)
+function GrossProfitRow({ label, monthly, total }: TotalRowProps) {
+  const color = total > 0 ? "#4F7FFF" : total < 0 ? "#EF4444" : "#6B7A99";
+  return (
+    <tr className="bg-[#0A0F1E] border-t-2 border-[#4F7FFF]">
+      <td
+        className="sticky left-0 bg-[#0A0F1E] px-4 py-2.5 text-base font-bold font-syne text-[#E8ECF4] min-w-[180px] lg:min-w-[220px] z-10"
+        style={stickyLeft}
+      >
+        {label}
+      </td>
+      {monthly.map((v, i) => {
+        const c = v > 0 ? "#4F7FFF" : v < 0 ? "#EF4444" : "#6B7A99";
+        return (
+          <td
+            key={i}
+            className="px-3 py-2.5 text-right text-sm font-bold min-w-[80px] lg:min-w-[100px] tabular-nums"
+            style={{ color: c }}
+          >
+            {fmt(v)}
+          </td>
+        );
+      })}
+      <td
+        className="sticky right-0 bg-[#0A0F1E] px-3 py-2.5 text-right text-base font-bold min-w-[110px] tabular-nums border-l border-[#1E2A45] z-10"
+        style={{ color, ...stickyRight }}
+      >
+        {fmt(total)}
+      </td>
+    </tr>
+  );
 }
 
-function ProfitRow({ label, monthly, total }: ProfitRowProps) {
+// Net Operating Income row — green/red, medium emphasis
+function NetOperatingIncomeRow({ label, monthly, total }: TotalRowProps) {
   const color = total > 0 ? "#22C55E" : total < 0 ? "#EF4444" : "#6B7A99";
   return (
     <tr className="bg-[#0A0F1E] border-t-2 border-[#1E2A45]">
@@ -201,7 +243,7 @@ function ProfitRow({ label, monthly, total }: ProfitRowProps) {
             className="px-3 py-2.5 text-right text-sm font-bold min-w-[80px] lg:min-w-[100px] tabular-nums"
             style={{ color: c }}
           >
-            {fmtSign(v)}
+            {fmt(v)}
           </td>
         );
       })}
@@ -209,7 +251,40 @@ function ProfitRow({ label, monthly, total }: ProfitRowProps) {
         className="sticky right-0 bg-[#0A0F1E] px-3 py-2.5 text-right text-sm font-bold min-w-[110px] tabular-nums border-l border-[#1E2A45] z-10"
         style={{ color, ...stickyRight }}
       >
-        {fmtSign(total)}
+        {fmt(total)}
+      </td>
+    </tr>
+  );
+}
+
+// Net Income row — most prominent row on the statement
+function NetIncomeRow({ label, monthly, total }: TotalRowProps) {
+  const color = total > 0 ? "#22C55E" : total < 0 ? "#EF4444" : "#6B7A99";
+  return (
+    <tr className="bg-[#0A0F1E] border-t-4 border-[#E8ECF4]">
+      <td
+        className="sticky left-0 bg-[#0A0F1E] px-4 py-3 text-base font-bold font-syne text-[#E8ECF4] min-w-[180px] lg:min-w-[220px] z-10"
+        style={stickyLeft}
+      >
+        {label}
+      </td>
+      {monthly.map((v, i) => {
+        const c = v > 0 ? "#22C55E" : v < 0 ? "#EF4444" : "#6B7A99";
+        return (
+          <td
+            key={i}
+            className="px-3 py-3 text-right text-sm font-bold min-w-[80px] lg:min-w-[100px] tabular-nums"
+            style={{ color: c }}
+          >
+            {fmt(v)}
+          </td>
+        );
+      })}
+      <td
+        className="sticky right-0 bg-[#0A0F1E] px-3 py-3 text-right text-base font-bold min-w-[110px] tabular-nums border-l border-[#1E2A45] z-10"
+        style={{ color, ...stickyRight }}
+      >
+        {fmt(total)}
       </td>
     </tr>
   );
@@ -232,11 +307,16 @@ export default function PLStatement({ statement, year }: PLStatementProps) {
     incomeRows,
     totalIncome,
     totalIncomeAnnual,
+    cogsRows,
+    totalCogs,
+    totalCogsAnnual,
+    grossProfit,
+    grossProfitAnnual,
     expenseRows,
     totalExpenses,
     totalExpensesAnnual,
-    grossProfit,
-    grossProfitAnnual,
+    netOperatingIncome,
+    netOperatingIncomeAnnual,
     netIncome,
     netIncomeAnnual,
     dateRange,
@@ -307,14 +387,15 @@ export default function PLStatement({ statement, year }: PLStatementProps) {
               </tr>
             </thead>
             <tbody>
-              {/* INCOME */}
+              {/* 1. INCOME */}
               <SectionHeaderRow label="Income" colCount={colCount} />
               {incomeRows.length === 0 ? (
-                <tr>
-                  <td colSpan={colCount + 2} className="px-8 py-2 text-sm text-[#6B7A99] italic">
-                    No income recorded
-                  </td>
-                </tr>
+                <CategoryRow
+                  label="No income recorded"
+                  monthly={new Array(colCount).fill(0)}
+                  total={0}
+                  muted
+                />
               ) : (
                 incomeRows.map((row) => (
                   <CategoryRow
@@ -328,17 +409,44 @@ export default function PLStatement({ statement, year }: PLStatementProps) {
               <TotalRow label="Total Income" monthly={totalIncome} total={totalIncomeAnnual} />
 
               <SpacerRow colCount={colCount} />
-              <ProfitRow label="Gross Profit" monthly={grossProfit} total={grossProfitAnnual} />
+
+              {/* 2. COST OF GOODS SOLD */}
+              <SectionHeaderRow label="Cost of Goods Sold" colCount={colCount} />
+              {cogsRows.length === 0 ? (
+                <CategoryRow
+                  label="No cost of goods sold"
+                  monthly={new Array(colCount).fill(0)}
+                  total={0}
+                  muted
+                />
+              ) : (
+                cogsRows.map((row) => (
+                  <CategoryRow
+                    key={row.category}
+                    label={row.category}
+                    monthly={row.monthly}
+                    total={row.total}
+                  />
+                ))
+              )}
+              <TotalRow label="Total COGS" monthly={totalCogs} total={totalCogsAnnual} />
+
               <SpacerRow colCount={colCount} />
 
-              {/* EXPENSES */}
-              <SectionHeaderRow label="Expenses" colCount={colCount} />
+              {/* 3. GROSS PROFIT */}
+              <GrossProfitRow label="Gross Profit" monthly={grossProfit} total={grossProfitAnnual} />
+
+              <SpacerRow colCount={colCount} />
+
+              {/* 4. OPERATING EXPENSES */}
+              <SectionHeaderRow label="Operating Expenses" colCount={colCount} />
               {expenseRows.length === 0 ? (
-                <tr>
-                  <td colSpan={colCount + 2} className="px-8 py-2 text-sm text-[#6B7A99] italic">
-                    No expenses recorded
-                  </td>
-                </tr>
+                <CategoryRow
+                  label="No expenses recorded"
+                  monthly={new Array(colCount).fill(0)}
+                  total={0}
+                  muted
+                />
               ) : (
                 expenseRows.map((row) => (
                   <CategoryRow
@@ -352,11 +460,18 @@ export default function PLStatement({ statement, year }: PLStatementProps) {
               <TotalRow label="Total Expenses" monthly={totalExpenses} total={totalExpensesAnnual} />
 
               <SpacerRow colCount={colCount} />
-              <ProfitRow label="Net Operating Income" monthly={grossProfit} total={grossProfitAnnual} />
+
+              {/* 5. NET OPERATING INCOME */}
+              <NetOperatingIncomeRow
+                label="Net Operating Income"
+                monthly={netOperatingIncome}
+                total={netOperatingIncomeAnnual}
+              />
+
               <SpacerRow colCount={colCount} />
 
-              {/* NET INCOME */}
-              <ProfitRow label="Net Income" monthly={netIncome} total={netIncomeAnnual} />
+              {/* 6. NET INCOME */}
+              <NetIncomeRow label="Net Income" monthly={netIncome} total={netIncomeAnnual} />
             </tbody>
           </table>
         </div>
