@@ -6,6 +6,9 @@ import type { ParsedTransaction } from "@/lib/bookkeeping/parse-csv";
 import {
   INCOME_CATEGORIES,
   EXPENSE_CATEGORIES,
+  ASSET_CATEGORIES,
+  EQUITY_CATEGORIES,
+  LIABILITY_CATEGORIES,
   TRANSFER_CATEGORIES,
 } from "@/lib/bookkeeping/categories";
 import {
@@ -868,13 +871,22 @@ export default function BookkeepingClient({
           >
             <option value="all">All Categories</option>
             <option value="Uncategorized">Uncategorized</option>
-            <optgroup label="Income">
+            <optgroup label="── Income ──">
               {INCOME_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
             </optgroup>
-            <optgroup label="Expenses">
+            <optgroup label="── Expenses ──">
               {EXPENSE_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
             </optgroup>
-            <optgroup label="Transfers (excluded from P&amp;L)">
+            <optgroup label="── Assets ──">
+              {ASSET_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+            </optgroup>
+            <optgroup label="── Equity ──">
+              {EQUITY_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+            </optgroup>
+            <optgroup label="── Liabilities ──">
+              {LIABILITY_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+            </optgroup>
+            <optgroup label="── Transfers ──">
               {TRANSFER_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
             </optgroup>
           </select>
@@ -976,13 +988,22 @@ export default function BookkeepingClient({
                 >
                   <option value="">Change category…</option>
                   <option value="Uncategorized">Uncategorized</option>
-                  <optgroup label="Income">
+                  <optgroup label="── Income ──">
                     {INCOME_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
                   </optgroup>
-                  <optgroup label="Expenses">
+                  <optgroup label="── Expenses ──">
                     {EXPENSE_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
                   </optgroup>
-                  <optgroup label="Transfers (excluded from P&amp;L)">
+                  <optgroup label="── Assets ──">
+                    {ASSET_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                  </optgroup>
+                  <optgroup label="── Equity ──">
+                    {EQUITY_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                  </optgroup>
+                  <optgroup label="── Liabilities ──">
+                    {LIABILITY_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                  </optgroup>
+                  <optgroup label="── Transfers ──">
                     {TRANSFER_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
                   </optgroup>
                 </select>
@@ -1067,13 +1088,22 @@ export default function BookkeepingClient({
                   className={inputCls + " w-full"}
                 >
                   <option value="Uncategorized">Uncategorized</option>
-                  <optgroup label="Income">
+                  <optgroup label="── Income ──">
                     {INCOME_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
                   </optgroup>
-                  <optgroup label="Expenses">
+                  <optgroup label="── Expenses ──">
                     {EXPENSE_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
                   </optgroup>
-                  <optgroup label="Transfers">
+                  <optgroup label="── Assets ──">
+                    {ASSET_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                  </optgroup>
+                  <optgroup label="── Equity ──">
+                    {EQUITY_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                  </optgroup>
+                  <optgroup label="── Liabilities ──">
+                    {LIABILITY_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                  </optgroup>
+                  <optgroup label="── Transfers ──">
                     {TRANSFER_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
                   </optgroup>
                 </select>
@@ -1323,13 +1353,22 @@ export default function BookkeepingClient({
                             className="bg-[#0A0F1E] border border-[#1E2A45] text-[#E8ECF4] rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#4F7FFF] max-w-[150px]"
                           >
                             <option value="Uncategorized">Uncategorized</option>
-                            <optgroup label="Income">
+                            <optgroup label="── Income ──">
                               {INCOME_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
                             </optgroup>
-                            <optgroup label="Expenses">
+                            <optgroup label="── Expenses ──">
                               {EXPENSE_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
                             </optgroup>
-                            <optgroup label="Transfers (excluded from P&amp;L)">
+                            <optgroup label="── Assets ──">
+                              {ASSET_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                            </optgroup>
+                            <optgroup label="── Equity ──">
+                              {EQUITY_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                            </optgroup>
+                            <optgroup label="── Liabilities ──">
+                              {LIABILITY_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                            </optgroup>
+                            <optgroup label="── Transfers ──">
                               {TRANSFER_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
                             </optgroup>
                           </select>

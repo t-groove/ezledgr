@@ -1,7 +1,6 @@
 "use server";
 
 import { createClient } from "../../../../supabase/server";
-import { TRANSFER_CATEGORIES } from "@/lib/bookkeeping/categories";
 
 const MONTH_NAMES = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
@@ -56,6 +55,29 @@ export interface ReportData {
   statement: StatementData;
 }
 
+function getPlAmount(
+  transaction: { amount: number; type: string; account_type: string }
+): { incomeEffect: number; expenseEffect: number } {
+  const amt = Number(transaction.amount);
+
+  if (transaction.account_type === "Income") {
+    return {
+      incomeEffect: transaction.type === "income" ? amt : -amt,
+      expenseEffect: 0,
+    };
+  }
+
+  if (transaction.account_type === "Expense") {
+    return {
+      incomeEffect: 0,
+      expenseEffect: transaction.type === "expense" ? amt : -amt,
+    };
+  }
+
+  // Asset, Equity, Liability — excluded from P&L
+  return { incomeEffect: 0, expenseEffect: 0 };
+}
+
 export async function getReportData(year: number, accountId?: string): Promise<ReportData> {
   const supabase = await createClient();
   const {
@@ -94,7 +116,7 @@ export async function getReportData(year: number, accountId?: string): Promise<R
   // Fetch transactions for the given year
   let query = supabase
     .from("transactions")
-    .select("date, amount, type, category")
+    .select("date, amount, type, category, account_type")
     .eq("user_id", user.id)
     .gte("date", `${year}-01-01`)
     .lte("date", `${year}-12-31`);
@@ -121,9 +143,9 @@ export async function getReportData(year: number, accountId?: string): Promise<R
     return { ...empty, availableYears };
   }
 
-  // Exclude transfer categories from P&L calculations
+  // Only include Income and Expense account_type transactions on P&L
   const plTransactions = transactions.filter(
-    (t) => !TRANSFER_CATEGORIES.includes(t.category as (typeof TRANSFER_CATEGORIES)[number])
+    (t) => t.account_type === "Income" || t.account_type === "Expense"
   );
 
   const monthlyIncome = new Array(12).fill(0);
@@ -136,16 +158,20 @@ export async function getReportData(year: number, accountId?: string): Promise<R
 
   for (const t of plTransactions) {
     const monthIndex = parseInt(t.date.substring(5, 7), 10) - 1;
-    if (t.type === "income") {
-      monthlyIncome[monthIndex] += t.amount;
-      incomeCategoryMap.set(t.category, (incomeCategoryMap.get(t.category) ?? 0) + t.amount);
+    const { incomeEffect, expenseEffect } = getPlAmount(t);
+
+    if (incomeEffect !== 0) {
+      monthlyIncome[monthIndex] += incomeEffect;
+      incomeCategoryMap.set(t.category, (incomeCategoryMap.get(t.category) ?? 0) + incomeEffect);
       if (!incomeCategoryMonthly.has(t.category)) incomeCategoryMonthly.set(t.category, new Array(12).fill(0));
-      incomeCategoryMonthly.get(t.category)![monthIndex] += t.amount;
-    } else {
-      monthlyExpenses[monthIndex] += t.amount;
-      expenseCategoryMap.set(t.category, (expenseCategoryMap.get(t.category) ?? 0) + t.amount);
+      incomeCategoryMonthly.get(t.category)![monthIndex] += incomeEffect;
+    }
+
+    if (expenseEffect !== 0) {
+      monthlyExpenses[monthIndex] += expenseEffect;
+      expenseCategoryMap.set(t.category, (expenseCategoryMap.get(t.category) ?? 0) + expenseEffect);
       if (!expenseCategoryMonthly.has(t.category)) expenseCategoryMonthly.set(t.category, new Array(12).fill(0));
-      expenseCategoryMonthly.get(t.category)![monthIndex] += t.amount;
+      expenseCategoryMonthly.get(t.category)![monthIndex] += expenseEffect;
     }
   }
 
@@ -167,7 +193,6 @@ export async function getReportData(year: number, accountId?: string): Promise<R
       amount,
       percentage: totalExpenses > 0 ? (amount / totalExpenses) * 100 : 0,
     }))
-    .filter((c) => c.amount > 0)
     .sort((a, b) => b.amount - a.amount);
 
   const incomeByCategory: CategoryData[] = Array.from(incomeCategoryMap.entries())
@@ -176,10 +201,9 @@ export async function getReportData(year: number, accountId?: string): Promise<R
       amount,
       percentage: totalIncome > 0 ? (amount / totalIncome) * 100 : 0,
     }))
-    .filter((c) => c.amount > 0)
     .sort((a, b) => b.amount - a.amount);
 
-  // Build statement rows
+  // Build statement rows — net amounts (negative = contra)
   const incomeRows: StatementRow[] = Array.from(incomeCategoryMonthly.entries())
     .map(([category, monthly]) => ({ category, monthly, total: monthly.reduce((s, v) => s + v, 0) }))
     .filter((r) => r.total !== 0)

@@ -2,6 +2,7 @@
 
 import { createClient } from "../../../../supabase/server";
 import type { ParsedTransaction } from "@/lib/bookkeeping/parse-csv";
+import { getAccountType } from "@/lib/bookkeeping/categories";
 
 export async function uploadTransactions(
   transactions: ParsedTransaction[],
@@ -26,6 +27,7 @@ export async function uploadTransactions(
       category: t.category ?? "Uncategorized",
       account_id: accountId,
       raw_csv_row: t.raw_csv_row,
+      account_type: getAccountType(t.category ?? "Uncategorized"),
     }));
 
     const { error } = await supabase.from("transactions").insert(rows);
@@ -56,6 +58,7 @@ export interface Transaction {
   amount: number;
   type: "income" | "expense";
   category: string;
+  account_type: string;
   account_id: string | null;
   account_name: string | null;
   raw_csv_row: string | null;
@@ -111,9 +114,10 @@ export async function updateTransactionCategory(
 
     if (!user) return { success: false, error: "Not authenticated" };
 
+    const newAccountType = getAccountType(category);
     const { error } = await supabase
       .from("transactions")
-      .update({ category })
+      .update({ category, account_type: newAccountType })
       .eq("id", id)
       .eq("user_id", user.id);
 
@@ -175,6 +179,7 @@ export async function createTransaction(data: {
         category: data.category,
         account_id: data.account_id ?? null,
         raw_csv_row: null,
+        account_type: getAccountType(data.category),
       })
       .select()
       .single();

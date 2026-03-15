@@ -5,12 +5,6 @@ import DashboardClient from "./DashboardClient";
 import { getAccountSummary } from "./accounts/actions";
 import type { AccountSummary } from "./accounts/actions";
 
-const TRANSFER_CATS = [
-  "Owner Contributions",
-  "Owner Draw",
-  "Transfer",
-];
-
 export default async function DashboardPage() {
   const supabase = await createClient();
   const {
@@ -29,7 +23,7 @@ export default async function DashboardPage() {
     await Promise.all([
       supabase
         .from("transactions")
-        .select("amount, type, category, date")
+        .select("amount, type, account_type")
         .eq("user_id", user.id)
         .gte("date", yearStart)
         .lte("date", today),
@@ -43,17 +37,20 @@ export default async function DashboardPage() {
         .eq("category", "Uncategorized"),
     ]);
 
+  // Only P&L transactions (Income and Expense GL accounts)
   const plTransactions = (ytdTransactions.data ?? []).filter(
-    (t) => !TRANSFER_CATS.includes(t.category)
+    (t) => t.account_type === "Income" || t.account_type === "Expense"
   );
 
+  // Income GL accounts: money in = revenue, money out = return (negative)
   const ytdIncome = plTransactions
-    .filter((t) => t.type === "income")
-    .reduce((sum, t) => sum + Number(t.amount), 0);
+    .filter((t) => t.account_type === "Income")
+    .reduce((sum, t) => sum + (t.type === "income" ? Number(t.amount) : -Number(t.amount)), 0);
 
+  // Expense GL accounts: money out = expense, money in = refund (negative)
   const ytdExpenses = plTransactions
-    .filter((t) => t.type === "expense")
-    .reduce((sum, t) => sum + Number(t.amount), 0);
+    .filter((t) => t.account_type === "Expense")
+    .reduce((sum, t) => sum + (t.type === "expense" ? Number(t.amount) : -Number(t.amount)), 0);
 
   const ytdProfit = ytdIncome - ytdExpenses;
   const profitMargin = ytdIncome > 0 ? (ytdProfit / ytdIncome) * 100 : 0;
