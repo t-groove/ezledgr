@@ -1,6 +1,6 @@
 "use client";
 
-import type { BalanceSheetData, BalanceSheetItem } from "./actions";
+import type { BalanceSheetData, BalanceSheetItem, CashAccount } from "./actions";
 
 // ── Formatting ────────────────────────────────────────────────────────────────
 
@@ -33,8 +33,15 @@ function downloadCSV(data: BalanceSheetData) {
 
   rows.push(["ASSETS"]);
   rows.push(["Current Assets"]);
-  for (const item of data.currentAssets) {
-    rows.push([`  ${item.label}`, item.amount.toFixed(2)]);
+  if (data.cashByAccount.length === 0) {
+    rows.push(["  (no bank accounts connected)", ""]);
+  } else {
+    for (const acc of data.cashByAccount) {
+      const suffix = acc.lastFour ? ` ••••${acc.lastFour}` : "";
+      const bank = acc.bankName && acc.bankName !== "None" ? `${acc.bankName}${suffix}` : acc.name;
+      rows.push([`  ${acc.name}`, acc.balance.toFixed(2)]);
+      if (bank !== acc.name) rows.push([`    ${bank}`, ""]);
+    }
   }
   rows.push(["Total Current Assets", data.totalCurrentAssets.toFixed(2)]);
   rows.push([]);
@@ -140,6 +147,28 @@ function GrandTotalRow({ label, amount }: { label: string; amount: number }) {
   );
 }
 
+function CashAccountRow({ acc }: { acc: CashAccount }) {
+  const color =
+    acc.balance > 0 ? "text-[#E8ECF4]" : acc.balance < 0 ? "text-[#EF4444]" : "text-[#6B7A99]";
+  const bankLine = [
+    acc.bankName && acc.bankName !== "None" ? acc.bankName : "",
+    acc.lastFour ? `••••${acc.lastFour}` : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+  return (
+    <div className="flex justify-between items-center pl-8 px-4 py-2 hover:bg-[#1E2A45]/20 transition-colors">
+      <div>
+        <div className="text-sm text-[#E8ECF4]">{acc.name}</div>
+        {bankLine && <div className="text-xs text-[#6B7A99]">{bankLine}</div>}
+      </div>
+      <span className={`tabular-nums text-sm ${color}`}>
+        {acc.balance === 0 ? "—" : fmtCurrency.format(acc.balance)}
+      </span>
+    </div>
+  );
+}
+
 // ── Props ─────────────────────────────────────────────────────────────────────
 
 interface Props {
@@ -209,9 +238,13 @@ export default function BalanceSheet({ data, asOfDate, onDateChange }: Props) {
           <SectionHeader label="Assets" />
 
           <SubSectionHeader label="Current Assets" />
-          {data.currentAssets.map((item) => (
-            <LineItem key={item.label} {...item} />
-          ))}
+          {data.cashByAccount.length === 0 ? (
+            <EmptyItem label="No bank accounts connected" />
+          ) : (
+            data.cashByAccount.map((acc) => (
+              <CashAccountRow key={acc.id} acc={acc} />
+            ))
+          )}
           <TotalRow label="Total Current Assets" amount={data.totalCurrentAssets} />
 
           <SubSectionHeader label="Fixed Assets" />

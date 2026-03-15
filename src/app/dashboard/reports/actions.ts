@@ -95,10 +95,18 @@ export interface BalanceSheetItem {
   isContra: boolean;
 }
 
+export interface CashAccount {
+  id: string;
+  name: string;
+  bankName: string | null;
+  lastFour: string | null;
+  balance: number;
+}
+
 export interface BalanceSheetData {
   asOfDate: string;
   // Assets
-  currentAssets: BalanceSheetItem[];
+  cashByAccount: CashAccount[];
   totalCurrentAssets: number;
   fixedAssets: BalanceSheetItem[];
   totalFixedAssets: number;
@@ -123,7 +131,7 @@ export async function getBalanceSheetData(asOfDate: string): Promise<BalanceShee
 
   const empty: BalanceSheetData = {
     asOfDate,
-    currentAssets: [],
+    cashByAccount: [],
     totalCurrentAssets: 0,
     fixedAssets: [],
     totalFixedAssets: 0,
@@ -139,11 +147,21 @@ export async function getBalanceSheetData(asOfDate: string): Promise<BalanceShee
 
   if (!user) return empty;
 
-  const { data: transactions } = await supabase
-    .from("transactions")
-    .select("date, amount, type, category, account_type")
-    .eq("user_id", user.id)
-    .lte("date", asOfDate);
+  const [{ data: transactions }, { data: bankAccountsRaw }] = await Promise.all([
+    supabase
+      .from("transactions")
+      .select("date, amount, type, category, account_type, account_id")
+      .eq("user_id", user.id)
+      .lte("date", asOfDate),
+    supabase
+      .from("bank_accounts")
+      .select("id, name, bank_name, last_four")
+      .eq("user_id", user.id)
+      .eq("is_active", true)
+      .order("created_at", { ascending: true }),
+  ]);
+
+  const bankAccounts = bankAccountsRaw ?? [];
 
   if (!transactions || transactions.length === 0) return empty;
 
@@ -164,18 +182,38 @@ export async function getBalanceSheetData(asOfDate: string): Promise<BalanceShee
     }
   }
 
-  // Current Assets: Cash & Bank = net of ALL transactions (cash-basis implied cash balance)
-  let totalCashIn = 0;
-  let totalCashOut = 0;
-  for (const t of transactions) {
-    if (t.type === "income") totalCashIn += Number(t.amount);
-    else totalCashOut += Number(t.amount);
+  // Current Assets: per-account cash balance (income - expenses for each bank account)
+  const accountBalMap = new Map<string, number>();
+  for (const acc of bankAccounts) {
+    accountBalMap.set(acc.id, 0);
   }
-  const cashBalance = totalCashIn - totalCashOut;
-  const currentAssets: BalanceSheetItem[] = [
-    { label: "Cash & Bank Accounts", amount: cashBalance, isContra: false },
-  ];
-  const totalCurrentAssets = cashBalance;
+  let unassignedBal = 0;
+  for (const t of transactions) {
+    const effect = t.type === "income" ? Number(t.amount) : -Number(t.amount);
+    if (t.account_id && accountBalMap.has(t.account_id)) {
+      accountBalMap.set(t.account_id, accountBalMap.get(t.account_id)! + effect);
+    } else if (!t.account_id) {
+      unassignedBal += effect;
+    }
+  }
+
+  const cashByAccount: CashAccount[] = bankAccounts.map((acc) => ({
+    id: acc.id,
+    name: acc.name,
+    bankName: acc.bank_name ?? null,
+    lastFour: acc.last_four ?? null,
+    balance: accountBalMap.get(acc.id) ?? 0,
+  }));
+  if (unassignedBal !== 0) {
+    cashByAccount.push({
+      id: "unassigned",
+      name: "Unassigned Transactions",
+      bankName: null,
+      lastFour: null,
+      balance: unassignedBal,
+    });
+  }
+  const totalCurrentAssets = cashByAccount.reduce((s, a) => s + a.balance, 0);
 
   // Fixed Assets: expense = acquisition (adds), income = disposal (subtracts)
   const ASSET_CATS = ["Equipment", "Real Estate", "Vehicles"];
@@ -249,7 +287,7 @@ export async function getBalanceSheetData(asOfDate: string): Promise<BalanceShee
 
   return {
     asOfDate,
-    currentAssets,
+    cashByAccount,
     totalCurrentAssets,
     fixedAssets,
     totalFixedAssets,
