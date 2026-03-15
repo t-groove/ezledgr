@@ -852,28 +852,28 @@ export default function BookkeepingClient({
         </div>
 
         {/* Filters */}
-        <div className="flex flex-wrap gap-2 mb-5">
-          {/* 1. Date range */}
+        <div className="flex items-center flex-wrap gap-2 mb-5">
+          {/* 1. Date range — aligns with Date column (w-32) */}
           <input
             type="date"
             value={filterStart}
             placeholder="From"
             onChange={(e) => { setFilterStart(e.target.value); setPage(1); setSelectedIds(new Set()); }}
-            className={`${inputCls} min-w-[130px]`}
+            className={`${inputCls} w-32`}
           />
           <input
             type="date"
             value={filterEnd}
             placeholder="To"
             onChange={(e) => { setFilterEnd(e.target.value); setPage(1); setSelectedIds(new Set()); }}
-            className={`${inputCls} min-w-[130px]`}
+            className={`${inputCls} w-32`}
           />
-          {/* 2. Account */}
+          {/* 2. Account — aligns with Account column (w-36) */}
           {bankAccounts.length > 0 && (
             <select
               value={filterAccount}
               onChange={(e) => { setFilterAccount(e.target.value); setPage(1); }}
-              className={`${inputCls} min-w-[160px]`}
+              className={`${inputCls} w-36`}
             >
               <option value="all">All Accounts</option>
               {bankAccounts.map((acc) => (
@@ -883,19 +883,19 @@ export default function BookkeepingClient({
               ))}
             </select>
           )}
-          {/* 3. Description search */}
+          {/* 3. Description search — aligns with Description column (flex-1) */}
           <input
             type="text"
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); setSelectedIds(new Set()); }}
             placeholder="Search description..."
-            className={`${inputCls} min-w-[180px] flex-1`}
+            className={`${inputCls} flex-1 min-w-[160px]`}
           />
-          {/* 4. Category */}
+          {/* 4. Category — aligns with Category column (w-44) */}
           <select
             value={filterCategory}
             onChange={(e) => { setFilterCategory(e.target.value); setPage(1); setSelectedIds(new Set()); }}
-            className={`${inputCls} min-w-[160px]`}
+            className={`${inputCls} w-44`}
           >
             <option value="all">All Categories</option>
             <option value="Uncategorized">Uncategorized</option>
@@ -918,11 +918,11 @@ export default function BookkeepingClient({
               {TRANSFER_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
             </optgroup>
           </select>
-          {/* 5. Type */}
+          {/* 5. Type — aligns with Type+Amount columns (w-28) */}
           <select
             value={filterType}
             onChange={(e) => { setFilterType(e.target.value); setPage(1); setSelectedIds(new Set()); }}
-            className={`${inputCls} min-w-[120px]`}
+            className={`${inputCls} w-28`}
           >
             <option value="all">All Types</option>
             <option value="income">Income</option>
@@ -1182,10 +1182,20 @@ export default function BookkeepingClient({
           <>
             {/* Table */}
             <div className="overflow-x-auto rounded-lg border border-[#1E2A45]">
-              <table className="w-full text-sm min-w-[900px]">
+              <table className="w-full text-sm table-fixed min-w-[800px]">
+                <colgroup>
+                  <col className="w-10" />
+                  <col className="w-32" />
+                  <col className="w-36" />
+                  <col />
+                  <col className="w-44" />
+                  <col className="w-24" />
+                  <col className="w-28" />
+                  <col className="w-10" />
+                </colgroup>
                 <thead>
                   <tr className="border-b border-[#1E2A45] bg-[#0A0F1E]">
-                    <th className="px-3 py-3 w-10">
+                    <th className="px-3 py-3">
                       <input
                         type="checkbox"
                         checked={allPageSelected}
@@ -1199,7 +1209,7 @@ export default function BookkeepingClient({
                     <th className="px-4 py-3 text-[#6B7A99] font-medium text-left">Category</th>
                     <th className="px-4 py-3 text-[#6B7A99] font-medium text-left">Type</th>
                     <th className="px-4 py-3 text-[#6B7A99] font-medium text-right">Amount</th>
-                    <th className="px-4 py-3 w-10" />
+                    <th className="px-4 py-3" />
                   </tr>
                 </thead>
                 <tbody>
@@ -1311,7 +1321,7 @@ export default function BookkeepingClient({
                         </td>
 
                         {/* Description */}
-                        <td className={`px-4 py-3 max-w-[180px] ${successCellId === `${t.id}-description` ? "ring-1 ring-[#22C55E] rounded" : ""}`}>
+                        <td className={`px-4 py-3 min-w-0 ${successCellId === `${t.id}-description` ? "ring-1 ring-[#22C55E] rounded" : ""}`}>
                           {editingDescriptionId === t.id ? (
                             <input
                               autoFocus
@@ -1335,19 +1345,17 @@ export default function BookkeepingClient({
                               className="bg-[#0A0F1E] border border-[#4F7FFF] rounded px-2 py-1 text-sm text-[#E8ECF4] w-full focus:outline-none"
                             />
                           ) : (
-                            <div className="flex items-center gap-1.5">
-                              <span
-                                className="text-[#E8ECF4] truncate cursor-default"
+                            <div className="flex items-center gap-1.5 min-w-0">
+                              <div
+                                className="truncate text-[#E8ECF4] cursor-default"
                                 title={t.description}
                                 onDoubleClick={() => {
                                   setEditingDescriptionId(t.id);
                                   setEditingDescriptionValue(t.description);
                                 }}
                               >
-                                {t.description.length > 35
-                                  ? t.description.slice(0, 35) + "…"
-                                  : t.description}
-                              </span>
+                                {t.description}
+                              </div>
                               <button
                                 onClick={() => {
                                   setEditingDescriptionId(t.id);
