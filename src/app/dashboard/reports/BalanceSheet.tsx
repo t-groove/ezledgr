@@ -43,18 +43,16 @@ function downloadCSV(data: BalanceSheetData) {
       if (bank !== acc.name) rows.push([`    ${bank}`, ""]);
     }
   }
-  rows.push(["Total Current Assets", data.totalCurrentAssets.toFixed(2)]);
+  rows.push(["Total Assets", data.totalAssets.toFixed(2)]);
   rows.push([]);
-  rows.push(["Fixed Assets"]);
-  if (data.fixedAssets.length === 0) {
-    rows.push(["  (no asset transactions)", ""]);
-  } else {
+  if (data.hasFixedAssets) {
+    rows.push(["Fixed Assets"]);
     for (const item of data.fixedAssets) {
       rows.push([`  ${item.label}`, item.amount.toFixed(2)]);
     }
+    rows.push(["Total Fixed Assets", data.totalFixedAssets.toFixed(2)]);
+    rows.push([]);
   }
-  rows.push(["Total Fixed Assets", data.totalFixedAssets.toFixed(2)]);
-  rows.push([]);
   rows.push(["TOTAL ASSETS", data.totalAssets.toFixed(2)]);
   rows.push([]);
 
@@ -75,7 +73,8 @@ function downloadCSV(data: BalanceSheetData) {
   for (const item of data.equityItems) {
     rows.push([`  ${item.label}`, item.amount.toFixed(2)]);
   }
-  rows.push(["  Retained Earnings", data.retainedEarnings.toFixed(2)]);
+  rows.push(["  Retained Earnings (prior years)", data.retainedEarnings.toFixed(2)]);
+  rows.push(["  Current Year Net Income", data.currentYearNetIncome.toFixed(2)]);
   rows.push(["Total Equity", data.totalEquity.toFixed(2)]);
   rows.push([]);
   rows.push(["TOTAL LIABILITIES + EQUITY", data.totalLiabilitiesAndEquity.toFixed(2)]);
@@ -245,17 +244,17 @@ export default function BalanceSheet({ data, asOfDate, onDateChange }: Props) {
               <CashAccountRow key={acc.id} acc={acc} />
             ))
           )}
-          <TotalRow label="Total Current Assets" amount={data.totalCurrentAssets} />
 
-          <SubSectionHeader label="Fixed Assets" />
-          {data.fixedAssets.length === 0 ? (
-            <EmptyItem label="No fixed asset transactions" />
-          ) : (
-            data.fixedAssets.map((item) => (
-              <LineItem key={item.label} {...item} />
-            ))
+          {/* Fixed Assets — only shown when journal entries use asset accounts */}
+          {data.hasFixedAssets && (
+            <>
+              <SubSectionHeader label="Fixed Assets" />
+              {data.fixedAssets.map((item) => (
+                <LineItem key={item.label} {...item} />
+              ))}
+              <TotalRow label="Total Fixed Assets" amount={data.totalFixedAssets} />
+            </>
           )}
-          <TotalRow label="Total Fixed Assets" amount={data.totalFixedAssets} />
 
           <GrandTotalRow label="Total Assets" amount={data.totalAssets} />
 
@@ -282,7 +281,15 @@ export default function BalanceSheet({ data, asOfDate, onDateChange }: Props) {
           {data.equityItems.map((item) => (
             <LineItem key={item.label} {...item} />
           ))}
-          <LineItem label="Retained Earnings" amount={data.retainedEarnings} isContra={false} />
+          {/* Retained Earnings = prior years' cumulative net income */}
+          <div className="flex justify-between items-center pl-8 px-4 py-2 text-sm hover:bg-[#1E2A45]/20 transition-colors">
+            <div>
+              <div className="text-[#E8ECF4]">Retained Earnings</div>
+              <div className="text-xs text-[#6B7A99]">Prior years&apos; cumulative net income</div>
+            </div>
+            <span className={`tabular-nums ${amtColor(data.retainedEarnings)}`}>{fmt(data.retainedEarnings)}</span>
+          </div>
+          <LineItem label="Current Year Net Income" amount={data.currentYearNetIncome} isContra={false} />
           <TotalRow label="Total Equity" amount={data.totalEquity} />
 
           {/* 4. TOTAL LIABILITIES + EQUITY ───────────────────────────────── */}
@@ -291,23 +298,37 @@ export default function BalanceSheet({ data, asOfDate, onDateChange }: Props) {
 
         {/* 5. Balance check banner ──────────────────────────────────────── */}
         <div
-          className={`mt-4 flex items-center gap-2 px-4 py-3 rounded-lg text-sm ${
+          className={`mt-4 px-4 py-3 rounded-lg text-sm ${
             inBalance
               ? "bg-[#22C55E]/10 border border-[#22C55E]/30 text-[#22C55E]"
               : "bg-[#F59E0B]/10 border border-[#F59E0B]/30 text-[#F59E0B]"
           }`}
         >
-          <span className="text-base">{inBalance ? "✓" : "⚠"}</span>
-          {inBalance ? (
-            <span>
-              Assets ({fmt(data.totalAssets)}) = Liabilities + Equity ({fmt(data.totalLiabilitiesAndEquity)}) — Balance sheet is in balance
-            </span>
-          ) : (
-            <span>
-              Assets ({fmt(data.totalAssets)}) ≠ Liabilities + Equity ({fmt(data.totalLiabilitiesAndEquity)}) — Difference: {fmt(diff)}
-            </span>
+          <div className="flex items-center gap-2">
+            <span className="text-base">{inBalance ? "✓" : "⚠"}</span>
+            {inBalance ? (
+              <span>
+                Assets ({fmt(data.totalAssets)}) = Liabilities + Equity ({fmt(data.totalLiabilitiesAndEquity)}) — Balance sheet is in balance
+              </span>
+            ) : (
+              <span>Out of balance by {fmt(diff)}</span>
+            )}
+          </div>
+          {!inBalance && (
+            <p className="mt-1 text-xs opacity-80 pl-6">
+              This may be due to transactions categorized as Assets or Equity that aren&apos;t fully reflected.
+              Check your Owner Contributions and Owner Draw categories.
+            </p>
           )}
         </div>
+
+        {/* 6. Optional depreciation note ───────────────────────────────── */}
+        <p className="text-xs text-[#6B7A99] italic text-center mt-4">
+          Want to track fixed assets and depreciation?{" "}
+          <a href="/dashboard/journal-entries" className="underline hover:text-[#4F7FFF] transition-colors">
+            Use Journal Entries →
+          </a>
+        </p>
       </div>
     </>
   );

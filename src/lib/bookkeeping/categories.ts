@@ -29,14 +29,19 @@ export const EXPENSE_CATEGORIES = [
   "Utilities",
   "Vehicle & Mileage",
   "Employee benefit programs",
+  "Equipment & Tools",
   "Wages & Salaries",
   "Other Expense",
 ] as const;
 
+// Advanced: Fixed asset categories for accrual-style
+// tracking via journal entries. Most cash basis
+// businesses should use "Equipment & Tools" expense instead.
 export const ASSET_CATEGORIES = [
-  "Equipment",
-  "Real Estate",
-  "Vehicles",
+  "Fixed Asset - Equipment",
+  "Fixed Asset - Real Estate",
+  "Fixed Asset - Vehicles",
+  "Accumulated Depreciation",
 ] as const;
 
 export const EQUITY_CATEGORIES = [
@@ -97,12 +102,14 @@ export const CATEGORY_ACCOUNT_TYPE: Record<string, AccountType> = {
   "Utilities": "Expense",
   "Vehicle & Mileage": "Expense",
   "Employee benefit programs": "Expense",
+  "Equipment & Tools": "Expense",
   "Wages & Salaries": "Expense",
   "Other Expense": "Expense",
-  // Assets
-  "Equipment": "Asset",
-  "Real Estate": "Asset",
-  "Vehicles": "Asset",
+  // Assets (advanced — journal entries / depreciation only)
+  "Fixed Asset - Equipment": "Asset",
+  "Fixed Asset - Real Estate": "Asset",
+  "Fixed Asset - Vehicles": "Asset",
+  "Accumulated Depreciation": "Asset",
   // Equity
   "Owner Contributions": "Equity",
   "Owner Draw": "Equity",

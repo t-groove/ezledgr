@@ -108,6 +108,8 @@ export interface BalanceSheetData {
   // Assets
   cashByAccount: CashAccount[];
   totalCurrentAssets: number;
+  // Optional fixed assets (only present when journal entries use asset accounts)
+  hasFixedAssets: boolean;
   fixedAssets: BalanceSheetItem[];
   totalFixedAssets: number;
   totalAssets: number;
@@ -117,7 +119,8 @@ export interface BalanceSheetData {
   totalLiabilities: number;
   // Equity
   equityItems: BalanceSheetItem[];
-  retainedEarnings: number;
+  retainedEarnings: number;       // prior years' cumulative net income
+  currentYearNetIncome: number;   // current calendar year net income
   totalEquity: number;
   // Grand total
   totalLiabilitiesAndEquity: number;
@@ -133,6 +136,7 @@ export async function getBalanceSheetData(asOfDate: string): Promise<BalanceShee
     asOfDate,
     cashByAccount: [],
     totalCurrentAssets: 0,
+    hasFixedAssets: false,
     fixedAssets: [],
     totalFixedAssets: 0,
     totalAssets: 0,
@@ -141,6 +145,7 @@ export async function getBalanceSheetData(asOfDate: string): Promise<BalanceShee
     totalLiabilities: 0,
     equityItems: [],
     retainedEarnings: 0,
+    currentYearNetIncome: 0,
     totalEquity: 0,
     totalLiabilitiesAndEquity: 0,
   };
@@ -215,47 +220,53 @@ export async function getBalanceSheetData(asOfDate: string): Promise<BalanceShee
   }
   const totalCurrentAssets = cashByAccount.reduce((s, a) => s + a.balance, 0);
 
-  // Fixed Assets: expense = acquisition (adds), income = disposal (subtracts)
-  const ASSET_CATS = ["Equipment", "Real Estate", "Vehicles"];
-  const fixedAssets: BalanceSheetItem[] = [];
-  const seenAssets = new Set<string>();
-  for (const cat of ASSET_CATS) {
-    const d = catMap.get(cat);
-    if (!d) continue;
-    seenAssets.add(cat);
-    const amount = d.expense - d.income;
-    if (amount !== 0) fixedAssets.push({ label: cat, amount, isContra: false });
-  }
-  for (const [cat, d] of Array.from(catMap.entries())) {
-    if (d.accountType === "Asset" && !seenAssets.has(cat)) {
-      const amount = d.expense - d.income;
-      if (amount !== 0) fixedAssets.push({ label: cat, amount, isContra: false });
-    }
-  }
+  // Fixed Assets: only from journal entries (cash basis — equipment is expensed)
+  const FIXED_ASSET_ACCOUNT_NAMES = [
+    "Fixed Asset - Equipment",
+    "Fixed Asset - Real Estate",
+    "Fixed Asset - Vehicles",
+  ];
+  const { data: fixedAssetLines } = await supabase
+    .from("journal_entry_lines")
+    .select("account_name, debit, credit, journal_entries!inner(user_id, date)")
+    .in("account_name", FIXED_ASSET_ACCOUNT_NAMES)
+    .eq("journal_entries.user_id", user.id)
+    .lte("journal_entries.date", asOfDate);
 
-  // Accumulated depreciation from journal entries
-  const { data: jeRows } = await supabase
-    .from("journal_entries")
-    .select("id")
-    .eq("user_id", user.id)
-    .lte("date", asOfDate);
-  const jeIds = (jeRows ?? []).map((r: { id: string }) => r.id);
-  if (jeIds.length > 0) {
+  const hasFixedAssets = (fixedAssetLines ?? []).length > 0;
+  const fixedAssets: BalanceSheetItem[] = [];
+  let totalFixedAssets = 0;
+
+  if (hasFixedAssets) {
+    // Aggregate fixed asset balances by account name (debit increases, credit decreases)
+    const assetBalMap = new Map<string, number>();
+    for (const line of fixedAssetLines ?? []) {
+      const bal = (assetBalMap.get(line.account_name) ?? 0) + Number(line.debit) - Number(line.credit);
+      assetBalMap.set(line.account_name, bal);
+    }
+    for (const name of FIXED_ASSET_ACCOUNT_NAMES) {
+      const bal = assetBalMap.get(name) ?? 0;
+      if (bal !== 0) fixedAssets.push({ label: name, amount: bal, isContra: false });
+    }
+
+    // Accumulated depreciation from journal entries
     const { data: depLines } = await supabase
       .from("journal_entry_lines")
-      .select("credit")
-      .in("journal_entry_id", jeIds)
-      .eq("account_name", "Accumulated Depreciation");
+      .select("debit, credit, journal_entries!inner(user_id, date)")
+      .eq("account_name", "Accumulated Depreciation")
+      .eq("journal_entries.user_id", user.id)
+      .lte("journal_entries.date", asOfDate);
     const accumDep = (depLines ?? []).reduce(
-      (sum: number, l: { credit: number }) => sum + Number(l.credit),
+      (sum: number, l: { debit: number; credit: number }) => sum + Number(l.credit) - Number(l.debit),
       0
     );
     if (accumDep > 0) {
       fixedAssets.push({ label: "Accumulated Depreciation", amount: -accumDep, isContra: true });
     }
+
+    totalFixedAssets = fixedAssets.reduce((s, i) => s + i.amount, 0);
   }
 
-  const totalFixedAssets = fixedAssets.reduce((s, i) => s + i.amount, 0);
   const totalAssets = totalCurrentAssets + totalFixedAssets;
 
   // Liabilities: income = borrowed (adds), expense = repaid (subtracts)
@@ -292,25 +303,42 @@ export async function getBalanceSheetData(asOfDate: string): Promise<BalanceShee
     equityItems.push({ label: "Owner Draw", amount: -draws, isContra: true });
   }
 
-  // Retained Earnings = cumulative P&L net income up to asOfDate
-  let plIncome = 0;
-  let plExpenses = 0;
-  for (const [, d] of Array.from(catMap.entries())) {
-    if (d.accountType === "Income") {
-      plIncome += d.income - d.expense;
-    } else if (d.accountType === "Expense") {
-      plExpenses += d.expense - d.income;
+  // Split P&L into prior years (retained earnings) vs current year net income
+  const currentYear = asOfDate.substring(0, 4);
+  const yearStart = `${currentYear}-01-01`;
+
+  let priorIncome = 0;
+  let priorExpenses = 0;
+  let currentIncome = 0;
+  let currentExpenses = 0;
+
+  for (const t of transactions) {
+    if (t.account_type !== "Income" && t.account_type !== "Expense") continue;
+    const amt = Number(t.amount);
+    const isPrior = t.date < yearStart;
+
+    if (t.account_type === "Income") {
+      const effect = t.type === "income" ? amt : -amt;
+      if (isPrior) priorIncome += effect;
+      else currentIncome += effect;
+    } else {
+      const effect = t.type === "expense" ? amt : -amt;
+      if (isPrior) priorExpenses += effect;
+      else currentExpenses += effect;
     }
   }
-  const retainedEarnings = plIncome - plExpenses;
 
-  const totalEquity = equityItems.reduce((s, i) => s + i.amount, 0) + retainedEarnings;
+  const retainedEarnings = priorIncome - priorExpenses;       // prior years only
+  const currentYearNetIncome = currentIncome - currentExpenses; // current year only
+
+  const totalEquity = equityItems.reduce((s, i) => s + i.amount, 0) + retainedEarnings + currentYearNetIncome;
   const totalLiabilitiesAndEquity = totalLiabilities + totalEquity;
 
   return {
     asOfDate,
     cashByAccount,
     totalCurrentAssets,
+    hasFixedAssets,
     fixedAssets,
     totalFixedAssets,
     totalAssets,
@@ -319,6 +347,7 @@ export async function getBalanceSheetData(asOfDate: string): Promise<BalanceShee
     totalLiabilities,
     equityItems,
     retainedEarnings,
+    currentYearNetIncome,
     totalEquity,
     totalLiabilitiesAndEquity,
   };

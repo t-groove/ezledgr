@@ -905,9 +905,6 @@ export default function BookkeepingClient({
             <optgroup label="── Expenses ──">
               {EXPENSE_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
             </optgroup>
-            <optgroup label="── Assets ──">
-              {ASSET_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
-            </optgroup>
             <optgroup label="── Equity ──">
               {EQUITY_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
             </optgroup>
@@ -916,6 +913,9 @@ export default function BookkeepingClient({
             </optgroup>
             <optgroup label="── Transfers ──">
               {TRANSFER_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+            </optgroup>
+            <optgroup label="── Fixed Assets (Advanced) ──">
+              {ASSET_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
             </optgroup>
           </select>
           {/* 5. Type — aligns with Type+Amount columns (w-28) */}
@@ -1011,9 +1011,6 @@ export default function BookkeepingClient({
                   <optgroup label="── Expenses ──">
                     {EXPENSE_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
                   </optgroup>
-                  <optgroup label="── Assets ──">
-                    {ASSET_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
-                  </optgroup>
                   <optgroup label="── Equity ──">
                     {EQUITY_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
                   </optgroup>
@@ -1022,6 +1019,9 @@ export default function BookkeepingClient({
                   </optgroup>
                   <optgroup label="── Transfers ──">
                     {TRANSFER_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                  </optgroup>
+                  <optgroup label="── Fixed Assets (Advanced) ──">
+                    {ASSET_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
                   </optgroup>
                 </select>
               </div>
@@ -1111,9 +1111,6 @@ export default function BookkeepingClient({
                   <optgroup label="── Expenses ──">
                     {EXPENSE_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
                   </optgroup>
-                  <optgroup label="── Assets ──">
-                    {ASSET_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
-                  </optgroup>
                   <optgroup label="── Equity ──">
                     {EQUITY_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
                   </optgroup>
@@ -1122,6 +1119,9 @@ export default function BookkeepingClient({
                   </optgroup>
                   <optgroup label="── Transfers ──">
                     {TRANSFER_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                  </optgroup>
+                  <optgroup label="── Fixed Assets (Advanced) ──">
+                    {ASSET_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
                   </optgroup>
                 </select>
               </div>
@@ -1384,9 +1384,6 @@ export default function BookkeepingClient({
                             <optgroup label="── Expenses ──">
                               {EXPENSE_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
                             </optgroup>
-                            <optgroup label="── Assets ──">
-                              {ASSET_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
-                            </optgroup>
                             <optgroup label="── Equity ──">
                               {EQUITY_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
                             </optgroup>
@@ -1395,6 +1392,9 @@ export default function BookkeepingClient({
                             </optgroup>
                             <optgroup label="── Transfers ──">
                               {TRANSFER_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                            </optgroup>
+                            <optgroup label="── Fixed Assets (Advanced) ──">
+                              {ASSET_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
                             </optgroup>
                           </select>
                         </td>
