@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "../../../supabase/server";
+import { createAdminClient } from "../supabase/admin";
 import { cookies } from "next/headers";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
@@ -257,7 +258,7 @@ export async function inviteTeamMember(
       .from("business_invitations")
       .select("id")
       .eq("business_id", businessId)
-      .eq("invited_email", email)
+      .eq("invited_email", email.toLowerCase())
       .is("accepted_at", null)
       .gt("expires_at", new Date().toISOString())
       .maybeSingle();
@@ -266,14 +267,56 @@ export async function inviteTeamMember(
       return { success: false, error: "An active invitation already exists for this email" };
     }
 
+    // Get business name for the invite email
+    const { data: business } = await supabase
+      .from("businesses")
+      .select("name")
+      .eq("id", businessId)
+      .single();
+
+    // Use admin client to send the actual invite email via Supabase Auth
+    const adminClient = createAdminClient();
+
+    const redirectTo = `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback?next=/dashboard&business_id=${businessId}`;
+
+    const { data: inviteData, error: inviteError } =
+      await adminClient.auth.admin.inviteUserByEmail(email.toLowerCase(), {
+        redirectTo,
+        data: {
+          business_id: businessId,
+          business_name: business?.name ?? "Centerbase",
+          role,
+          invited_by: user.id,
+        },
+      });
+
+    if (inviteError) {
+      return { success: false, error: inviteError.message };
+    }
+
+    // Save invitation record
     const { error } = await supabase.from("business_invitations").insert({
       business_id: businessId,
-      invited_email: email,
+      invited_email: email.toLowerCase(),
       role,
       invited_by: user.id,
+      token: inviteData.user.id,
     });
 
     if (error) return { success: false, error: error.message };
+
+    // Pre-create a pending member row (activated on callback after accept)
+    await supabase
+      .from("business_members")
+      .insert({
+        business_id: businessId,
+        user_id: inviteData.user.id,
+        role,
+        invited_email: email.toLowerCase(),
+        is_active: false,
+      })
+      .select();
+
     return { success: true };
   } catch (err) {
     return { success: false, error: String(err) };

@@ -11,7 +11,7 @@ import {
   deleteBusiness,
 } from "@/lib/business/actions";
 import type { Business, TeamMember, BusinessInvitation } from "@/lib/business/actions";
-import { Trash2, UserMinus, AlertTriangle, X, Crown } from "lucide-react";
+import { Trash2, UserMinus, AlertTriangle, X, Crown, RotateCcw } from "lucide-react";
 
 // ── Role config ────────────────────────────────────────────────────────────────
 
@@ -178,6 +178,21 @@ export default function SettingsClient({
         showToast("Role updated.");
       } else {
         showToast(result.error ?? "Failed to update role.", "error");
+      }
+    });
+  }
+
+  function handleResendInvite(inv: BusinessInvitation) {
+    startMemberTransition(async () => {
+      // Cancel the existing invite so the duplicate check won't block re-send
+      await cancelInvitation(inv.id);
+      setInvitations((list) => list.filter((i) => i.id !== inv.id));
+      const result = await inviteTeamMember(business.id, inv.invited_email, inv.role);
+      if (result.success) {
+        showToast(`Invitation resent to ${inv.invited_email}.`);
+        router.refresh();
+      } else {
+        showToast(result.error ?? "Failed to resend invitation.", "error");
       }
     });
   }
@@ -567,14 +582,24 @@ export default function SettingsClient({
                             </td>
                             {isOwner && (
                               <td className="px-6 py-3 text-right">
-                                <button
-                                  onClick={() => handleCancelInvite(inv.id)}
-                                  disabled={memberPending}
-                                  className="p-1.5 text-[#6B7A99] hover:text-[#EF4444] hover:bg-[#EF4444]/10 rounded-lg transition-colors disabled:opacity-50"
-                                  title="Cancel invitation"
-                                >
-                                  <X size={14} />
-                                </button>
+                                <div className="flex items-center justify-end gap-1">
+                                  <button
+                                    onClick={() => handleResendInvite(inv)}
+                                    disabled={memberPending}
+                                    className="p-1.5 text-[#6B7A99] hover:text-[#4F7FFF] hover:bg-[#4F7FFF]/10 rounded-lg transition-colors disabled:opacity-50"
+                                    title="Resend invitation"
+                                  >
+                                    <RotateCcw size={14} />
+                                  </button>
+                                  <button
+                                    onClick={() => handleCancelInvite(inv.id)}
+                                    disabled={memberPending}
+                                    className="p-1.5 text-[#6B7A99] hover:text-[#EF4444] hover:bg-[#EF4444]/10 rounded-lg transition-colors disabled:opacity-50"
+                                    title="Cancel invitation"
+                                  >
+                                    <X size={14} />
+                                  </button>
+                                </div>
                               </td>
                             )}
                           </tr>
