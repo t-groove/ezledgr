@@ -275,6 +275,7 @@ export async function inviteTeamMember(
       .single();
 
     // Use admin client to send the actual invite email via Supabase Auth
+    console.log('Admin client creating, has service key:', !!process.env.SUPABASE_SERVICE_ROLE_KEY)
     const adminClient = createAdminClient();
 
     const redirectTo = `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback?next=/dashboard&business_id=${businessId}`;
@@ -291,6 +292,11 @@ export async function inviteTeamMember(
       });
 
     if (inviteError) {
+      console.error('inviteUserByEmail error:', {
+        message: inviteError.message,
+        status: inviteError.status,
+        name: inviteError.name,
+      })
       return { success: false, error: inviteError.message };
     }
 
@@ -319,6 +325,7 @@ export async function inviteTeamMember(
 
     return { success: true };
   } catch (err) {
+    console.error('inviteTeamMember unexpected error:', err)
     return { success: false, error: String(err) };
   }
 }
