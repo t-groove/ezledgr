@@ -4,6 +4,7 @@ import { createClient } from "../../../supabase/server";
 import { createAdminClient } from "../supabase/admin";
 import { cookies } from "next/headers";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { Resend } from "resend";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -274,30 +275,83 @@ export async function inviteTeamMember(
       .eq("id", businessId)
       .single();
 
-    // Use admin client to send the actual invite email via Supabase Auth
+    // Use admin client to generate the invite link
     console.log('Admin client creating, has service key:', !!process.env.SUPABASE_SERVICE_ROLE_KEY)
     const adminClient = createAdminClient();
 
     const redirectTo = `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback?next=/dashboard&business_id=${businessId}`;
 
-    const { data: inviteData, error: inviteError } =
-      await adminClient.auth.admin.inviteUserByEmail(email.toLowerCase(), {
-        redirectTo,
-        data: {
-          business_id: businessId,
-          business_name: business?.name ?? "Centerbase",
-          role,
-          invited_by: user.id,
+    const { data: linkData, error: linkError } =
+      await adminClient.auth.admin.generateLink({
+        type: "invite",
+        email: email.toLowerCase(),
+        options: {
+          redirectTo,
+          data: {
+            business_id: businessId,
+            role,
+            invited_by: user.id,
+          },
         },
       });
 
-    if (inviteError) {
-      console.error('inviteUserByEmail error:', {
-        message: inviteError.message,
-        status: inviteError.status,
-        name: inviteError.name,
+    if (linkError) {
+      console.error('generateLink error:', {
+        message: linkError.message,
+        status: linkError.status,
+        name: linkError.name,
       })
-      return { success: false, error: inviteError.message };
+      return { success: false, error: linkError.message };
+    }
+
+    const inviteUrl = linkData.properties?.action_link;
+
+    if (!inviteUrl) {
+      console.error('generateLink returned no action_link', linkData)
+      return { success: false, error: "Could not generate invite link" };
+    }
+
+    // Send invitation email via Resend
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    const businessName = business?.name ?? "Centerbase";
+
+    const { error: emailError } = await resend.emails.send({
+      from: "Centerbase <onboarding@resend.dev>",
+      to: email,
+      subject: `You've been invited to ${businessName} on Centerbase`,
+      html: `
+        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+          <h1 style="color: #0A0F1E; font-size: 24px; margin-bottom: 8px;">
+            You're invited to ${businessName}
+          </h1>
+          <p style="color: #6B7A99; font-size: 16px; margin-bottom: 24px;">
+            You've been invited to join ${businessName} on Centerbase
+            as a <strong>${role}</strong>.
+          </p>
+          <p style="color: #374151; font-size: 16px; margin-bottom: 32px;">
+            Click the button below to accept your invitation and set up your account.
+          </p>
+          <a href="${inviteUrl}"
+             style="background: #4F7FFF; color: white; padding: 14px 28px;
+                    border-radius: 8px; text-decoration: none;
+                    font-weight: 600; font-size: 16px; display: inline-block;">
+            Accept Invitation →
+          </a>
+          <p style="color: #9CA3AF; font-size: 14px; margin-top: 32px;">
+            This invitation expires in 7 days. If you did not expect
+            this invitation, you can ignore this email.
+          </p>
+          <hr style="border: none; border-top: 1px solid #E5E7EB; margin: 32px 0;" />
+          <p style="color: #9CA3AF; font-size: 12px;">
+            Centerbase — The back office for modern small businesses
+          </p>
+        </div>
+      `,
+    });
+
+    if (emailError) {
+      console.error('Resend email error:', emailError)
+      return { success: false, error: "Failed to send invitation email" };
     }
 
     // Save invitation record
@@ -306,7 +360,7 @@ export async function inviteTeamMember(
       invited_email: email.toLowerCase(),
       role,
       invited_by: user.id,
-      token: inviteData.user.id,
+      token: linkData.user.id,
     });
 
     if (error) return { success: false, error: error.message };
@@ -316,7 +370,7 @@ export async function inviteTeamMember(
       .from("business_members")
       .insert({
         business_id: businessId,
-        user_id: inviteData.user.id,
+        user_id: linkData.user.id,
         role,
         invited_email: email.toLowerCase(),
         is_active: false,
