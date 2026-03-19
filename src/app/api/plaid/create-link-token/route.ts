@@ -10,13 +10,26 @@ export async function POST(_req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const response = await plaidClient.linkTokenCreate({
-    user: { client_user_id: user.id },
-    client_name: 'Centerbase',
-    products: [Products.Transactions],
-    country_codes: [CountryCode.Us],
-    language: 'en',
-  })
+  try {
+    const response = await plaidClient.linkTokenCreate({
+      user: { client_user_id: user.id },
+      client_name: 'Centerbase',
+      products: [Products.Transactions],
+      country_codes: [CountryCode.Us],
+      language: 'en',
+      ...(process.env.NEXT_PUBLIC_SITE_URL && {
+        redirect_uri: process.env.NEXT_PUBLIC_SITE_URL + '/dashboard/accounts',
+      }),
+    })
 
-  return NextResponse.json({ link_token: response.data.link_token })
+    console.log('Link token created successfully')
+    return NextResponse.json({ link_token: response.data.link_token })
+  } catch (error: unknown) {
+    const err = error as { response?: { data: unknown }; message?: string }
+    console.error('Plaid link token error:', err.response?.data ?? error)
+    return NextResponse.json(
+      { error: err.response?.data ?? err.message },
+      { status: 500 }
+    )
+  }
 }
