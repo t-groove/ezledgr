@@ -280,14 +280,14 @@ export async function inviteTeamMember(
     console.log('Admin client creating, has service key:', !!process.env.SUPABASE_SERVICE_ROLE_KEY)
     const adminClient = createAdminClient();
 
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://new-test-2026.vercel.app";
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://ezledgr.com";
 
     const { data: inviteData, error: inviteError } =
       await adminClient.auth.admin.inviteUserByEmail(email, {
         redirectTo: `${siteUrl}/auth/callback?next=/dashboard&business_id=${businessId}`,
         data: {
           business_id: businessId,
-          business_name: business?.name ?? "Centerbase",
+          business_name: business?.name ?? "ezledgr",
           role,
           invited_by: user.id,
         },

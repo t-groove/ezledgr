@@ -59,7 +59,7 @@ export default function DashboardNavbar() {
             prefetch
             className="font-syne text-xl font-bold text-[#E8ECF4] hover:text-[#4F7FFF] transition-colors"
           >
-            Centerbase
+            ezledgr
           </Link>
 
           {/* Business selector */}

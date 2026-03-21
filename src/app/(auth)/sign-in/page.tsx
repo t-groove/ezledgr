@@ -25,7 +25,7 @@ export default async function SignInPage({ searchParams }: LoginProps) {
       <div className="w-full max-w-md space-y-6">
         <div className="text-center">
           <Link href="/" className="font-syne text-2xl font-bold text-foreground hover:text-primary transition-colors">
-            Centerbase
+            ezledgr
           </Link>
         </div>
         <div className="rounded-xl border border-border bg-card p-8 shadow-lg">

@@ -148,7 +148,7 @@ export default function LandingHero() {
               style={{ animationDelay: "120ms" }}
             >
               Stop paying for QuickBooks, a registered agent, an invoicing tool,
-              a mileage tracker, and a website separately. Centerbase replaces
+              a mileage tracker, and a website separately. ezledgr replaces
               them all.
             </p>
             <div
