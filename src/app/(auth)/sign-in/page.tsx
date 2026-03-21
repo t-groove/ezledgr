@@ -6,13 +6,19 @@ import { Label } from "@/components/ui/label";
 import Link from "next/link";
 
 interface LoginProps {
-  searchParams: Promise<Message>;
+  searchParams: Promise<{ redirect?: string } & Partial<Record<string, string>>>;
 }
 
 export default async function SignInPage({ searchParams }: LoginProps) {
-  const message = await searchParams;
+  const params = await searchParams;
+  const redirectTo = params.redirect;
 
-  if ("message" in message) {
+  // Show form-level message if present (success/error from redirect)
+  const messageKeys = ["success", "error", "message"] as const;
+  const messageKey = messageKeys.find((k) => k in params);
+  const message = messageKey ? ({ [messageKey]: params[messageKey] } as Message) : null;
+
+  if (message && messageKey !== "error") {
     return (
       <div className="flex h-screen w-full flex-1 items-center justify-center p-4 sm:max-w-md">
         <FormMessage message={message} />
@@ -42,6 +48,11 @@ export default async function SignInPage({ searchParams }: LoginProps) {
                 </Link>
               </p>
             </div>
+
+            {/* Hidden redirect field — passed through to signInAction */}
+            {redirectTo && (
+              <input type="hidden" name="redirect" value={redirectTo} />
+            )}
 
             <div className="space-y-4">
               <div className="space-y-2">
@@ -89,7 +100,7 @@ export default async function SignInPage({ searchParams }: LoginProps) {
               Sign in
             </SubmitButton>
 
-            <FormMessage message={message} />
+            {message && <FormMessage message={message} />}
           </form>
         </div>
       </div>

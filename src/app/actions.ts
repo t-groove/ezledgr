@@ -72,6 +72,9 @@ export const signUpAction = async (formData: FormData) => {
 export const signInAction = async (formData: FormData) => {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
+  const rawRedirect = formData.get("redirect")?.toString();
+  // Only allow internal redirects (must start with /)
+  const redirectTo = rawRedirect?.startsWith("/") ? rawRedirect : "/dashboard";
   const supabase = await createClient();
 
   const { error } = await supabase.auth.signInWithPassword({
@@ -80,10 +83,14 @@ export const signInAction = async (formData: FormData) => {
   });
 
   if (error) {
-    return encodedRedirect("error", "/sign-in", error.message);
+    // Preserve redirect param so user doesn't lose their flow
+    const errorPath = rawRedirect
+      ? `/sign-in?redirect=${encodeURIComponent(rawRedirect)}`
+      : "/sign-in";
+    return encodedRedirect("error", errorPath, error.message);
   }
 
-  return redirect("/dashboard");
+  return redirect(redirectTo);
 };
 
 export const forgotPasswordAction = async (formData: FormData) => {

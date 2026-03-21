@@ -4,11 +4,13 @@ import { useState, useEffect, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "../../../../supabase/client";
 import type { User } from "@supabase/supabase-js";
+import Link from "next/link";
 
 function AcceptInviteForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const businessId = searchParams.get("business_id");
+  const invitedEmail = searchParams.get("email");
 
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -19,14 +21,11 @@ function AcceptInviteForm() {
   const [businessName, setBusinessName] = useState("");
   const [user, setUser] = useState<User | null>(null);
 
-  // Use a ref so we don't recreate the client on every render
   const supabaseRef = useRef(createClient());
 
   useEffect(() => {
     const supabase = supabaseRef.current;
 
-    // Supabase browser client auto-processes hash fragment tokens on init.
-    // Listen for auth state changes to pick up the invited session.
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (_event, session) => {
@@ -43,7 +42,6 @@ function AcceptInviteForm() {
       }
     });
 
-    // Also check immediately in case session is already present
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         setUser(session.user);
@@ -109,6 +107,10 @@ function AcceptInviteForm() {
     router.push("/dashboard");
   }
 
+  const existingUserHref = businessId
+    ? `/sign-in?redirect=${encodeURIComponent(`/auth/accept-invite/existing?business_id=${businessId}`)}`
+    : "/sign-in";
+
   return (
     <div
       className="flex min-h-screen flex-col items-center justify-center px-4 py-8"
@@ -143,7 +145,9 @@ function AcceptInviteForm() {
                 : "You've been invited"}
             </h1>
             <p className="text-sm" style={{ color: "#6B7A99" }}>
-              Set up your password to get started
+              {invitedEmail
+                ? `Set up a password for ${invitedEmail}`
+                : "Set up your password to get started"}
             </p>
           </div>
 
@@ -238,9 +242,21 @@ function AcceptInviteForm() {
             </button>
           </form>
 
+          {/* Existing user link */}
+          <p className="mt-5 text-center text-sm" style={{ color: "#6B7A99" }}>
+            Already have an ezledgr account?{" "}
+            <Link
+              href={existingUserHref}
+              className="font-medium hover:underline"
+              style={{ color: "#4F7FFF" }}
+            >
+              Sign in instead →
+            </Link>
+          </p>
+
           {!user && (
             <p
-              className="mt-4 text-center text-xs"
+              className="mt-3 text-center text-xs"
               style={{ color: "#3D4E6B" }}
             >
               Waiting for invitation link to be verified…

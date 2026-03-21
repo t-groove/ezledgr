@@ -18,6 +18,23 @@ export default async function DashboardPage() {
 
   const businessId = await getCurrentBusinessId(supabase);
 
+  // Fetch pending invitations for this user (inactive memberships)
+  const { data: pendingRows } = await supabase
+    .from("business_members")
+    .select("id, business_id, role, business:businesses(name)")
+    .eq("user_id", user.id)
+    .eq("is_active", false);
+
+  const pendingInvitations = (pendingRows ?? []).map((m) => {
+    const biz = m.business as unknown as { name: string } | null;
+    return {
+      id: m.id as string,
+      business_id: m.business_id as string,
+      business_name: biz?.name ?? "Unknown Business",
+      role: m.role as string,
+    };
+  });
+
   // No business yet — render onboarding via DashboardClient
   if (!businessId) {
     const userName = (user.email ?? "").split("@")[0];
@@ -36,6 +53,7 @@ export default async function DashboardPage() {
               userName={userName}
               currentYear={new Date().getFullYear()}
               hasBusiness={false}
+              pendingInvitations={pendingInvitations}
             />
           </div>
         </main>
@@ -99,6 +117,7 @@ export default async function DashboardPage() {
             userName={userName}
             currentYear={currentYear}
             hasBusiness={true}
+            pendingInvitations={pendingInvitations}
           />
         </div>
       </main>
