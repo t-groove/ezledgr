@@ -286,7 +286,7 @@ export async function inviteTeamMember(
         type: 'invite',
         email,
         options: {
-          redirectTo: `${siteUrl}/auth/callback?next=/dashboard&business_id=${businessId}`,
+          redirectTo: `${siteUrl}/auth/accept-invite?business_id=${businessId}`,
           data: {
             business_id: businessId,
             business_name: businessName,
