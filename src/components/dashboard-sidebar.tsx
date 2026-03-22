@@ -29,7 +29,7 @@ const NAV_ITEMS = [
   { label: 'Reports',         href: '/dashboard/reports',             icon: BarChart2       },
   { label: 'Accounts',        href: '/dashboard/accounts',            icon: Wallet          },
   { label: 'Journal Entries', href: '/dashboard/journal-entries',     icon: BookOpen        },
-  { label: 'Team Members',    href: '/dashboard/settings',            icon: Users           },
+  { label: 'Team Members',    href: '/dashboard/settings/team',       icon: Users           },
   { label: 'Businesses',      href: '/dashboard/businesses',          icon: Briefcase       },
 ] as const
 
@@ -154,12 +154,15 @@ export default function DashboardSidebar() {
               )}
             </div>
           ) : (
-            <div className="flex items-center gap-2 px-3 py-2">
+            <Link
+              href="/dashboard/settings/business"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-[#1E2A45] transition-colors"
+            >
               <Building2 size={13} className="text-[#6B7A99] flex-shrink-0" />
               <span className="text-xs font-medium text-[#E8ECF4] truncate">
                 {currentBusiness?.name ?? '—'}
               </span>
-            </div>
+            </Link>
           )}
         </div>
       )}
