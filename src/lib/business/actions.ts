@@ -143,6 +143,48 @@ export async function getUserBusinesses(): Promise<BusinessMember[]> {
   return (data ?? []) as BusinessMember[];
 }
 
+// ── activateMembership ─────────────────────────────────────────────────────────
+// Called from the accept-invite client page after the user sets their password.
+// Uses the SERVER Supabase client so the session established via the invite
+// token (set on the client) is read from cookies — bypassing any client-side
+// RLS quirks that silently blocked the browser-client update.
+
+export async function activateMembership(
+  businessId: string
+): Promise<{ success: boolean; error?: string }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return { success: false, error: "Not authenticated" };
+
+  console.log("Activating membership for:", user.id, "business:", businessId);
+
+  const { error: memberError } = await supabase
+    .from("business_members")
+    .update({
+      is_active: true,
+      accepted_at: new Date().toISOString(),
+    })
+    .eq("business_id", businessId)
+    .eq("user_id", user.id);
+
+  if (memberError) {
+    console.error("Activation error:", memberError);
+    return { success: false, error: memberError.message };
+  }
+
+  await supabase
+    .from("business_invitations")
+    .update({ accepted_at: new Date().toISOString() })
+    .eq("business_id", businessId)
+    .eq("invited_email", user.email?.toLowerCase() ?? "");
+
+  console.log("Membership activated successfully");
+  return { success: true };
+}
+
 // ── getUserRole ────────────────────────────────────────────────────────────────
 
 export async function getUserRole(businessId: string): Promise<string | null> {

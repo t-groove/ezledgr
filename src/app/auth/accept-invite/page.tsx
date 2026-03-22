@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "../../../../supabase/client";
+import { activateMembership } from "@/lib/business/actions";
 import Link from "next/link";
 
 function AcceptInviteForm() {
@@ -123,53 +124,15 @@ function AcceptInviteForm() {
       return;
     }
 
-    // Step 2: Activate membership
+    // Step 2: Activate membership via server action.
+    // The server action uses the server Supabase client which reads the session
+    // from cookies — more reliable than the browser client for post-invite flows.
     if (businessId) {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      const { error: memberError } = await supabase
-        .from("business_members")
-        .update({
-          is_active: true,
-          accepted_at: new Date().toISOString(),
-        })
-        .eq("business_id", businessId)
-        .eq("user_id", user?.id ?? "");
-
-      if (memberError) {
-        console.error("Membership activation failed:", memberError);
-        // Try upsert as fallback (handles cases where the row doesn't yet exist)
-        await supabase
-          .from("business_members")
-          .upsert(
-            {
-              business_id: businessId,
-              user_id: user?.id,
-              role: role,
-              is_active: true,
-              accepted_at: new Date().toISOString(),
-            },
-            { onConflict: "business_id,user_id" }
-          );
+      const result = await activateMembership(businessId);
+      if (!result.success) {
+        console.error("Failed to activate membership:", result.error);
+        // Continue anyway — don't block the user from reaching the dashboard
       }
-
-      // Verify activation succeeded (visible in Vercel logs)
-      const { data: verify } = await supabase
-        .from("business_members")
-        .select("is_active")
-        .eq("business_id", businessId)
-        .eq("user_id", user?.id ?? "")
-        .single();
-      console.log("Membership after activation:", verify);
-
-      // Mark invitation as accepted
-      await supabase
-        .from("business_invitations")
-        .update({ accepted_at: new Date().toISOString() })
-        .eq("business_id", businessId)
-        .eq("invited_email", user?.email?.toLowerCase() ?? "");
     }
 
     // Step 3: Small delay to let Supabase replicate the membership before the
