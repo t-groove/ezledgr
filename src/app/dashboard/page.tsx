@@ -18,8 +18,17 @@ export default async function DashboardPage() {
 
   const businessId = await getCurrentBusinessId(supabase);
 
-  // No business yet — render onboarding via DashboardClient
+  // No active business — check whether user has any membership at all before
+  // showing onboarding (invited users may have a pending row not yet active)
   if (!businessId) {
+    const { data: anyMembership } = await supabase
+      .from("business_members")
+      .select("business_id")
+      .eq("user_id", user.id)
+      .limit(1)
+      .maybeSingle();
+
+    const showOnboarding = !anyMembership;
     const userName = (user.email ?? "").split("@")[0];
     return (
       <>
@@ -36,6 +45,7 @@ export default async function DashboardPage() {
               userName={userName}
               currentYear={new Date().getFullYear()}
               hasBusiness={false}
+              showOnboarding={showOnboarding}
             />
           </div>
         </main>

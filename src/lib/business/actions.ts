@@ -379,12 +379,13 @@ export async function inviteTeamMember(
     // ── New user flow ─────────────────────────────────────────────────────────
 
     // Generate the invite link via Supabase Admin (creates the user + token)
+    const encodedName = encodeURIComponent(business?.name ?? '');
     const { data: linkData, error: linkError } =
       await adminClient.auth.admin.generateLink({
         type: 'invite',
         email,
         options: {
-          redirectTo: `${siteUrl}/auth/accept-invite?business_id=${businessId}&email=${encodeURIComponent(email)}`,
+          redirectTo: `${siteUrl}/auth/accept-invite?business_id=${businessId}&business_name=${encodedName}&role=${encodeURIComponent(role)}`,
           data: {
             business_id: businessId,
             business_name: businessName,

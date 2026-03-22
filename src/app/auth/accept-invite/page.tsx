@@ -77,28 +77,15 @@ function AcceptInviteForm() {
       } = await supabase.auth.getUser();
       setUserEmail(user?.email ?? "");
 
-      // Step C — Get business name using business_id from URL
-      const businessId =
-        query.get("business_id") ?? hash.get("business_id");
-      if (businessId) {
-        const { data: business } = await supabase
-          .from("businesses")
-          .select("name")
-          .eq("id", businessId)
-          .single();
-        setBusinessName(business?.name ?? "your new business");
-      }
+      // Step C — Get business name from URL (bypasses RLS — user has no active membership yet)
+      const rawName = query.get("business_name");
+      setBusinessName(
+        rawName ? decodeURIComponent(rawName) : "your new business"
+      );
 
-      // Step D — Get role from business_members
-      if (businessId && user) {
-        const { data: membership } = await supabase
-          .from("business_members")
-          .select("role")
-          .eq("business_id", businessId)
-          .eq("user_id", user.id)
-          .single();
-        setRole(membership?.role ?? "member");
-      }
+      // Step D — Get role from URL
+      const rawRole = query.get("role");
+      setRole(rawRole ? decodeURIComponent(rawRole) : "member");
 
       // Step E — Show the form
       setSessionReady(true);
@@ -160,7 +147,9 @@ function AcceptInviteForm() {
         .eq("invited_email", user?.email?.toLowerCase());
     }
 
-    // Step 3: Go straight to dashboard
+    // Step 3: Small delay to let Supabase replicate the membership before the
+    // server component runs its active-membership check, then redirect.
+    await new Promise((resolve) => setTimeout(resolve, 500));
     window.location.href = "/dashboard";
   };
 

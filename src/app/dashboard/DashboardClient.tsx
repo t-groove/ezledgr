@@ -238,6 +238,7 @@ interface Props {
   userName: string;
   currentYear: number;
   hasBusiness: boolean;
+  showOnboarding?: boolean;
 }
 
 // ── Main component ────────────────────────────────────────────────────────────
@@ -252,9 +253,12 @@ export default function DashboardClient({
   userName,
   currentYear,
   hasBusiness,
+  showOnboarding = true,
 }: Props) {
   if (!hasBusiness) {
-    return <OnboardingCard />;
+    // Don't show onboarding for invited users whose membership row exists
+    // but isn't active yet (race condition after accepting invite)
+    return showOnboarding ? <OnboardingCard /> : null;
   }
 
   const today = new Date();
