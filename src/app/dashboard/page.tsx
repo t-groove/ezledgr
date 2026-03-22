@@ -21,12 +21,12 @@ export default async function DashboardPage() {
   // Fetch pending invitations for this user (inactive memberships)
   const { data: pendingRows } = await supabase
     .from("business_members")
-    .select("id, business_id, role, business:businesses(name)")
+    .select("id, business_id, role, businesses(id, name)")
     .eq("user_id", user.id)
     .eq("is_active", false);
 
   const pendingInvitations = (pendingRows ?? []).map((m) => {
-    const biz = m.business as unknown as { name: string } | null;
+    const biz = m.businesses as unknown as { name: string } | null;
     return {
       id: m.id as string,
       business_id: m.business_id as string,

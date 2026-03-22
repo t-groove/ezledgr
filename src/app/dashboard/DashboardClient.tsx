@@ -241,34 +241,56 @@ function PendingInvitationsBanner({
 }: {
   invitations: PendingInvitation[];
 }) {
-  const router = useRouter();
+  const [localInvites, setLocalInvites] = useState<PendingInvitation[]>(invitations);
   const [dismissed, setDismissed] = useState<string[]>([]);
   const [working, setWorking] = useState<string | null>(null);
+  const [acceptError, setAcceptError] = useState<string | null>(null);
+  const [joined, setJoined] = useState<string | null>(null);
 
-  const visible = invitations.filter((inv) => !dismissed.includes(inv.id));
-  if (visible.length === 0) return null;
+  const visible = localInvites.filter((inv) => !dismissed.includes(inv.id));
+  if (visible.length === 0 && !joined) return null;
 
   async function handleAccept(inv: PendingInvitation) {
     setWorking(inv.id);
+    setAcceptError(null);
     const supabase = createClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();
-    if (user) {
-      await supabase
-        .from("business_members")
-        .update({ is_active: true, accepted_at: new Date().toISOString() })
-        .eq("business_id", inv.business_id)
-        .eq("user_id", user.id);
 
-      await supabase
-        .from("business_invitations")
-        .update({ accepted_at: new Date().toISOString() })
-        .eq("business_id", inv.business_id)
-        .eq("invited_email", user.email?.toLowerCase());
+    if (!user) {
+      setAcceptError("Not authenticated. Please refresh and try again.");
+      setWorking(null);
+      return;
     }
+
+    const { error: memberError } = await supabase
+      .from("business_members")
+      .update({ is_active: true, accepted_at: new Date().toISOString() })
+      .eq("id", inv.id)
+      .eq("user_id", user.id);
+
+    if (memberError) {
+      console.error("Member activation error:", memberError);
+      setAcceptError("Failed to accept invitation. Please try again.");
+      setWorking(null);
+      return;
+    }
+
+    await supabase
+      .from("business_invitations")
+      .update({ accepted_at: new Date().toISOString() })
+      .eq("business_id", inv.business_id)
+      .eq("invited_email", user.email?.toLowerCase());
+
+    setLocalInvites((prev) => prev.filter((p) => p.id !== inv.id));
+    setJoined(inv.business_name);
     setWorking(null);
-    router.refresh();
+
+    // Full reload so the server re-runs getCurrentBusinessId and picks up the new active membership
+    setTimeout(() => {
+      window.location.reload();
+    }, 1500);
   }
 
   async function handleDecline(inv: PendingInvitation) {
@@ -291,6 +313,24 @@ function PendingInvitationsBanner({
 
   return (
     <div className="flex flex-col gap-2 mb-6">
+      {joined && (
+        <div
+          className="rounded-lg px-4 py-3"
+          style={{
+            backgroundColor: "rgba(34,197,94,0.08)",
+            border: "1px solid rgba(34,197,94,0.25)",
+          }}
+        >
+          <p className="text-sm" style={{ color: "#22C55E" }}>
+            ✓ Welcome! You have joined <strong>{joined}</strong>. Loading your dashboard…
+          </p>
+        </div>
+      )}
+      {acceptError && (
+        <p className="text-sm text-[#EF4444] bg-[#EF4444]/10 border border-[#EF4444]/30 rounded-lg px-3 py-2">
+          {acceptError}
+        </p>
+      )}
       {visible.map((inv) => (
         <div
           key={inv.id}
@@ -364,7 +404,7 @@ export default function DashboardClient({
     return (
       <>
         <PendingInvitationsBanner invitations={pendingInvitations} />
-        <OnboardingCard />
+        {pendingInvitations.length === 0 && <OnboardingCard />}
       </>
     );
   }
