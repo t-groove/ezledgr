@@ -160,6 +160,11 @@ export default function SettingsClient({
         if (result.success && result.url) {
           setAvatarUrl(result.url);
           showToast("Photo updated!");
+          // Notify other components on the page (e.g. navbar) that the
+          // avatar changed without requiring a full page refresh.
+          window.dispatchEvent(
+            new CustomEvent("avatar-updated", { detail: { url: result.url } })
+          );
         } else {
           showToast(result.error ?? "Upload failed — please try again", "error");
         }

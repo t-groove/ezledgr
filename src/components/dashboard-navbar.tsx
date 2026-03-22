@@ -44,6 +44,17 @@ export default function DashboardNavbar() {
     })
   }, [])
 
+  // Keep the navbar avatar in sync when the user uploads a new photo on
+  // the settings page without requiring a full page reload.
+  useEffect(() => {
+    function handleAvatarUpdate(e: Event) {
+      const url = (e as CustomEvent<{ url: string }>).detail?.url
+      if (url) setAvatarUrl(url)
+    }
+    window.addEventListener('avatar-updated', handleAvatarUpdate)
+    return () => window.removeEventListener('avatar-updated', handleAvatarUpdate)
+  }, [])
+
   // Close business dropdown on outside click
   useEffect(() => {
     function handleClick(e: MouseEvent) {
