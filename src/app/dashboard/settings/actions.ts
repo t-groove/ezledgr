@@ -68,7 +68,10 @@ export async function uploadAvatar(base64: string, contentType: string) {
   if (!user) return { success: false, error: "Not authenticated" };
 
   const fileExt = contentType.split("/")[1] ?? "jpg";
-  const filePath = `avatars/${user.id}.${fileExt}`;
+  // Path must be {userId}/... so that the RLS policy
+  // auth.uid()::text = (storage.foldername(name))[1] matches correctly.
+  // Timestamp suffix busts browser/CDN cache on re-upload.
+  const filePath = `${user.id}/${Date.now()}.${fileExt}`;
 
   const { error: uploadError } = await supabase.storage
     .from("avatars")

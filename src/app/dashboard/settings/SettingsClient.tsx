@@ -104,6 +104,7 @@ export default function SettingsClient({
   const [timezone, setTimezone] = useState("America/New_York");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     getProfile().then((profile) => {
@@ -136,21 +137,41 @@ export default function SettingsClient({
 
   async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
+    // Reset input so the same file can be re-selected after an error
+    e.target.value = "";
     if (!file) return;
+
+    const allowed = ["image/jpeg", "image/png", "image/webp"];
+    if (!allowed.includes(file.type)) {
+      showToast("Please select a JPG, PNG, or WebP image", "error");
+      return;
+    }
     if (file.size > 2 * 1024 * 1024) {
       showToast("Image must be under 2MB", "error");
       return;
     }
+
+    setIsUploading(true);
     const reader = new FileReader();
     reader.onload = async (ev) => {
-      const base64 = (ev.target?.result as string).split(",")[1];
-      const result = await uploadAvatar(base64, file.type);
-      if (result.success && result.url) {
-        setAvatarUrl(result.url);
-        showToast("Photo updated!");
-      } else {
-        showToast("Failed to upload photo", "error");
+      try {
+        const base64 = (ev.target?.result as string).split(",")[1];
+        const result = await uploadAvatar(base64, file.type);
+        if (result.success && result.url) {
+          setAvatarUrl(result.url);
+          showToast("Photo updated!");
+        } else {
+          showToast(result.error ?? "Upload failed — please try again", "error");
+        }
+      } catch {
+        showToast("Upload failed — please try again", "error");
+      } finally {
+        setIsUploading(false);
       }
+    };
+    reader.onerror = () => {
+      showToast("Could not read file — please try again", "error");
+      setIsUploading(false);
     };
     reader.readAsDataURL(file);
   }
@@ -355,22 +376,33 @@ export default function SettingsClient({
             <div className="bg-[#111827] border border-[#1E2A45] rounded-xl p-6">
               <h3 className="font-syne font-semibold text-[#E8ECF4] mb-4">Profile Photo</h3>
               <div className="flex items-center gap-5">
-                <div className="w-20 h-20 rounded-full bg-[#1E2A45] flex items-center justify-center overflow-hidden flex-shrink-0">
-                  {avatarUrl ? (
-                    <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
-                  ) : (
-                    <span className="text-2xl font-bold text-[#6B7A99]">{avatarInitial}</span>
+                <div className="relative w-20 h-20 flex-shrink-0">
+                  <div className="w-20 h-20 rounded-full bg-[#1E2A45] flex items-center justify-center overflow-hidden">
+                    {avatarUrl ? (
+                      <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-2xl font-bold text-[#6B7A99]">{avatarInitial}</span>
+                    )}
+                  </div>
+                  {isUploading && (
+                    <div className="absolute inset-0 rounded-full bg-[#0A0F1E]/70 flex items-center justify-center">
+                      <svg className="animate-spin w-6 h-6 text-[#4F7FFF]" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                      </svg>
+                    </div>
                   )}
                 </div>
                 <div>
-                  <label className="cursor-pointer">
+                  <label className={isUploading ? "cursor-not-allowed opacity-60" : "cursor-pointer"}>
                     <span className="bg-[#1E2A45] hover:bg-[#4F7FFF]/20 text-[#E8ECF4] px-4 py-2 rounded-lg text-sm transition-colors inline-block">
-                      Upload photo
+                      {isUploading ? "Uploading…" : "Upload photo"}
                     </span>
                     <input
                       type="file"
                       accept="image/jpeg,image/png,image/webp"
                       className="hidden"
+                      disabled={isUploading}
                       onChange={handleAvatarUpload}
                     />
                   </label>
