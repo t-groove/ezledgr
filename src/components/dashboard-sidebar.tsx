@@ -56,11 +56,12 @@ export default function DashboardSidebar() {
       setEmail(user.email ?? null)
       supabase
         .from('users')
-        .select('avatar_url, name, full_name')
+        .select('avatar_url, image, name, full_name')
         .eq('user_id', user.id)
         .maybeSingle()
         .then(({ data: row }) => {
-          if (row?.avatar_url) setAvatarUrl(row.avatar_url)
+          const url = row?.avatar_url ?? row?.image ?? null
+          if (url) setAvatarUrl(url)
           const name = row?.name ?? row?.full_name
           if (name) setDisplayName(name)
         })
