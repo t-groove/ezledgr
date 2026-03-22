@@ -96,7 +96,7 @@ function ExistingUserContent() {
               className="font-syne text-2xl font-bold"
               style={{ color: "#E8ECF4" }}
             >
-              ezledgr
+              EZ Ledgr
             </span>
           </div>
 

@@ -38,7 +38,7 @@ export default function LandingNavbar() {
               <Square className="w-3.5 h-3.5 text-white fill-white" />
             </div>
             <span className="text-[#E8ECF4] font-syne font-bold text-lg tracking-tight">
-              ezledgr
+              EZ Ledgr
             </span>
           </Link>
 

@@ -337,7 +337,7 @@ export async function inviteTeamMember(
     const adminClient = createAdminClient();
 
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://ezledgr.com";
-    const businessName = business?.name ?? "ezledgr";
+    const businessName = business?.name ?? "EZ Ledgr";
     const resend = new Resend(process.env.RESEND_API_KEY);
 
     // ── Check if user already exists ─────────────────────────────────────────
@@ -375,15 +375,15 @@ export async function inviteTeamMember(
 
       // Send "existing user" invite email
       const { error: emailError } = await resend.emails.send({
-        from: "ezledgr <noreply@mail.ezledgr.com>",
+        from: "EZ Ledgr <noreply@mail.ezledgr.com>",
         to: email,
-        subject: `You've been invited to join ${businessName} on ezledgr`,
+        subject: `You've been invited to join ${businessName} on EZ Ledgr`,
         html: `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>You've been invited to join ${businessName} on ezledgr</title>
+  <title>You've been invited to join ${businessName} on EZ Ledgr</title>
 </head>
 <body style="margin:0;padding:0;background:#0A0F1E;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#0A0F1E;padding:40px 16px;">
@@ -392,14 +392,14 @@ export async function inviteTeamMember(
         <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#111827;border-radius:12px;border:1px solid #1E2A45;overflow:hidden;">
           <tr>
             <td style="padding:32px 40px 24px;border-bottom:1px solid #1E2A45;">
-              <span style="font-size:22px;font-weight:700;color:#E8ECF4;letter-spacing:-0.5px;">ezledgr</span>
+              <span style="font-size:22px;font-weight:700;color:#E8ECF4;letter-spacing:-0.5px;">EZ Ledgr</span>
             </td>
           </tr>
           <tr>
             <td style="padding:32px 40px;">
               <h1 style="margin:0 0 12px;font-size:20px;font-weight:700;color:#E8ECF4;">You've been invited!</h1>
               <p style="margin:0 0 16px;font-size:15px;color:#6B7A99;line-height:1.6;">
-                You already have an ezledgr account. Click below to accept your invitation to join
+                You already have an EZ Ledgr account. Click below to accept your invitation to join
                 <strong style="color:#E8ECF4;">${businessName}</strong> as a
                 <strong style="color:#E8ECF4;">${role}</strong>.
               </p>
@@ -414,8 +414,8 @@ export async function inviteTeamMember(
           <tr>
             <td style="padding:24px 40px;border-top:1px solid #1E2A45;">
               <p style="margin:0;font-size:12px;color:#3D4E6B;line-height:1.6;">
-                This invitation was sent by ezledgr. If you weren't expecting this, you can safely ignore it.<br />
-                &copy; ${new Date().getFullYear()} ezledgr. All rights reserved.
+                This invitation was sent by EZ Ledgr. If you weren't expecting this, you can safely ignore it.<br />
+                &copy; ${new Date().getFullYear()} EZ Ledgr. All rights reserved.
               </p>
             </td>
           </tr>
@@ -466,15 +466,15 @@ export async function inviteTeamMember(
 
     // Send branded invite email via Resend
     const { error: emailError } = await resend.emails.send({
-      from: 'ezledgr <noreply@mail.ezledgr.com>',
+      from: 'EZ Ledgr <noreply@mail.ezledgr.com>',
       to: email,
-      subject: `You've been invited to ${businessName} on ezledgr`,
+      subject: `You've been invited to ${businessName} on EZ Ledgr`,
       html: `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>You've been invited to ${businessName} on ezledgr</title>
+  <title>You've been invited to ${businessName} on EZ Ledgr</title>
 </head>
 <body style="margin:0;padding:0;background:#0A0F1E;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#0A0F1E;padding:40px 16px;">
@@ -484,7 +484,7 @@ export async function inviteTeamMember(
           <!-- Header -->
           <tr>
             <td style="padding:32px 40px 24px;border-bottom:1px solid #1E2A45;">
-              <span style="font-size:22px;font-weight:700;color:#E8ECF4;letter-spacing:-0.5px;">ezledgr</span>
+              <span style="font-size:22px;font-weight:700;color:#E8ECF4;letter-spacing:-0.5px;">EZ Ledgr</span>
             </td>
           </tr>
           <!-- Body -->
@@ -492,7 +492,7 @@ export async function inviteTeamMember(
             <td style="padding:32px 40px;">
               <h1 style="margin:0 0 12px;font-size:20px;font-weight:700;color:#E8ECF4;">You've been invited!</h1>
               <p style="margin:0 0 24px;font-size:15px;color:#6B7A99;line-height:1.6;">
-                You've been invited to join <strong style="color:#E8ECF4;">${businessName}</strong> on ezledgr as a <strong style="color:#E8ECF4;">${role}</strong>.
+                You've been invited to join <strong style="color:#E8ECF4;">${businessName}</strong> on EZ Ledgr as a <strong style="color:#E8ECF4;">${role}</strong>.
               </p>
               <p style="margin:0 0 32px;font-size:15px;color:#6B7A99;line-height:1.6;">
                 Click the button below to set up your password and get started.
@@ -506,8 +506,8 @@ export async function inviteTeamMember(
           <tr>
             <td style="padding:24px 40px;border-top:1px solid #1E2A45;">
               <p style="margin:0;font-size:12px;color:#3D4E6B;line-height:1.6;">
-                This invitation was sent by ezledgr. If you weren't expecting this, you can safely ignore it.<br />
-                &copy; ${new Date().getFullYear()} ezledgr. All rights reserved.
+                This invitation was sent by EZ Ledgr. If you weren't expecting this, you can safely ignore it.<br />
+                &copy; ${new Date().getFullYear()} EZ Ledgr. All rights reserved.
               </p>
             </td>
           </tr>

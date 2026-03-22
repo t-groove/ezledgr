@@ -174,7 +174,7 @@ function AcceptInviteForm() {
         {/* Logo */}
         <div className="text-center mb-6">
           <h1 className="font-syne font-bold text-2xl text-[#E8ECF4]">
-            ezledgr
+            EZ Ledgr
           </h1>
         </div>
 
@@ -375,7 +375,7 @@ export default function AcceptInvitePage() {
           <div className="bg-[#111827] border border-[#1E2A45] rounded-xl p-8 w-full max-w-md">
             <div className="text-center mb-6">
               <h1 className="font-syne font-bold text-2xl text-[#E8ECF4]">
-                ezledgr
+                EZ Ledgr
               </h1>
             </div>
             <div className="flex flex-col items-center space-y-4 py-8">

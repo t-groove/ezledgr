@@ -22,7 +22,7 @@ export default function LandingFooter() {
                 <Square className="w-3.5 h-3.5 text-white fill-white" />
               </div>
               <span className="text-[#E8ECF4] font-syne font-bold text-lg tracking-tight">
-                ezledgr
+                EZ Ledgr
               </span>
             </Link>
             <p className="text-[#6B7A99] text-sm leading-relaxed max-w-[200px]">
@@ -55,7 +55,7 @@ export default function LandingFooter() {
         {/* Bottom bar */}
         <div className="pt-8 border-t border-[#1E2A45] flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-[#6B7A99] text-xs">
-            © {currentYear} ezledgr. All rights reserved.
+            © {currentYear} EZ Ledgr. All rights reserved.
           </p>
           <p className="text-[#6B7A99] text-xs">
             Made for small business owners, by small business owners.

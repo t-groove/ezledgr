@@ -65,14 +65,14 @@ export default function ProblemSection() {
             </span>
           </div>
 
-          {/* ezledgr price row */}
+          {/* EZ Ledgr price row */}
           <div className="flex items-center justify-between bg-[#4F7FFF]/10 border border-[#4F7FFF]/30 rounded-lg px-6 py-4">
             <div className="flex items-center gap-3">
               <div className="w-7 h-7 rounded-md bg-[#4F7FFF] flex items-center justify-center">
                 <span className="text-white text-xs font-bold">C</span>
               </div>
               <span className="text-[#E8ECF4] text-base font-semibold">
-                ezledgr
+                EZ Ledgr
               </span>
             </div>
             <div className="text-right">

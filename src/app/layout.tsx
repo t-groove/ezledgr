@@ -20,9 +20,9 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "ezledgr — Every tool your business needs",
+  title: "EZ Ledgr — Every tool your business needs",
   description:
-    "Stop paying for QuickBooks, a registered agent, an invoicing tool, a mileage tracker, and a website separately. ezledgr replaces them all.",
+    "Stop paying for QuickBooks, a registered agent, an invoicing tool, a mileage tracker, and a website separately. EZ Ledgr replaces them all.",
 };
 
 export default function RootLayout({

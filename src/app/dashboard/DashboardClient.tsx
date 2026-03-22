@@ -175,7 +175,7 @@ function OnboardingCard() {
           <Building2 size={24} className="text-[#4F7FFF]" />
         </div>
         <h1 className="font-syne text-2xl font-bold text-[#E8ECF4] mb-1">
-          Welcome to ezledgr!
+          Welcome to EZ Ledgr!
         </h1>
         <p className="text-sm text-[#6B7A99] mb-6">Let&apos;s set up your business.</p>
 
