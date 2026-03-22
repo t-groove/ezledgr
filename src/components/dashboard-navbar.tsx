@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useMemo } from 'react'
 import { createClient } from '../../supabase/client'
 import {
   DropdownMenu,
@@ -15,7 +15,6 @@ import { Button } from './ui/button'
 import { UserCircle, KeyRound, LogOut, ChevronDown, Settings, Check, Building2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useBusinessContext } from '@/lib/business/context'
-import { hasPermission } from '@/lib/business/permissions'
 
 export default function DashboardNavbar() {
   const supabase = createClient()
@@ -44,11 +43,21 @@ export default function DashboardNavbar() {
     return () => document.removeEventListener('mousedown', handleClick)
   }, [])
 
-  const role = currentRole ?? 'readonly'
-  const canViewReports = hasPermission(role, 'canViewReports')
-  const canEditTransactions = hasPermission(role, 'canEditTransactions')
-  const canManageAccounts = hasPermission(role, 'canManageAccounts')
-  const canManageJournalEntries = hasPermission(role, 'canManageJournalEntries')
+  const navLinks = useMemo(() => {
+    const all = [
+      { label: 'Transactions', href: '/dashboard/bookkeeping',
+        roles: ['owner', 'accountant', 'bookkeeper'] },
+      { label: 'Reports', href: '/dashboard/reports',
+        roles: ['owner', 'accountant', 'readonly'] },
+      { label: 'Accounts', href: '/dashboard/accounts',
+        roles: ['owner', 'accountant', 'bookkeeper'] },
+      { label: 'Journal Entries', href: '/dashboard/journal-entries',
+        roles: ['owner', 'accountant'] },
+    ]
+
+    if (!currentRole) return all
+    return all.filter(link => link.roles.includes(currentRole))
+  }, [currentRole])
 
   return (
     <nav className="w-full border-b border-[#1E2A45] bg-[#111827] py-4">
@@ -121,47 +130,15 @@ export default function DashboardNavbar() {
 
           {/* Nav links — filtered by role */}
           <div className="flex items-center gap-1">
-            {canEditTransactions && (
+            {navLinks.map(link => (
               <Link
-                href="/dashboard/bookkeeping"
+                key={link.href}
+                href={link.href}
                 className="text-sm text-[#6B7A99] hover:text-[#E8ECF4] px-3 py-1.5 rounded-lg hover:bg-[#1E2A45] transition-colors"
               >
-                Transactions
+                {link.label}
               </Link>
-            )}
-            {canViewReports && (
-              <Link
-                href="/dashboard/reports"
-                className="text-sm text-[#6B7A99] hover:text-[#E8ECF4] px-3 py-1.5 rounded-lg hover:bg-[#1E2A45] transition-colors"
-              >
-                Reports
-              </Link>
-            )}
-            {canManageAccounts && (
-              <Link
-                href="/dashboard/accounts"
-                className="text-sm text-[#6B7A99] hover:text-[#E8ECF4] px-3 py-1.5 rounded-lg hover:bg-[#1E2A45] transition-colors"
-              >
-                Accounts
-              </Link>
-            )}
-            {canManageJournalEntries && (
-              <Link
-                href="/dashboard/journal-entries"
-                className="text-sm text-[#6B7A99] hover:text-[#E8ECF4] px-3 py-1.5 rounded-lg hover:bg-[#1E2A45] transition-colors"
-              >
-                Journal Entries
-              </Link>
-            )}
-            {/* Readonly role: show only Reports */}
-            {role === 'readonly' && !canEditTransactions && !canManageAccounts && !canManageJournalEntries && (
-              <Link
-                href="/dashboard/reports"
-                className="text-sm text-[#6B7A99] hover:text-[#E8ECF4] px-3 py-1.5 rounded-lg hover:bg-[#1E2A45] transition-colors"
-              >
-                Reports
-              </Link>
-            )}
+            ))}
           </div>
         </div>
 

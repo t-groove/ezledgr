@@ -91,8 +91,8 @@ export async function getCurrentBusinessId(
     if (membership) return cookieBusinessId;
   }
 
-  // Fall back to first active business
-  const { data: membership } = await supabase
+  // Fall back to first ACTIVE membership for this user
+  const { data: membership, error } = await supabase
     .from("business_members")
     .select("business_id")
     .eq("user_id", user.id)
@@ -100,6 +100,11 @@ export async function getCurrentBusinessId(
     .order("created_at", { ascending: true })
     .limit(1)
     .maybeSingle();
+
+  if (error) {
+    console.error("getCurrentBusinessId error:", error);
+    return null;
+  }
 
   return membership?.business_id ?? null;
 }
@@ -130,8 +135,12 @@ export async function getUserBusinesses(): Promise<BusinessMember[]> {
     .eq("is_active", true)
     .order("created_at", { ascending: true });
 
-  if (error || !data) return [];
-  return data as BusinessMember[];
+  if (error) {
+    console.error("getUserBusinesses error:", error);
+    return [];
+  }
+
+  return (data ?? []) as BusinessMember[];
 }
 
 // ── getUserRole ────────────────────────────────────────────────────────────────
