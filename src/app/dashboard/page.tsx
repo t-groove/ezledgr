@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 import { createClient } from "../../../supabase/server";
-import DashboardNavbar from "@/components/dashboard-navbar";
 import DashboardClient from "./DashboardClient";
 import { getAccountSummary } from "./accounts/actions";
 import { getCurrentBusinessId } from "@/lib/business/actions";
@@ -40,25 +39,22 @@ export default async function DashboardPage() {
     const showOnboarding = !anyMembership;
     const userName = (user.email ?? "").split("@")[0];
     return (
-      <>
-        <DashboardNavbar />
-        <main className="w-full bg-[#0A0F1E] min-h-screen">
-          <div className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 py-8">
-            <DashboardClient
-              ytdIncome={0}
-              ytdExpenses={0}
-              ytdProfit={0}
-              profitMargin={0}
-              bankAccounts={[]}
-              uncategorizedCount={0}
-              userName={userName}
-              currentYear={new Date().getFullYear()}
-              hasBusiness={false}
-              showOnboarding={showOnboarding}
-            />
-          </div>
-        </main>
-      </>
+      <main className="w-full min-h-screen">
+        <div className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 py-8">
+          <DashboardClient
+            ytdIncome={0}
+            ytdExpenses={0}
+            ytdProfit={0}
+            profitMargin={0}
+            bankAccounts={[]}
+            uncategorizedCount={0}
+            userName={userName}
+            currentYear={new Date().getFullYear()}
+            hasBusiness={false}
+            showOnboarding={showOnboarding}
+          />
+        </div>
+      </main>
     );
   }
 
@@ -104,23 +100,20 @@ export default async function DashboardPage() {
   const userName = (user.email ?? "").split("@")[0];
 
   return (
-    <>
-      <DashboardNavbar />
-      <main className="w-full bg-[#0A0F1E] min-h-screen">
-        <div className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 py-8">
-          <DashboardClient
-            ytdIncome={ytdIncome}
-            ytdExpenses={ytdExpenses}
-            ytdProfit={ytdProfit}
-            profitMargin={profitMargin}
-            bankAccounts={bankAccounts}
-            uncategorizedCount={uncategorizedCount}
-            userName={userName}
-            currentYear={currentYear}
-            hasBusiness={true}
-          />
-        </div>
-      </main>
-    </>
+    <main className="w-full min-h-screen">
+      <div className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 py-8">
+        <DashboardClient
+          ytdIncome={ytdIncome}
+          ytdExpenses={ytdExpenses}
+          ytdProfit={ytdProfit}
+          profitMargin={profitMargin}
+          bankAccounts={bankAccounts}
+          uncategorizedCount={uncategorizedCount}
+          userName={userName}
+          currentYear={currentYear}
+          hasBusiness={true}
+        />
+      </div>
+    </main>
   );
 }

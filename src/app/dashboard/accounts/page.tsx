@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 import { createClient } from "../../../../supabase/server";
-import DashboardNavbar from "@/components/dashboard-navbar";
 import AccountsClient from "./AccountsClient";
 import { getAccountSummary } from "./actions";
 import { getCurrentBusinessId } from "@/lib/business/actions";
@@ -21,13 +20,10 @@ export default async function AccountsPage() {
   ]);
 
   return (
-    <>
-      <DashboardNavbar />
-      <main className="w-full bg-[#0A0F1E] min-h-screen">
-        <div className="w-full max-w-[1800px] mx-auto px-4 py-8">
-          <AccountsClient initialAccounts={accounts} businessId={businessId ?? ""} />
-        </div>
-      </main>
-    </>
+    <main className="w-full min-h-screen">
+      <div className="w-full max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <AccountsClient initialAccounts={accounts} businessId={businessId ?? ""} />
+      </div>
+    </main>
   );
 }

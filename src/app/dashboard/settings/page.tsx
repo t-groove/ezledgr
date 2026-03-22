@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 import { createClient } from "../../../../supabase/server";
-import DashboardNavbar from "@/components/dashboard-navbar";
 import SettingsClient from "./SettingsClient";
 import { getCurrentBusinessId, getTeamMembers, getInvitations } from "@/lib/business/actions";
 
@@ -24,18 +23,15 @@ export default async function SettingsPage() {
   if (!businessResult.data) redirect("/dashboard");
 
   return (
-    <>
-      <DashboardNavbar />
-      <main className="w-full bg-[#0A0F1E] min-h-screen">
-        <div className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 py-8">
-          <SettingsClient
-            business={businessResult.data}
-            members={members}
-            invitations={invitations}
-            currentUserId={user.id}
-          />
-        </div>
-      </main>
-    </>
+    <main className="w-full min-h-screen">
+      <div className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 py-8">
+        <SettingsClient
+          business={businessResult.data}
+          members={members}
+          invitations={invitations}
+          currentUserId={user.id}
+        />
+      </div>
+    </main>
   );
 }
