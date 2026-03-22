@@ -11,41 +11,14 @@ export async function GET(request: Request) {
 
   const supabase = await createClient();
 
-  // Handle invite token — Supabase invite emails use token_hash + type=invite
+  // Handle invite token — redirect to accept-invite so the user can set their password.
+  // Do NOT consume the token here; the client-side accept-invite page will call verifyOtp.
   if (token_hash && type === "invite") {
-    const { error } = await supabase.auth.verifyOtp({
-      token_hash,
-      type: "invite",
-    });
-
-    if (!error) {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (user && businessId) {
-        // Activate the pending membership created during invite
-        await supabase
-          .from("business_members")
-          .update({
-            is_active: true,
-            accepted_at: new Date().toISOString(),
-          })
-          .eq("business_id", businessId)
-          .eq("user_id", user.id);
-
-        // Mark invitation as accepted
-        await supabase
-          .from("business_invitations")
-          .update({ accepted_at: new Date().toISOString() })
-          .eq("business_id", businessId)
-          .eq("invited_email", user.email?.toLowerCase());
-      }
-
-      return NextResponse.redirect(`${origin}/dashboard`);
-    }
-
-    return NextResponse.redirect(`${origin}/sign-in?error=invalid_invite`);
+    const params = new URLSearchParams({ token_hash, type: "invite" });
+    if (businessId) params.set("business_id", businessId);
+    return NextResponse.redirect(
+      `${origin}/auth/accept-invite?${params.toString()}`
+    );
   }
 
   // Handle other OTP types (e.g. email confirmation, magic link)
