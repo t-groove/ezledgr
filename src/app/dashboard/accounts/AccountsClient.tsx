@@ -252,6 +252,9 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
                 buttonLabel="Connect via Plaid"
                 buttonClassName="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[#4F7FFF] hover:bg-[#3D6FEF] text-white font-medium rounded-lg text-sm transition-colors"
               />
+              <p className="mt-2 text-[11px] text-[#64748b]">
+                🔒 2FA verification required to connect your bank
+              </p>
             </div>
 
             {/* Add manually */}
@@ -519,13 +522,18 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
                     {syncingId === acc.id ? "Syncing..." : "Sync now"}
                   </button>
                 ) : (
-                  <PlaidLinkButton
-                    businessId={businessId}
-                    existingAccountId={acc.id}
-                    onSuccess={handlePlaidSuccess}
-                    buttonLabel="Connect to bank"
-                    buttonClassName="flex items-center gap-1.5 text-sm text-[#6B7A99] hover:text-[#4F7FFF] transition-colors"
-                  />
+                  <div>
+                    <PlaidLinkButton
+                      businessId={businessId}
+                      existingAccountId={acc.id}
+                      onSuccess={handlePlaidSuccess}
+                      buttonLabel="Connect to bank"
+                      buttonClassName="flex items-center gap-1.5 text-sm text-[#6B7A99] hover:text-[#4F7FFF] transition-colors"
+                    />
+                    <p className="mt-1 text-[11px] text-[#64748b]">
+                      🔒 2FA verification required
+                    </p>
+                  </div>
                 )}
               </div>
             </Link>

@@ -3,6 +3,7 @@
 import { usePlaidLink, PlaidLinkOnSuccessMetadata } from 'react-plaid-link'
 import { useEffect, useState } from 'react'
 import { Link2 } from 'lucide-react'
+import MfaGate from './mfa-gate'
 
 interface PlaidLinkButtonProps {
   businessId: string
@@ -31,6 +32,7 @@ export default function PlaidLinkButton({
 }: PlaidLinkButtonProps) {
   const [linkToken, setLinkToken] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [showMfaGate, setShowMfaGate] = useState(false)
 
   useEffect(() => {
     const fetchLinkToken = async () => {
@@ -85,17 +87,37 @@ export default function PlaidLinkButton({
     onExit: () => onExit?.(),
   })
 
+  const handleClick = () => {
+    setShowMfaGate(true)
+  }
+
+  const handleMfaVerified = () => {
+    setShowMfaGate(false)
+    open()
+  }
+
+  const handleMfaClose = () => {
+    setShowMfaGate(false)
+  }
+
   const defaultClassName =
     'flex items-center gap-2 px-4 py-2 bg-[#4F7FFF] hover:bg-[#3D6FEF] disabled:opacity-50 text-white font-medium rounded-lg text-sm transition-colors'
 
   return (
-    <button
-      onClick={() => open()}
-      disabled={!ready || isLoading}
-      className={buttonClassName ?? defaultClassName}
-    >
-      <Link2 size={16} />
-      {isLoading ? 'Loading...' : buttonLabel}
-    </button>
+    <>
+      <MfaGate
+        isOpen={showMfaGate}
+        onVerified={handleMfaVerified}
+        onClose={handleMfaClose}
+      />
+      <button
+        onClick={handleClick}
+        disabled={!ready || isLoading}
+        className={buttonClassName ?? defaultClassName}
+      >
+        <Link2 size={16} />
+        {isLoading ? 'Loading...' : buttonLabel}
+      </button>
+    </>
   )
 }
