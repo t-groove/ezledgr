@@ -39,12 +39,12 @@ export default function LandingFooter() {
               <ul className="space-y-2.5">
                 {links.map((link) => (
                   <li key={link}>
-                    <a
-                      href="#"
+                    <Link
+                      href={link === "Privacy" ? "/privacy" : "#"}
                       className="text-[#6B7A99] hover:text-[#E8ECF4] text-sm transition-colors duration-200"
                     >
                       {link}
-                    </a>
+                    </Link>
                   </li>
                 ))}
               </ul>
