@@ -7,12 +7,12 @@ import {
   TrendingUp,
   TrendingDown,
   DollarSign,
-  Percent,
+  FileText,
   Tag,
   Building2,
-  FileText,
   CheckCircle,
   ArrowRight,
+  Receipt,
 } from "lucide-react";
 import type { AccountSummary } from "./accounts/actions";
 import { createBusiness } from "@/lib/business/actions";
@@ -28,11 +28,6 @@ const fmtCurrency = new Intl.NumberFormat("en-US", {
 
 function formatCurrency(v: number) {
   return fmtCurrency.format(v);
-}
-
-function formatPct(v: number) {
-  if (!isFinite(v)) return "—";
-  return v.toFixed(1) + "%";
 }
 
 function greeting() {
@@ -232,7 +227,7 @@ interface Props {
   ytdIncome: number;
   ytdExpenses: number;
   ytdProfit: number;
-  profitMargin: number;
+  openInvoices?: number;
   bankAccounts: AccountSummary[];
   uncategorizedCount: number;
   userName: string;
@@ -247,7 +242,7 @@ export default function DashboardClient({
   ytdIncome,
   ytdExpenses,
   ytdProfit,
-  profitMargin,
+  openInvoices = 0,
   bankAccounts,
   uncategorizedCount,
   userName,
@@ -321,32 +316,12 @@ export default function DashboardClient({
             subtext={periodLabel}
           />
           <KpiCard
-            label="Profit Margin"
-            value={ytdIncome > 0 ? formatPct(profitMargin) : "—"}
-            color={
-              ytdIncome === 0 ? "#6B7A99" : profitMargin >= 0 ? "#22C55E" : "#EF4444"
-            }
-            iconBg={
-              ytdIncome === 0
-                ? "bg-[#6B7A99]/10"
-                : profitMargin >= 0
-                ? "bg-[#22C55E]/10"
-                : "bg-[#EF4444]/10"
-            }
-            icon={
-              <Percent
-                size={18}
-                style={{
-                  color:
-                    ytdIncome === 0
-                      ? "#6B7A99"
-                      : profitMargin >= 0
-                      ? "#22C55E"
-                      : "#EF4444",
-                }}
-              />
-            }
-            subtext={periodLabel}
+            label="Open Invoices"
+            value={formatCurrency(openInvoices)}
+            color="#6B7A99"
+            iconBg="bg-[#6B7A99]/10"
+            icon={<Receipt size={18} className="text-[#6B7A99]" />}
+            subtext="Invoicing coming soon"
           />
         </div>
       </section>

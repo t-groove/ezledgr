@@ -93,7 +93,6 @@ export default async function DashboardPage() {
     .reduce((sum, t) => sum + (t.type === "expense" ? Number(t.amount) : -Number(t.amount)), 0);
 
   const ytdProfit = ytdIncome - ytdExpenses;
-  const profitMargin = ytdIncome > 0 ? (ytdProfit / ytdIncome) * 100 : 0;
 
   const bankAccounts = accountSummaries as AccountSummary[];
   const uncategorizedCount = uncategorizedResult.count ?? 0;
@@ -106,7 +105,7 @@ export default async function DashboardPage() {
           ytdIncome={ytdIncome}
           ytdExpenses={ytdExpenses}
           ytdProfit={ytdProfit}
-          profitMargin={profitMargin}
+          openInvoices={0}
           bankAccounts={bankAccounts}
           uncategorizedCount={uncategorizedCount}
           userName={userName}
