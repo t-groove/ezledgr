@@ -9,12 +9,13 @@ import type { BusinessMember } from "@/lib/business/actions";
 // TODO: gate business creation behind an active subscription check
 
 const ENTITY_TYPES = [
-  "Sole Proprietorship",
   "LLC",
   "S-Corp",
   "C-Corp",
+  "Sole Proprietor",
   "Partnership",
   "Non-Profit",
+  "Other",
 ];
 
 const ROLE_LABELS: Record<string, string> = {
