@@ -77,7 +77,7 @@ export async function getCurrentBusinessId(
 
   // Try cookie first
   const cookieStore = await cookies();
-  const cookieBusinessId = cookieStore.get("centerbase_business_id")?.value;
+  const cookieBusinessId = cookieStore.get("active_business_id")?.value;
 
   if (cookieBusinessId) {
     // Verify user is still an active member of this business
@@ -113,7 +113,7 @@ export async function getCurrentBusinessId(
 // Sets the active business via a cookie (readable server-side)
 export async function setActiveBusiness(businessId: string): Promise<void> {
   const cookieStore = await cookies();
-  cookieStore.set("centerbase_business_id", businessId, {
+  cookieStore.set("active_business_id", businessId, {
     path: "/",
     maxAge: 60 * 60 * 24 * 365,
     sameSite: "lax",

@@ -1,0 +1,256 @@
+"use client";
+
+import { useState, useTransition } from "react";
+import { Briefcase, Building2, Check, Plus, X, Loader2 } from "lucide-react";
+import { useBusinessContext } from "@/lib/business/context";
+import { createBusiness } from "@/lib/business/actions";
+import type { BusinessMember } from "@/lib/business/actions";
+
+// TODO: gate business creation behind an active subscription check
+
+const ENTITY_TYPES = [
+  "Sole Proprietorship",
+  "LLC",
+  "S-Corp",
+  "C-Corp",
+  "Partnership",
+  "Non-Profit",
+];
+
+const ROLE_LABELS: Record<string, string> = {
+  owner: "Owner",
+  accountant: "Accountant",
+  bookkeeper: "Bookkeeper",
+  readonly: "Read Only",
+};
+
+interface Props {
+  initialBusinesses: BusinessMember[];
+  activeBusinessId: string | null;
+}
+
+export default function BusinessesClient({ initialBusinesses, activeBusinessId }: Props) {
+  const { switchBusiness, currentBusiness, businesses: ctxBusinesses } = useBusinessContext();
+
+  // Use context businesses if loaded (reflects newly created ones), else fall back to SSR data
+  const businesses = ctxBusinesses.length > 0 ? ctxBusinesses : initialBusinesses;
+
+  // The "active" id is the one in context (most up-to-date) or the cookie value from SSR
+  const activeId = currentBusiness?.id ?? activeBusinessId;
+
+  // ── Add Business modal state ────────────────────────────────────────────────
+  const [modalOpen, setModalOpen] = useState(false);
+  const [name, setName] = useState("");
+  const [entityType, setEntityType] = useState("LLC");
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
+
+  function openModal() {
+    setName("");
+    setEntityType("LLC");
+    setError(null);
+    setModalOpen(true);
+  }
+
+  function handleCreate(e: React.FormEvent) {
+    e.preventDefault();
+    if (!name.trim()) return;
+    setError(null);
+    startTransition(async () => {
+      const result = await createBusiness({ name: name.trim(), entity_type: entityType });
+      if (result.success) {
+        setModalOpen(false);
+        // Switch to the newly created business automatically
+        await switchBusiness(result.business.id, result.business.name);
+      } else {
+        setError(result.error);
+      }
+    });
+  }
+
+  return (
+    <>
+      {/* ── Header ────────────────────────────────────────────────────────── */}
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="font-syne text-3xl font-bold text-[#E8ECF4]">Businesses</h1>
+          <p className="text-sm text-[#6B7A99] mt-1">Manage your business accounts</p>
+        </div>
+        <button
+          onClick={openModal}
+          className="flex items-center gap-2 px-4 py-2 bg-[#4F7FFF] hover:bg-[#3D6FEF]
+            text-white text-sm font-medium rounded-lg transition-colors"
+        >
+          <Plus size={16} />
+          Add Business
+        </button>
+      </div>
+
+      {/* ── Business cards ────────────────────────────────────────────────── */}
+      {businesses.length === 0 ? (
+        <div className="bg-[#111827] border border-[#1E2A45] rounded-xl p-12 flex flex-col items-center text-center max-w-lg">
+          <div className="w-14 h-14 rounded-full bg-[#4F7FFF]/10 flex items-center justify-center mb-5">
+            <Briefcase size={26} className="text-[#4F7FFF]" />
+          </div>
+          <h2 className="font-syne text-xl font-bold text-[#E8ECF4] mb-2">No businesses yet</h2>
+          <p className="text-sm text-[#6B7A99] leading-relaxed mb-6">
+            Create your first business to get started.
+          </p>
+          <button
+            onClick={openModal}
+            className="flex items-center gap-2 px-4 py-2 bg-[#4F7FFF] hover:bg-[#3D6FEF]
+              text-white text-sm font-medium rounded-lg transition-colors"
+          >
+            <Plus size={16} />
+            Add Business
+          </button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {businesses.map((bm) => {
+            const isActive = bm.business_id === activeId;
+            return (
+              <div
+                key={bm.business_id}
+                className={`bg-[#111827] border rounded-xl p-6 flex flex-col gap-4 transition-colors ${
+                  isActive ? "border-[#4F7FFF]/50" : "border-[#1E2A45]"
+                }`}
+              >
+                {/* Card header */}
+                <div className="flex items-start justify-between gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-[#1E2A45] flex items-center
+                    justify-center flex-shrink-0">
+                    <Building2 size={18} className="text-[#4F7FFF]" />
+                  </div>
+                  {isActive && (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full
+                      text-xs font-semibold bg-[#22C55E]/10 text-[#22C55E] border
+                      border-[#22C55E]/20">
+                      <Check size={11} />
+                      Active
+                    </span>
+                  )}
+                </div>
+
+                {/* Business details */}
+                <div className="flex-1">
+                  <p className="font-syne font-semibold text-[#E8ECF4] text-base mb-1">
+                    {bm.business.name}
+                  </p>
+                  {bm.business.entity_type && (
+                    <p className="text-xs text-[#6B7A99] mb-2">{bm.business.entity_type}</p>
+                  )}
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs
+                    font-medium bg-[#4F7FFF]/10 text-[#4F7FFF] border border-[#4F7FFF]/20">
+                    {ROLE_LABELS[bm.role] ?? bm.role}
+                  </span>
+                </div>
+
+                {/* Switch button */}
+                {!isActive && (
+                  <button
+                    onClick={() => switchBusiness(bm.business_id, bm.business.name)}
+                    className="w-full py-2 px-3 border border-[#1E2A45] hover:border-[#4F7FFF]/50
+                      hover:bg-[#4F7FFF]/5 text-[#E8ECF4] text-sm rounded-lg transition-colors"
+                  >
+                    Switch to this business
+                  </button>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* ── Add Business Modal ─────────────────────────────────────────────── */}
+      {modalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setModalOpen(false)}
+          />
+
+          {/* Modal */}
+          <div className="relative w-full max-w-md bg-[#111827] border border-[#1E2A45]
+            rounded-2xl p-6 shadow-2xl">
+            {/* Close button */}
+            <button
+              onClick={() => setModalOpen(false)}
+              className="absolute top-4 right-4 p-1.5 rounded-lg text-[#6B7A99]
+                hover:text-[#E8ECF4] hover:bg-[#1E2A45] transition-colors"
+            >
+              <X size={16} />
+            </button>
+
+            {/* Modal header */}
+            <div className="mb-6">
+              <h2 className="font-syne text-xl font-bold text-[#E8ECF4]">Add Business</h2>
+              <p className="text-sm text-[#6B7A99] mt-1">Create a new business account</p>
+            </div>
+
+            <form onSubmit={handleCreate} className="flex flex-col gap-4">
+              {/* Business name */}
+              <div>
+                <label className="block text-sm text-[#6B7A99] mb-1.5">
+                  Business name <span className="text-[#EF4444]">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Acme LLC"
+                  required
+                  className="w-full bg-[#0A0F1E] border border-[#1E2A45] text-[#E8ECF4] text-sm
+                    rounded-lg px-3 py-2.5 focus:outline-none focus:border-[#4F7FFF]
+                    placeholder:text-[#6B7A99]"
+                />
+              </div>
+
+              {/* Entity type */}
+              <div>
+                <label className="block text-sm text-[#6B7A99] mb-1.5">Entity type</label>
+                <select
+                  value={entityType}
+                  onChange={(e) => setEntityType(e.target.value)}
+                  className="w-full bg-[#0A0F1E] border border-[#1E2A45] text-[#E8ECF4] text-sm
+                    rounded-lg px-3 py-2.5 focus:outline-none focus:border-[#4F7FFF] cursor-pointer"
+                >
+                  {ENTITY_TYPES.map((t) => (
+                    <option key={t} value={t}>{t}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Error */}
+              {error && (
+                <p className="text-sm text-[#EF4444] bg-[#EF4444]/10 border border-[#EF4444]/30
+                  rounded-lg px-3 py-2">
+                  {error}
+                </p>
+              )}
+
+              {/* Submit */}
+              <button
+                type="submit"
+                disabled={isPending || !name.trim()}
+                className="flex items-center justify-center gap-2 w-full py-2.5 px-4
+                  bg-[#4F7FFF] hover:bg-[#3D6FEF] disabled:opacity-50 disabled:cursor-not-allowed
+                  text-white text-sm font-medium rounded-lg transition-colors mt-2"
+              >
+                {isPending ? (
+                  <>
+                    <Loader2 size={15} className="animate-spin" />
+                    Creating…
+                  </>
+                ) : (
+                  "Create Business"
+                )}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}

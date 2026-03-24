@@ -21,6 +21,7 @@ import {
   ChevronDown,
   Check,
   Building2,
+  ChevronsUpDown,
 } from 'lucide-react'
 
 const NAV_ITEMS = [
@@ -140,7 +141,7 @@ export default function DashboardSidebar() {
                   {businesses.map(bm => (
                     <button
                       key={bm.business_id}
-                      onClick={() => { setBizDropOpen(false); switchBusiness(bm.business_id) }}
+                      onClick={() => { setBizDropOpen(false); switchBusiness(bm.business_id, bm.business.name) }}
                       className="w-full flex items-center gap-2 px-3 py-2 text-xs text-[#E8ECF4]
                         hover:bg-[#1E2A45] transition-colors text-left"
                     >
@@ -151,19 +152,40 @@ export default function DashboardSidebar() {
                       )}
                     </button>
                   ))}
+                  <div className="border-t border-[#1E2A45] mt-1 pt-1">
+                    <Link
+                      href="/dashboard/businesses"
+                      onClick={() => setBizDropOpen(false)}
+                      className="w-full flex items-center gap-2 px-3 py-2 text-xs text-[#6B7A99]
+                        hover:text-[#E8ECF4] hover:bg-[#1E2A45] transition-colors"
+                    >
+                      <ChevronsUpDown size={12} className="flex-shrink-0" />
+                      Manage businesses
+                    </Link>
+                  </div>
                 </div>
               )}
             </div>
           ) : (
-            <Link
-              href="/dashboard/settings/business"
-              className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-[#1E2A45] transition-colors"
-            >
-              <Building2 size={13} className="text-[#6B7A99] flex-shrink-0" />
-              <span className="text-xs font-medium text-[#E8ECF4] truncate">
-                {currentBusiness?.name ?? '—'}
-              </span>
-            </Link>
+            <div className="flex items-center gap-1">
+              <Link
+                href="/dashboard/settings/business"
+                className="flex-1 flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-[#1E2A45] transition-colors min-w-0"
+              >
+                <Building2 size={13} className="text-[#6B7A99] flex-shrink-0" />
+                <span className="text-xs font-medium text-[#E8ECF4] truncate">
+                  {currentBusiness?.name ?? '—'}
+                </span>
+              </Link>
+              <Link
+                href="/dashboard/businesses"
+                title="Manage businesses"
+                className="p-1.5 rounded-lg text-[#6B7A99] hover:text-[#E8ECF4] hover:bg-[#1E2A45]
+                  transition-colors flex-shrink-0"
+              >
+                <ChevronsUpDown size={13} />
+              </Link>
+            </div>
           )}
         </div>
       )}
