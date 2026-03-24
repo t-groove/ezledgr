@@ -33,8 +33,11 @@ interface Props {
 export default function BusinessesClient({ initialBusinesses, activeBusinessId }: Props) {
   const { switchBusiness, currentBusiness, businesses: ctxBusinesses } = useBusinessContext();
 
-  // Use context businesses if loaded (reflects newly created ones), else fall back to SSR data
-  const businesses = ctxBusinesses.length > 0 ? ctxBusinesses : initialBusinesses;
+  // Local list — seeded from context (if already loaded) or SSR prop.
+  // We append to this immediately on create so the card shows without a reload.
+  const [businesses, setBusinesses] = useState<BusinessMember[]>(
+    () => ctxBusinesses.length > 0 ? ctxBusinesses : initialBusinesses
+  );
 
   // The "active" id is the one in context (most up-to-date) or the cookie value from SSR
   const activeId = currentBusiness?.id ?? activeBusinessId;
@@ -60,6 +63,20 @@ export default function BusinessesClient({ initialBusinesses, activeBusinessId }
     startTransition(async () => {
       const result = await createBusiness({ name: name.trim(), entity_type: entityType });
       if (result.success) {
+        // Append the new business to local state immediately so the card
+        // appears without waiting for a page reload or context re-fetch.
+        const newMember: BusinessMember = {
+          id: result.business.id,         // placeholder — membership id not returned by createBusiness
+          business_id: result.business.id,
+          user_id: "",                     // not needed for card display
+          role: "owner",
+          invited_email: null,
+          accepted_at: new Date().toISOString(),
+          is_active: true,
+          created_at: new Date().toISOString(),
+          business: result.business,
+        };
+        setBusinesses(prev => [...prev, newMember]);
         setModalOpen(false);
         // Switch to the newly created business automatically
         await switchBusiness(result.business.id, result.business.name);
