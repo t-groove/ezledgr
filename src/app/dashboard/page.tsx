@@ -45,7 +45,6 @@ export default async function DashboardPage() {
             ytdIncome={0}
             ytdExpenses={0}
             ytdProfit={0}
-            profitMargin={0}
             bankAccounts={[]}
             uncategorizedCount={0}
             userName={userName}
