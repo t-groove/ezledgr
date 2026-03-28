@@ -257,7 +257,15 @@ export default function DashboardSidebar() {
           <div className="w-8 h-8 rounded-full bg-[#1E2A45] flex items-center justify-center
             flex-shrink-0 overflow-hidden">
             {avatarUrl ? (
-              <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+              <img
+                src={avatarUrl}
+                alt="Avatar"
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none'
+                  setAvatarUrl(null)
+                }}
+              />
             ) : (
               <UserCircle size={20} className="text-[#6B7A99]" />
             )}
