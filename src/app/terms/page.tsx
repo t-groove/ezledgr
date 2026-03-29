@@ -759,7 +759,7 @@ export default function TermsPage() {
               <ul>
                 <li><Link href="/privacy">Privacy</Link></li>
                 <li><Link href="/terms">Terms</Link></li>
-                <li><Link href="#">Security</Link></li>
+                <li><Link href="/security">Security</Link></li>
               </ul>
             </div>
             <div className="pp-footer-col">

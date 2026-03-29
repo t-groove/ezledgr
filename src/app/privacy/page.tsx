@@ -704,7 +704,7 @@ export default function PrivacyPage() {
               <ul>
                 <li><Link href="/privacy">Privacy</Link></li>
                 <li><Link href="#">Terms</Link></li>
-                <li><Link href="#">Security</Link></li>
+                <li><Link href="/security">Security</Link></li>
               </ul>
             </div>
             <div className="pp-footer-col">
