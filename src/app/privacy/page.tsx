@@ -572,8 +572,7 @@ export default function PrivacyPage() {
               You can request deletion of your account and personal data at any time by:
             </p>
             <ul>
-              <li>Going to <strong>Settings → Account → Delete Account</strong> in the app, or</li>
-              <li>Emailing <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a></li>
+              <li>Contacting us at <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a> to request account deletion</li>
             </ul>
             <p>
               We will complete your deletion request within <strong>30 days</strong> and
@@ -703,7 +702,7 @@ export default function PrivacyPage() {
               <h4>Legal</h4>
               <ul>
                 <li><Link href="/privacy">Privacy</Link></li>
-                <li><Link href="#">Terms</Link></li>
+                <li><Link href="/terms">Terms</Link></li>
                 <li><Link href="/security">Security</Link></li>
               </ul>
             </div>

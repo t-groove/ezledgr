@@ -505,7 +505,7 @@ export default function SecurityPage() {
                 and edge network security are covered.
               </ControlCard>
               <ControlCard icon="🏦" title="Plaid Compliance">
-                {BRAND} has completed Plaid&apos;s security questionnaire. Our practices meet
+                {BRAND} is completing Plaid&apos;s security questionnaire. Our security practices are designed to meet
                 Plaid&apos;s requirements for applications using their financial data APIs.
               </ControlCard>
               <ControlCard icon="🔒" title="GLBA Alignment">
