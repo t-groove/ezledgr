@@ -22,6 +22,7 @@ import {
   updateTransaction,
   splitTransaction,
   unsplitTransaction,
+  bulkUpdatePayee,
 } from "./actions";
 import type { Transaction } from "./actions";
 import {
@@ -33,6 +34,7 @@ import { searchContacts } from "../contacts/actions";
 import type { Contact } from "../contacts/actions";
 import ContactFormModal from "../contacts/ContactFormModal";
 import {
+  AlertCircle,
   Upload,
   CloudUpload,
   Trash2,
@@ -810,15 +812,19 @@ interface PayeeComboboxProps {
   onChange: (payee_id: string | null, payee_name: string) => void;
   onAddNew: (currentName: string) => void;
   inputCls: string;
+  onCommit?: () => void;
+  onCancel?: () => void;
+  autoFocus?: boolean;
 }
 
-function PayeeCombobox({ payeeName, onChange, onAddNew, inputCls }: PayeeComboboxProps) {
+function PayeeCombobox({ payeeName, onChange, onAddNew, inputCls, onCommit, onCancel, autoFocus }: PayeeComboboxProps) {
   const [inputValue, setInputValue] = useState(
-    payeeName === "Unknown" ? "" : payeeName
+    !payeeName || payeeName === "Unknown" ? "" : payeeName
   );
   const [results, setResults] = useState<Contact[]>([]);
   const [open, setOpen] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const committedRef = useRef(false);
 
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const v = e.target.value;
@@ -843,6 +849,8 @@ function PayeeCombobox({ payeeName, onChange, onAddNew, inputCls }: PayeeCombobo
     onChange(contact.id, contact.display_name);
     setOpen(false);
     setResults([]);
+    committedRef.current = true;
+    onCommit?.();
   };
 
   return (
@@ -850,9 +858,20 @@ function PayeeCombobox({ payeeName, onChange, onAddNew, inputCls }: PayeeCombobo
       <div className="relative flex-1">
         <input
           type="text"
+          autoFocus={autoFocus}
           value={inputValue}
           onChange={handleInput}
-          onBlur={() => setTimeout(() => setOpen(false), 150)}
+          onBlur={() =>
+            setTimeout(() => {
+              setOpen(false);
+              if (!committedRef.current) onCommit?.();
+              committedRef.current = false;
+            }, 150)
+          }
+          onKeyDown={(e) => {
+            if (e.key === "Escape") { e.preventDefault(); onCancel?.(); }
+            if (e.key === "Enter") { e.preventDefault(); committedRef.current = true; onCommit?.(); }
+          }}
           placeholder="Search or type payee name"
           className={inputCls + " w-full"}
         />
@@ -946,6 +965,30 @@ export default function BookkeepingClient({
   const [showAddContactInTx, setShowAddContactInTx] = useState(false);
   const [newContactInitialName, setNewContactInitialName] = useState("");
 
+  // Inline payee editing
+  const editingPayeeRef = useRef<{
+    id: string;
+    payee_id: string | null;
+    payee_name: string;
+    orig_payee_id: string | null;
+    orig_payee_name: string;
+  } | null>(null);
+  const [editingPayeeId, setEditingPayeeId] = useState<string | null>(null);
+
+  // Payee filter
+  const [filterPayeeMode, setFilterPayeeMode] = useState<"all" | "unknown">("all");
+  const [filterPayeeName, setFilterPayeeName] = useState("");
+
+  // Bulk payee assignment
+  const [showBulkPayeePopover, setShowBulkPayeePopover] = useState(false);
+  const bulkPayeeRef = useRef<{ payee_id: string | null; payee_name: string }>({ payee_id: null, payee_name: "" });
+  const [bulkPayeeDisplay, setBulkPayeeDisplay] = useState("");
+  const [isBulkAssigningPayee, setIsBulkAssigningPayee] = useState(false);
+
+  // Contact modal for inline payee / bulk payee
+  const [showAddContactInPayee, setShowAddContactInPayee] = useState(false);
+  const [payeeContactInitialName, setPayeeContactInitialName] = useState("");
+
   // Inline description editing
   const [editingDescriptionId, setEditingDescriptionId] = useState<string | null>(null);
   const [editingDescriptionValue, setEditingDescriptionValue] = useState("");
@@ -996,9 +1039,16 @@ export default function BookkeepingClient({
       if (filterEnd && t.date > filterEnd) return false;
       if (filterAccount !== "all" && t.account_id !== filterAccount) return false;
       if (search && !t.description.toLowerCase().includes(search.toLowerCase())) return false;
+      if (filterPayeeMode === "unknown" && t.payee_name && t.payee_name !== "Unknown") return false;
+      if (filterPayeeName && !t.payee_name?.toLowerCase().includes(filterPayeeName.toLowerCase())) return false;
       return true;
     });
-  }, [transactions, filterType, filterCategory, filterStart, filterEnd, filterAccount, search]);
+  }, [transactions, filterType, filterCategory, filterStart, filterEnd, filterAccount, search, filterPayeeMode, filterPayeeName]);
+
+  const unknownPayeeCount = useMemo(
+    () => transactions.filter((t) => !t.payee_name || t.payee_name === "Unknown").length,
+    [transactions]
+  );
 
   // For summary, replace split parents with their children to avoid double-counting
   const summaryTxns = useMemo(
@@ -1293,6 +1343,70 @@ export default function BookkeepingClient({
     }
   };
 
+  const handleCommitPayee = () => {
+    const e = editingPayeeRef.current;
+    if (!e) return;
+    const finalName = e.payee_name || "Unknown";
+    editingPayeeRef.current = null;
+    setEditingPayeeId(null);
+    if (e.payee_id === e.orig_payee_id && finalName === (e.orig_payee_name || "Unknown")) return;
+    setTransactions((prev) =>
+      prev.map((t) => (t.id === e.id ? { ...t, payee_id: e.payee_id, payee_name: finalName } : t))
+    );
+    updateTransaction(e.id, { payee_id: e.payee_id, payee_name: finalName }).then((result) => {
+      if (result.success) {
+        setSuccessCellId(`${e.id}-payee`);
+        setTimeout(() => setSuccessCellId(null), 1000);
+      } else {
+        setTransactions((prev) =>
+          prev.map((t) => (t.id === e.id ? { ...t, payee_id: e.orig_payee_id, payee_name: e.orig_payee_name } : t))
+        );
+        showToast("Failed to update payee", "error");
+      }
+    });
+  };
+
+  const handleCancelPayee = () => {
+    editingPayeeRef.current = null;
+    setEditingPayeeId(null);
+  };
+
+  const handleBulkPayee = async () => {
+    if (selectedIds.size === 0) return;
+    const { payee_id, payee_name } = bulkPayeeRef.current;
+    const finalName = payee_name || "Unknown";
+    const ids = Array.from(selectedIds);
+    const originalMap = new Map<string, Transaction>();
+    for (const id of ids) {
+      const tx = transactions.find((t) => t.id === id);
+      if (tx) originalMap.set(id, tx);
+    }
+    setIsBulkAssigningPayee(true);
+    setTransactions((prev) =>
+      prev.map((t) => (selectedIds.has(t.id) ? { ...t, payee_id, payee_name: finalName } : t))
+    );
+    const result = await bulkUpdatePayee(ids, payee_id, finalName);
+    if (result.success) {
+      setSelectedIds(new Set());
+      setShowBulkPayeePopover(false);
+      bulkPayeeRef.current = { payee_id: null, payee_name: "" };
+      setBulkPayeeDisplay("");
+      showToast(
+        `Payee updated for ${ids.length} transaction${ids.length !== 1 ? "s" : ""}`,
+        "success"
+      );
+    } else {
+      setTransactions((prev) =>
+        prev.map((t) => {
+          const orig = originalMap.get(t.id);
+          return orig ? orig : t;
+        })
+      );
+      showToast(result.error ?? "Failed to update payee", "error");
+    }
+    setIsBulkAssigningPayee(false);
+  };
+
   const toggleSplitExpanded = (id: string) => {
     setExpandedSplitIds((prev) => {
       const next = new Set(prev);
@@ -1419,6 +1533,36 @@ export default function BookkeepingClient({
             <option value="income">Income</option>
             <option value="expense">Expense</option>
           </select>
+          {/* 6. Payee name search */}
+          <input
+            type="text"
+            value={filterPayeeName}
+            onChange={(e) => {
+              setFilterPayeeName(e.target.value);
+              if (e.target.value) setFilterPayeeMode("all");
+              setPage(1);
+            }}
+            placeholder="Search payee..."
+            className={`${inputCls} w-36`}
+          />
+          {/* 7. Unknown-only toggle */}
+          <button
+            onClick={() => {
+              const next = filterPayeeMode === "unknown" ? "all" : "unknown";
+              setFilterPayeeMode(next);
+              if (next === "unknown") setFilterPayeeName("");
+              setPage(1);
+            }}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm border transition-colors ${
+              filterPayeeMode === "unknown"
+                ? "bg-amber-500/10 border-amber-500/50 text-amber-400"
+                : "border-[#1E2A45] text-[#6B7A99] hover:text-[#E8ECF4] bg-[#0A0F1E]"
+            }`}
+            title="Show only transactions with unknown payee"
+          >
+            <AlertCircle size={13} />
+            Unknown ({unknownPayeeCount})
+          </button>
         </div>
 
         {/* Summary Bar */}
@@ -1515,6 +1659,60 @@ export default function BookkeepingClient({
                     {ASSET_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
                   </optgroup>
                 </select>
+              </div>
+
+              {/* Assign payee */}
+              <div className="flex items-center gap-2 relative">
+                <button
+                  onClick={() => {
+                    bulkPayeeRef.current = { payee_id: null, payee_name: "" };
+                    setBulkPayeeDisplay("");
+                    setShowBulkPayeePopover((v) => !v);
+                  }}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-[#0A0F1E] border border-[#4F7FFF]/30 text-[#E8ECF4] rounded-lg text-sm hover:bg-[#1E2A45] transition-colors flex-shrink-0"
+                >
+                  <UserPlus size={13} />
+                  Assign Payee
+                </button>
+                {showBulkPayeePopover && (
+                  <div className="absolute bottom-full left-0 mb-2 bg-[#111827] border border-[#1E2A45] rounded-lg shadow-xl p-3 z-50 w-72">
+                    <p className="text-xs text-[#6B7A99] mb-2">
+                      Assign payee to {selectedIds.size} transaction{selectedIds.size !== 1 ? "s" : ""}
+                    </p>
+                    <PayeeCombobox
+                      payeeName={bulkPayeeDisplay}
+                      onChange={(payee_id, payee_name) => {
+                        bulkPayeeRef.current = { payee_id, payee_name };
+                        setBulkPayeeDisplay(payee_name === "Unknown" ? "" : payee_name);
+                      }}
+                      onAddNew={(name) => {
+                        setPayeeContactInitialName(name);
+                        setShowBulkPayeePopover(false);
+                        setShowAddContactInPayee(true);
+                      }}
+                      inputCls={inputCls}
+                    />
+                    <div className="flex gap-2 mt-2">
+                      <button
+                        onClick={handleBulkPayee}
+                        disabled={isBulkAssigningPayee}
+                        className="flex-1 px-3 py-1.5 bg-[#4F7FFF] hover:bg-[#3D6FEF] disabled:opacity-60 text-white text-xs font-medium rounded-lg transition-colors"
+                      >
+                        {isBulkAssigningPayee ? "Saving…" : "Apply"}
+                      </button>
+                      <button
+                        onClick={() => {
+                          setShowBulkPayeePopover(false);
+                          bulkPayeeRef.current = { payee_id: null, payee_name: "" };
+                          setBulkPayeeDisplay("");
+                        }}
+                        className="px-3 py-1.5 border border-[#1E2A45] text-[#6B7A99] hover:text-[#E8ECF4] text-xs rounded-lg transition-colors"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Deselect all */}
@@ -1789,13 +1987,49 @@ export default function BookkeepingClient({
                           </td>
 
                           {/* Payee */}
-                          <td className="px-4 py-3 min-w-0">
-                            {t.payee_name && t.payee_name !== "Unknown" ? (
-                              <span className="text-sm text-[#E8ECF4] truncate block" title={t.payee_name}>
-                                {t.payee_name}
-                              </span>
+                          <td className={`px-4 py-3 min-w-0 ${successCellId === `${t.id}-payee` ? "ring-1 ring-[#22C55E] rounded" : ""}`}>
+                            {editingPayeeId === t.id ? (
+                              <PayeeCombobox
+                                payeeName={editingPayeeRef.current?.payee_name ?? ""}
+                                onChange={(payee_id, payee_name) => {
+                                  if (editingPayeeRef.current) {
+                                    editingPayeeRef.current = { ...editingPayeeRef.current, payee_id, payee_name };
+                                  }
+                                }}
+                                onAddNew={(name) => {
+                                  setPayeeContactInitialName(name);
+                                  setShowAddContactInPayee(true);
+                                }}
+                                onCommit={handleCommitPayee}
+                                onCancel={handleCancelPayee}
+                                autoFocus
+                                inputCls="bg-[#0A0F1E] border border-[#4F7FFF] text-[#E8ECF4] rounded px-2 py-1 text-xs focus:outline-none w-full"
+                              />
                             ) : (
-                              <span className="text-sm text-[#6B7A99] italic">Unknown</span>
+                              <div
+                                className="flex items-center gap-1.5 group/payee cursor-pointer min-w-0"
+                                onClick={() => {
+                                  editingPayeeRef.current = {
+                                    id: t.id,
+                                    payee_id: t.payee_id,
+                                    payee_name: t.payee_name ?? "",
+                                    orig_payee_id: t.payee_id,
+                                    orig_payee_name: t.payee_name ?? "",
+                                  };
+                                  setEditingPayeeId(t.id);
+                                }}
+                                title="Click to edit payee"
+                              >
+                                {(!t.payee_name || t.payee_name === "Unknown") ? (
+                                  <>
+                                    <AlertCircle size={13} className="text-amber-400 flex-shrink-0" />
+                                    <span className="text-sm text-[#6B7A99] italic">Unknown</span>
+                                  </>
+                                ) : (
+                                  <span className="text-sm text-[#E8ECF4] truncate" title={t.payee_name}>{t.payee_name}</span>
+                                )}
+                                <Pencil size={11} className="text-[#6B7A99] opacity-0 group-hover/payee:opacity-100 flex-shrink-0 ml-auto transition-opacity" />
+                              </div>
                             )}
                           </td>
 
@@ -2202,6 +2436,27 @@ export default function BookkeepingClient({
               payee_name: contact.display_name,
             }));
             setShowAddContactInTx(false);
+          }}
+        />
+      )}
+
+      {showAddContactInPayee && (
+        <ContactFormModal
+          initialName={payeeContactInitialName}
+          onClose={() => setShowAddContactInPayee(false)}
+          onSaved={(contact) => {
+            // If in inline edit mode, update the ref so commit saves the new contact
+            if (editingPayeeRef.current) {
+              editingPayeeRef.current = {
+                ...editingPayeeRef.current,
+                payee_id: contact.id,
+                payee_name: contact.display_name,
+              };
+            }
+            // If bulk payee popover was active, fill in the new contact
+            bulkPayeeRef.current = { payee_id: contact.id, payee_name: contact.display_name };
+            setBulkPayeeDisplay(contact.display_name);
+            setShowAddContactInPayee(false);
           }}
         />
       )}

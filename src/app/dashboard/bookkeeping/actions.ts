@@ -394,6 +394,34 @@ export async function splitTransaction(
   }
 }
 
+export async function bulkUpdatePayee(
+  transactionIds: string[],
+  payeeId: string | null,
+  payeeName: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return { success: false, error: "Not authenticated" };
+
+    const businessId = await getCurrentBusinessId(supabase);
+    if (!businessId) return { success: false, error: "No business found" };
+
+    const { error } = await supabase
+      .from("transactions")
+      .update({ payee_id: payeeId, payee_name: payeeName })
+      .in("id", transactionIds)
+      .eq("business_id", businessId);
+
+    if (error) return { success: false, error: error.message };
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: String(err) };
+  }
+}
+
 export async function unsplitTransaction(
   parentId: string
 ): Promise<{ success: boolean; error?: string }> {
