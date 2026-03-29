@@ -6,7 +6,7 @@
 import Link from "next/link";
 
 const LAST_UPDATED = "March 26, 2026";
-const CONTACT_EMAIL = "legal@scalable-innovations.com";
+const CONTACT_EMAIL = "security@scalable-innovations.com";
 const COMPANY = "Scalable Innovations LLC";
 const BRAND = "EZ Ledgr";
 const DOMAIN = "www.ezledgr.com";
