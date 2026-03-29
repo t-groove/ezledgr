@@ -67,7 +67,8 @@ export default async function DashboardPage() {
       .select("amount, type, account_type")
       .eq("business_id", businessId)
       .gte("date", yearStart)
-      .lte("date", today),
+      .lte("date", today)
+      .or("is_split.is.null,is_split.eq.false,parent_id.not.is.null"),
 
     getAccountSummary(),
 

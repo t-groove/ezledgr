@@ -179,8 +179,9 @@ export async function getAccountSummary(): Promise<AccountSummary[]> {
 
   const { data: transactions } = await supabase
     .from("transactions")
-    .select("account_id, type, amount")
-    .eq("business_id", businessId);
+    .select("account_id, type, amount, is_split, parent_id")
+    .eq("business_id", businessId)
+    .or("is_split.is.null,is_split.eq.false,parent_id.not.is.null");
 
   const summaryMap = new Map<string, { count: number; income: number; expenses: number }>();
   for (const acc of accounts) {
