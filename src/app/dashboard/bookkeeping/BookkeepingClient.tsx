@@ -1662,58 +1662,17 @@ export default function BookkeepingClient({
               </div>
 
               {/* Assign payee */}
-              <div className="flex items-center gap-2 relative">
-                <button
-                  onClick={() => {
-                    bulkPayeeRef.current = { payee_id: null, payee_name: "" };
-                    setBulkPayeeDisplay("");
-                    setShowBulkPayeePopover((v) => !v);
-                  }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-[#0A0F1E] border border-[#4F7FFF]/30 text-[#E8ECF4] rounded-lg text-sm hover:bg-[#1E2A45] transition-colors flex-shrink-0"
-                >
-                  <UserPlus size={13} />
-                  Assign Payee
-                </button>
-                {showBulkPayeePopover && (
-                  <div className="absolute bottom-full left-0 mb-2 bg-[#111827] border border-[#1E2A45] rounded-lg shadow-xl p-3 z-50 w-72">
-                    <p className="text-xs text-[#6B7A99] mb-2">
-                      Assign payee to {selectedIds.size} transaction{selectedIds.size !== 1 ? "s" : ""}
-                    </p>
-                    <PayeeCombobox
-                      payeeName={bulkPayeeDisplay}
-                      onChange={(payee_id, payee_name) => {
-                        bulkPayeeRef.current = { payee_id, payee_name };
-                        setBulkPayeeDisplay(payee_name === "Unknown" ? "" : payee_name);
-                      }}
-                      onAddNew={(name) => {
-                        setPayeeContactInitialName(name);
-                        setShowBulkPayeePopover(false);
-                        setShowAddContactInPayee(true);
-                      }}
-                      inputCls={inputCls}
-                    />
-                    <div className="flex gap-2 mt-2">
-                      <button
-                        onClick={handleBulkPayee}
-                        disabled={isBulkAssigningPayee}
-                        className="flex-1 px-3 py-1.5 bg-[#4F7FFF] hover:bg-[#3D6FEF] disabled:opacity-60 text-white text-xs font-medium rounded-lg transition-colors"
-                      >
-                        {isBulkAssigningPayee ? "Saving…" : "Apply"}
-                      </button>
-                      <button
-                        onClick={() => {
-                          setShowBulkPayeePopover(false);
-                          bulkPayeeRef.current = { payee_id: null, payee_name: "" };
-                          setBulkPayeeDisplay("");
-                        }}
-                        className="px-3 py-1.5 border border-[#1E2A45] text-[#6B7A99] hover:text-[#E8ECF4] text-xs rounded-lg transition-colors"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
+              <button
+                onClick={() => {
+                  bulkPayeeRef.current = { payee_id: null, payee_name: "" };
+                  setBulkPayeeDisplay("");
+                  setShowBulkPayeePopover(true);
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-[#0A0F1E] border border-[#4F7FFF]/30 text-[#E8ECF4] rounded-lg text-sm hover:bg-[#1E2A45] transition-colors flex-shrink-0"
+              >
+                <UserPlus size={13} />
+                Assign Payee
+              </button>
 
               {/* Deselect all */}
               <button
@@ -2424,6 +2383,65 @@ export default function BookkeepingClient({
       </div>
 
       {toast && <Toast toast={toast} onClose={() => setToast(null)} />}
+
+      {/* Bulk assign payee modal */}
+      {showBulkPayeePopover && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowBulkPayeePopover(false);
+              bulkPayeeRef.current = { payee_id: null, payee_name: "" };
+              setBulkPayeeDisplay("");
+            }
+          }}
+        >
+          <div className="bg-[#111827] border border-[#1E2A45] rounded-xl shadow-2xl w-full max-w-md mx-4 p-6">
+            <h3 className="font-syne font-bold text-[#E8ECF4] text-base mb-1">
+              Assign Payee
+            </h3>
+            <p className="text-sm text-[#6B7A99] mb-5">
+              Assign a payee to {selectedIds.size} selected transaction{selectedIds.size !== 1 ? "s" : ""}
+            </p>
+            {/* Extra bottom padding so the dropdown list has room to render below the input */}
+            <div className="pb-56">
+              <PayeeCombobox
+                payeeName={bulkPayeeDisplay}
+                autoFocus
+                onChange={(payee_id, payee_name) => {
+                  bulkPayeeRef.current = { payee_id, payee_name };
+                  setBulkPayeeDisplay(payee_name === "Unknown" ? "" : payee_name);
+                }}
+                onAddNew={(name) => {
+                  setPayeeContactInitialName(name);
+                  setShowBulkPayeePopover(false);
+                  setShowAddContactInPayee(true);
+                }}
+                inputCls={inputCls}
+              />
+            </div>
+            <div className="flex gap-3 mt-2">
+              <button
+                onClick={handleBulkPayee}
+                disabled={isBulkAssigningPayee || (!bulkPayeeRef.current.payee_name && !bulkPayeeRef.current.payee_id)}
+                className="flex-1 px-4 py-2 bg-[#4F7FFF] hover:bg-[#3D6FEF] disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors"
+              >
+                {isBulkAssigningPayee ? "Saving…" : "Assign"}
+              </button>
+              <button
+                onClick={() => {
+                  setShowBulkPayeePopover(false);
+                  bulkPayeeRef.current = { payee_id: null, payee_name: "" };
+                  setBulkPayeeDisplay("");
+                }}
+                className="px-4 py-2 border border-[#1E2A45] text-[#6B7A99] hover:text-[#E8ECF4] text-sm rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showAddContactInTx && (
         <ContactFormModal
