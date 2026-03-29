@@ -71,6 +71,9 @@ export interface Transaction {
   account_name: string | null;
   raw_csv_row: string | null;
   created_at: string;
+  // Payee
+  payee_id: string | null;
+  payee_name: string;
   // Split tracking
   is_split?: boolean;
   parent_id?: string | null;
@@ -206,6 +209,8 @@ export async function createTransaction(data: {
   type: "income" | "expense";
   category: string;
   account_id?: string;
+  payee_id?: string | null;
+  payee_name?: string;
 }): Promise<{ success: true; transaction: Transaction } | { success: false; error: string }> {
   try {
     const supabase = await createClient();
@@ -231,6 +236,8 @@ export async function createTransaction(data: {
         account_id: data.account_id ?? null,
         raw_csv_row: null,
         account_type: getAccountType(data.category),
+        payee_id: data.payee_id ?? null,
+        payee_name: data.payee_name || "Unknown",
       })
       .select()
       .single();
@@ -277,6 +284,8 @@ export async function updateTransaction(
     amount: number;
     date: string;
     type: "income" | "expense";
+    payee_id: string | null;
+    payee_name: string;
   }>
 ): Promise<{ success: boolean; error?: string }> {
   try {

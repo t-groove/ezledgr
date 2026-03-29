@@ -22,6 +22,7 @@ import {
   Check,
   Building2,
   ChevronsUpDown,
+  BookUser,
 } from 'lucide-react'
 
 const NAV_ITEMS = [
@@ -31,6 +32,7 @@ const NAV_ITEMS = [
   { label: 'Accounts',        href: '/dashboard/accounts',            icon: Wallet          },
   { label: 'Journal Entries', href: '/dashboard/journal-entries',     icon: BookOpen        },
   { label: 'Team Members',    href: '/dashboard/settings/team',       icon: Users           },
+  { label: 'Contacts',        href: '/dashboard/contacts',            icon: BookUser        },
   { label: 'Businesses',      href: '/dashboard/businesses',          icon: Briefcase       },
 ] as const
 

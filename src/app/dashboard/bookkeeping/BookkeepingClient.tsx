@@ -29,6 +29,9 @@ import {
   assignTransactionsToAccount,
 } from "../accounts/actions";
 import type { BankAccount } from "../accounts/actions";
+import { searchContacts } from "../contacts/actions";
+import type { Contact } from "../contacts/actions";
+import ContactFormModal from "../contacts/ContactFormModal";
 import {
   Upload,
   CloudUpload,
@@ -42,6 +45,7 @@ import {
   Plus,
   Pencil,
   Scissors,
+  UserPlus,
 } from "lucide-react";
 
 const PAGE_SIZE = 50;
@@ -799,6 +803,89 @@ function SplitPanel({ transaction, onSave, onCancel, isSaving }: SplitPanelProps
   );
 }
 
+// ── Payee Combobox ─────────────────────────────────────────────────────────
+
+interface PayeeComboboxProps {
+  payeeName: string;
+  onChange: (payee_id: string | null, payee_name: string) => void;
+  onAddNew: (currentName: string) => void;
+  inputCls: string;
+}
+
+function PayeeCombobox({ payeeName, onChange, onAddNew, inputCls }: PayeeComboboxProps) {
+  const [inputValue, setInputValue] = useState(
+    payeeName === "Unknown" ? "" : payeeName
+  );
+  const [results, setResults] = useState<Contact[]>([]);
+  const [open, setOpen] = useState(false);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const v = e.target.value;
+    setInputValue(v);
+    onChange(null, v || "Unknown");
+
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (v.length >= 2) {
+      debounceRef.current = setTimeout(async () => {
+        const found = await searchContacts(v);
+        setResults(found);
+        setOpen(found.length > 0);
+      }, 300);
+    } else {
+      setResults([]);
+      setOpen(false);
+    }
+  };
+
+  const handleSelect = (contact: Contact) => {
+    setInputValue(contact.display_name);
+    onChange(contact.id, contact.display_name);
+    setOpen(false);
+    setResults([]);
+  };
+
+  return (
+    <div className="relative flex gap-1">
+      <div className="relative flex-1">
+        <input
+          type="text"
+          value={inputValue}
+          onChange={handleInput}
+          onBlur={() => setTimeout(() => setOpen(false), 150)}
+          placeholder="Search or type payee name"
+          className={inputCls + " w-full"}
+        />
+        {open && results.length > 0 && (
+          <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-[#111827] border border-[#1E2A45] rounded-lg shadow-xl max-h-48 overflow-y-auto">
+            {results.map((c) => (
+              <button
+                key={c.id}
+                type="button"
+                onMouseDown={() => handleSelect(c)}
+                className="w-full text-left px-3 py-2 hover:bg-[#1E2A45] text-sm flex items-center justify-between gap-3"
+              >
+                <span className="text-[#E8ECF4] truncate">{c.display_name}</span>
+                {c.company_name && (
+                  <span className="text-xs text-[#6B7A99] flex-shrink-0">{c.company_name}</span>
+                )}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+      <button
+        type="button"
+        onClick={() => onAddNew(inputValue)}
+        className="px-2.5 border border-[#1E2A45] rounded-lg text-[#6B7A99] hover:text-[#4F7FFF] hover:border-[#4F7FFF]/50 transition-colors flex-shrink-0"
+        title="Create new contact"
+      >
+        <UserPlus size={14} />
+      </button>
+    </div>
+  );
+}
+
 // ── Main client component ──────────────────────────────────────────────────
 
 interface BookkeepingClientProps {
@@ -851,9 +938,13 @@ export default function BookkeepingClient({
     type: "expense" as "income" | "expense",
     category: "Uncategorized",
     account_id: "",
+    payee_id: null as string | null,
+    payee_name: "",
   });
   const [newTxError, setNewTxError] = useState<string | null>(null);
   const [isCreating, setIsCreating] = useState(false);
+  const [showAddContactInTx, setShowAddContactInTx] = useState(false);
+  const [newContactInitialName, setNewContactInitialName] = useState("");
 
   // Inline description editing
   const [editingDescriptionId, setEditingDescriptionId] = useState<string | null>(null);
@@ -1047,9 +1138,10 @@ export default function BookkeepingClient({
   };
 
   const handleExportCSV = () => {
-    const headers = ["Date", "Description", "Account", "Category", "Type", "Amount"];
+    const headers = ["Date", "Payee", "Description", "Account", "Category", "Type", "Amount"];
     const rows = filtered.map((t) => [
       t.date,
+      `"${(t.payee_name ?? "Unknown").replace(/"/g, '""')}"`,
       `"${t.description.replace(/"/g, '""')}"`,
       t.account_id ? (accountMap.get(t.account_id)?.name ?? "") : "",
       t.category,
@@ -1085,6 +1177,8 @@ export default function BookkeepingClient({
       type: newTxForm.type,
       category: newTxForm.category,
       account_id: newTxForm.account_id || undefined,
+      payee_id: newTxForm.payee_id,
+      payee_name: newTxForm.payee_name || "Unknown",
     });
     if (result.success) {
       setTransactions((prev) => {
@@ -1101,6 +1195,8 @@ export default function BookkeepingClient({
         type: "expense",
         category: "Uncategorized",
         account_id: "",
+        payee_id: null,
+        payee_name: "",
       });
     } else {
       setNewTxError(result.error ?? "Failed to create transaction.");
@@ -1456,7 +1552,21 @@ export default function BookkeepingClient({
                   className={inputCls + " w-full"}
                 />
               </div>
-              <div className="lg:col-span-2">
+              <div>
+                <label className="text-xs text-[#6B7A99] mb-1 block">Payee</label>
+                <PayeeCombobox
+                  payeeName={newTxForm.payee_name}
+                  onChange={(payee_id, payee_name) =>
+                    setNewTxForm((f) => ({ ...f, payee_id, payee_name }))
+                  }
+                  onAddNew={(name) => {
+                    setNewContactInitialName(name);
+                    setShowAddContactInTx(true);
+                  }}
+                  inputCls={inputCls}
+                />
+              </div>
+              <div className="lg:col-span-3 sm:col-span-2">
                 <label className="text-xs text-[#6B7A99] mb-1 block">Description *</label>
                 <input
                   type="text"
@@ -1577,10 +1687,11 @@ export default function BookkeepingClient({
           <>
             {/* Table */}
             <div className="overflow-x-auto rounded-lg border border-[#1E2A45]">
-              <table className="w-full text-sm table-fixed min-w-[860px]">
+              <table className="w-full text-sm table-fixed min-w-[1000px]">
                 <colgroup>
                   <col className="w-10" />
                   <col className="w-32" />
+                  <col className="w-36" />
                   <col className="w-36" />
                   <col />
                   <col className="w-44" />
@@ -1600,6 +1711,7 @@ export default function BookkeepingClient({
                       />
                     </th>
                     <th className="px-4 py-3 text-[#6B7A99] font-medium text-left">Date</th>
+                    <th className="px-4 py-3 text-[#6B7A99] font-medium text-left">Payee</th>
                     <th className="px-4 py-3 text-[#6B7A99] font-medium text-left">Account</th>
                     <th className="px-4 py-3 text-[#6B7A99] font-medium text-left">Description</th>
                     <th className="px-4 py-3 text-[#6B7A99] font-medium text-left">Category</th>
@@ -1673,6 +1785,17 @@ export default function BookkeepingClient({
                               >
                                 {formatDate(t.date)}
                               </span>
+                            )}
+                          </td>
+
+                          {/* Payee */}
+                          <td className="px-4 py-3 min-w-0">
+                            {t.payee_name && t.payee_name !== "Unknown" ? (
+                              <span className="text-sm text-[#E8ECF4] truncate block" title={t.payee_name}>
+                                {t.payee_name}
+                              </span>
+                            ) : (
+                              <span className="text-sm text-[#6B7A99] italic">Unknown</span>
                             )}
                           </td>
 
@@ -1915,7 +2038,7 @@ export default function BookkeepingClient({
                         {/* ── Split panel row ────────────────────────── */}
                         {splitPanelTxId === t.id && (
                           <tr className="border-b border-[#1E2A45]">
-                            <td colSpan={9} className="py-0">
+                            <td colSpan={10} className="py-0">
                               <SplitPanel
                                 transaction={t}
                                 onSave={(splits) => handleSaveSplit(t.id, splits)}
@@ -1938,6 +2061,9 @@ export default function BookkeepingClient({
                               <td className="px-3 py-2" />
 
                               {/* Date: empty */}
+                              <td className="px-4 py-2" />
+
+                              {/* Payee: empty */}
                               <td className="px-4 py-2" />
 
                               {/* Account: split indicator */}
@@ -2064,6 +2190,21 @@ export default function BookkeepingClient({
       </div>
 
       {toast && <Toast toast={toast} onClose={() => setToast(null)} />}
+
+      {showAddContactInTx && (
+        <ContactFormModal
+          initialName={newContactInitialName}
+          onClose={() => setShowAddContactInTx(false)}
+          onSaved={(contact) => {
+            setNewTxForm((f) => ({
+              ...f,
+              payee_id: contact.id,
+              payee_name: contact.display_name,
+            }));
+            setShowAddContactInTx(false);
+          }}
+        />
+      )}
     </div>
   );
 }
