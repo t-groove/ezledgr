@@ -2,7 +2,18 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
-import { Pencil, Trash2, Plus, Building2, X, Link2, PencilLine, RefreshCw } from "lucide-react";
+import {
+  Pencil,
+  Trash2,
+  Plus,
+  Building2,
+  X,
+  Link2,
+  PencilLine,
+  RefreshCw,
+  Info,
+  ChevronDown,
+} from "lucide-react";
 import {
   createBankAccount,
   updateBankAccount,
@@ -11,6 +22,49 @@ import {
 } from "./actions";
 import type { AccountSummary } from "./actions";
 import PlaidLinkButton from "@/components/PlaidLinkButton";
+import type { PlaidAccountInfo } from "@/components/PlaidLinkButton";
+
+// ── Date helpers ──────────────────────────────────────────────────────────────
+
+function toDateStr(d: Date): string {
+  return d.toISOString().split("T")[0];
+}
+
+function getDefaultSyncStartDate(): string {
+  const d = new Date();
+  d.setFullYear(d.getFullYear() - 1);
+  return toDateStr(d);
+}
+
+function getMinSyncDate(): string {
+  const d = new Date();
+  d.setFullYear(d.getFullYear() - 2);
+  return toDateStr(d);
+}
+
+function getMaxSyncDate(): string {
+  const d = new Date(Date.now() - 86400000);
+  return toDateStr(d);
+}
+
+// ── Plaid subtype → EZ Ledgr account type ────────────────────────────────────
+
+const SUBTYPE_MAP: Record<string, string> = {
+  checking: "checking",
+  savings: "savings",
+  cd: "savings",
+  "money market": "savings",
+  "credit card": "credit_card",
+  paypal: "other",
+  prepaid: "other",
+};
+
+function mapSubtype(subtype: string | null): string {
+  if (!subtype) return "checking";
+  return SUBTYPE_MAP[subtype.toLowerCase()] ?? "checking";
+}
+
+// ── Display constants ────────────────────────────────────────────────────────
 
 const TYPE_LABELS: Record<string, string> = {
   checking: "Checking",
@@ -42,12 +96,13 @@ function formatRelativeTime(dateStr: string): string {
   const mins = Math.floor(diff / 60000);
   const hours = Math.floor(diff / 3600000);
   const days = Math.floor(diff / 86400000);
-
   if (mins < 1) return "just now";
   if (mins < 60) return `${mins}m ago`;
   if (hours < 24) return `${hours}h ago`;
   return `${days}d ago`;
 }
+
+// ── Types ─────────────────────────────────────────────────────────────────────
 
 interface FormState {
   name: string;
@@ -68,10 +123,33 @@ interface ToastState {
   type: "success" | "error";
 }
 
+type MappingAction = "map_existing" | "create_new" | "skip";
+
+interface AccountMapping {
+  action: MappingAction;
+  existingAccountId?: string;
+  newAccount: {
+    name: string;
+    account_type: string;
+    last_four: string;
+  };
+}
+
+interface PlaidConnectionData {
+  accessToken: string;
+  itemId: string;
+  institutionName: string;
+  institutionId: string;
+  plaidAccounts: PlaidAccountInfo[];
+  existingAccountId?: string;
+}
+
 interface Props {
   initialAccounts: AccountSummary[];
   businessId: string;
 }
+
+// ── Component ─────────────────────────────────────────────────────────────────
 
 export default function AccountsClient({ initialAccounts, businessId }: Props) {
   const [accounts, setAccounts] = useState<AccountSummary[]>(initialAccounts);
@@ -85,10 +163,20 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
   const [syncingId, setSyncingId] = useState<string | null>(null);
   const [toast, setToast] = useState<ToastState | null>(null);
 
+  // Sync start date — shared across all connect / sync operations
+  const [syncStartDate, setSyncStartDate] = useState(getDefaultSyncStartDate());
+
+  // Plaid account mapping modal state
+  const [plaidConnectionData, setPlaidConnectionData] = useState<PlaidConnectionData | null>(null);
+  const [accountMappings, setAccountMappings] = useState<Record<string, AccountMapping>>({});
+  const [isSavingMappings, setIsSavingMappings] = useState(false);
+
   const showToast = (message: string, type: "success" | "error") => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 4000);
   };
+
+  // ── Manual account form ────────────────────────────────────────────────────
 
   const openAdd = () => {
     setEditingId(null);
@@ -140,10 +228,7 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
       if (editingId) {
         result = await updateBankAccount(editingId, payload);
       } else {
-        result = await createBankAccount({
-          ...payload,
-          last_four: lastFour ?? undefined,
-        });
+        result = await createBankAccount({ ...payload, last_four: lastFour ?? undefined });
       }
 
       if (!result.success) {
@@ -170,38 +255,138 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
     setDeletingId(null);
   };
 
-  const handlePlaidSuccess = async (data: {
-    accountId?: string;
-    institutionName: string;
-    accountName: string;
-    accountMask: string;
-    accountSubtype: string;
-    plaidAccountId: string;
-    existingAccountId?: string;
-  }) => {
+  // ── Plaid connection flow ──────────────────────────────────────────────────
+
+  const handlePlaidConnected = (data: PlaidConnectionData) => {
     setShowAddModal(false);
+
+    // Build initial mapping state for each Plaid account
+    const mappings: Record<string, AccountMapping> = {};
+    const unconnectedAccounts = accounts.filter((a) => !a.is_plaid_connected);
+
+    data.plaidAccounts.forEach((plaidAcc, idx) => {
+      // If opened from an existing account card, pre-select it for the first Plaid account
+      const preselectedId =
+        idx === 0 && data.existingAccountId ? data.existingAccountId : undefined;
+
+      mappings[plaidAcc.plaid_account_id] = {
+        action: preselectedId ? "map_existing" : unconnectedAccounts.length > 0 && idx === 0 ? "map_existing" : "create_new",
+        existingAccountId: preselectedId ?? (idx === 0 && unconnectedAccounts[0] ? unconnectedAccounts[0].id : undefined),
+        newAccount: {
+          name: plaidAcc.name,
+          account_type: mapSubtype(plaidAcc.subtype),
+          last_four: plaidAcc.mask ?? "",
+        },
+      };
+    });
+
+    setAccountMappings(mappings);
+    setPlaidConnectionData(data);
+  };
+
+  const closeMappingModal = () => {
+    setPlaidConnectionData(null);
+    setAccountMappings({});
+  };
+
+  const updateMapping = (plaidAccountId: string, patch: Partial<AccountMapping>) => {
+    setAccountMappings((prev) => ({
+      ...prev,
+      [plaidAccountId]: { ...prev[plaidAccountId], ...patch },
+    }));
+  };
+
+  const updateNewAccount = (
+    plaidAccountId: string,
+    patch: Partial<AccountMapping["newAccount"]>
+  ) => {
+    setAccountMappings((prev) => ({
+      ...prev,
+      [plaidAccountId]: {
+        ...prev[plaidAccountId],
+        newAccount: { ...prev[plaidAccountId].newAccount, ...patch },
+      },
+    }));
+  };
+
+  const handleConnectAccounts = async () => {
+    if (!plaidConnectionData) return;
+    setIsSavingMappings(true);
+
+    const mappingsList = plaidConnectionData.plaidAccounts.map((plaidAcc) => ({
+      plaid_account: plaidAcc,
+      ...accountMappings[plaidAcc.plaid_account_id],
+    }));
+
+    const saveRes = await fetch("/api/plaid/save-account-mappings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        access_token: plaidConnectionData.accessToken,
+        item_id: plaidConnectionData.itemId,
+        institution_name: plaidConnectionData.institutionName,
+        institution_id: plaidConnectionData.institutionId,
+        business_id: businessId,
+        mappings: mappingsList,
+      }),
+    });
+
+    const saveData = await saveRes.json();
+
+    if (!saveData.success) {
+      showToast("Failed to save account connections.", "error");
+      setIsSavingMappings(false);
+      return;
+    }
+
+    // Trigger initial historical sync for each newly connected account
+    const connectedIds: string[] = saveData.connected_account_ids ?? [];
+    await Promise.all(
+      connectedIds.map((id) =>
+        fetch("/api/plaid/sync-transactions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ account_id: id, syncStartDate }),
+        })
+      )
+    );
+
     const fresh = await getAccountSummary();
     setAccounts(fresh);
+    setIsSavingMappings(false);
+    closeMappingModal();
     showToast(
-      data.existingAccountId
-        ? "Bank connected successfully!"
-        : `${data.institutionName} account added!`,
+      `${connectedIds.length} account${connectedIds.length !== 1 ? "s" : ""} connected and synced!`,
       "success"
     );
   };
 
-  const handleSync = async (accountId: string) => {
+  // ── Sync button ────────────────────────────────────────────────────────────
+
+  const handleSync = async (accountId: string, e: React.MouseEvent) => {
+    const resetCursor = e.shiftKey;
     setSyncingId(accountId);
+
     const res = await fetch("/api/plaid/sync-transactions", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ account_id: accountId }),
+      body: JSON.stringify({
+        account_id: accountId,
+        syncStartDate,
+        ...(resetCursor && { resetCursor: true }),
+      }),
     });
+
     const data = await res.json();
     setSyncingId(null);
 
     if (data.success) {
-      showToast(`Synced! ${data.added} new transactions added.`, "success");
+      showToast(
+        resetCursor
+          ? `Re-synced all history. ${data.added} transactions imported.`
+          : `Synced! ${data.added} new transactions added.`,
+        "success"
+      );
       const fresh = await getAccountSummary();
       setAccounts(fresh);
     } else {
@@ -209,8 +394,14 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
     }
   };
 
+  // ── Shared input style ─────────────────────────────────────────────────────
+
   const inputCls =
     "w-full bg-[#0A0F1E] border border-[#1E2A45] text-[#E8ECF4] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#4F7FFF] placeholder:text-[#6B7A99]";
+
+  const unconnectedAccounts = accounts.filter((a) => !a.is_plaid_connected);
+
+  // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
     <div>
@@ -218,7 +409,9 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="font-syne text-3xl font-bold text-[#E8ECF4]">Bank Accounts</h1>
-          <p className="text-sm text-[#6B7A99] mt-1">Organize your transactions by bank account</p>
+          <p className="text-sm text-[#6B7A99] mt-1">
+            Organize your transactions by bank account
+          </p>
         </div>
         <button
           onClick={openAdd}
@@ -233,7 +426,9 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
       {showAddModal && (
         <div className="bg-[#111827] border border-[#1E2A45] rounded-xl p-6 mb-6">
           <h3 className="font-syne font-bold text-lg text-[#E8ECF4] mb-2">Add Bank Account</h3>
-          <p className="text-sm text-[#6B7A99] mb-6">Connect your bank automatically or add manually.</p>
+          <p className="text-sm text-[#6B7A99] mb-6">
+            Connect your bank automatically or add manually.
+          </p>
 
           <div className="grid grid-cols-2 gap-4">
             {/* Connect via Plaid */}
@@ -245,9 +440,31 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
               <p className="text-xs text-[#6B7A99] mb-4">
                 Sync transactions automatically via Plaid. Supports 12,000+ US banks.
               </p>
+
+              {/* Historical sync date picker */}
+              <div className="mb-4">
+                <label className="flex items-center gap-1.5 text-xs text-[#6B7A99] mb-1.5">
+                  Pull transactions from:
+                  <span
+                    title="Choose how far back to import transactions on first connect"
+                    className="cursor-help text-[#6B7A99] hover:text-[#E8ECF4] transition-colors"
+                  >
+                    <Info size={12} />
+                  </span>
+                </label>
+                <input
+                  type="date"
+                  value={syncStartDate}
+                  min={getMinSyncDate()}
+                  max={getMaxSyncDate()}
+                  onChange={(e) => setSyncStartDate(e.target.value)}
+                  className={inputCls}
+                />
+              </div>
+
               <PlaidLinkButton
                 businessId={businessId}
-                onSuccess={handlePlaidSuccess}
+                onConnected={handlePlaidConnected}
                 onExit={() => setShowAddModal(false)}
                 buttonLabel="Connect via Plaid"
                 buttonClassName="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[#4F7FFF] hover:bg-[#3D6FEF] text-white font-medium rounded-lg text-sm transition-colors"
@@ -308,7 +525,9 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
             <div>
-              <label className="block text-xs text-[#6B7A99] mb-1.5">Account nickname *</label>
+              <label className="block text-xs text-[#6B7A99] mb-1.5">
+                Account nickname *
+              </label>
               <input
                 type="text"
                 placeholder="e.g. Business Checking"
@@ -347,7 +566,9 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
               </select>
             </div>
             <div>
-              <label className="block text-xs text-[#6B7A99] mb-1.5">Last 4 digits (optional)</label>
+              <label className="block text-xs text-[#6B7A99] mb-1.5">
+                Last 4 digits (optional)
+              </label>
               <input
                 type="text"
                 placeholder="e.g. 1234"
@@ -389,7 +610,9 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
           <div className="w-16 h-16 rounded-full bg-[#1E2A45] flex items-center justify-center mb-4">
             <Building2 size={28} className="text-[#6B7A99]" />
           </div>
-          <p className="font-syne font-semibold text-[#E8ECF4] text-lg mb-1">No bank accounts yet</p>
+          <p className="font-syne font-semibold text-[#E8ECF4] text-lg mb-1">
+            No bank accounts yet
+          </p>
           <p className="text-sm text-[#6B7A99] mb-6">
             Add your first account to start organizing your transactions
           </p>
@@ -423,7 +646,6 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
                   </p>
                   <p className="text-sm text-[#6B7A99] mt-0.5">{acc.name}</p>
 
-                  {/* Plaid connected status */}
                   {acc.is_plaid_connected && (
                     <div className="flex items-center gap-2 mt-1.5">
                       <span className="flex items-center gap-1 text-xs text-[#22C55E]">
@@ -469,7 +691,9 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
                   {TYPE_LABELS[acc.account_type] ?? "Other"}
                 </span>
                 {acc.last_four && (
-                  <span className="text-sm text-[#6B7A99] font-mono">••••{acc.last_four}</span>
+                  <span className="text-sm text-[#6B7A99] font-mono">
+                    ••••{acc.last_four}
+                  </span>
                 )}
               </div>
 
@@ -477,7 +701,9 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
               <div className="grid grid-cols-3 gap-3 mb-3">
                 <div className="bg-[#0A0F1E] rounded-lg p-2.5 text-center">
                   <p className="text-xs text-[#6B7A99] mb-0.5">Transactions</p>
-                  <p className="text-sm font-semibold text-[#E8ECF4]">{acc.transaction_count}</p>
+                  <p className="text-sm font-semibold text-[#E8ECF4]">
+                    {acc.transaction_count}
+                  </p>
                 </div>
                 <div className="bg-[#0A0F1E] rounded-lg p-2.5 text-center">
                   <p className="text-xs text-[#6B7A99] mb-0.5">Income</p>
@@ -511,8 +737,9 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
                 {acc.is_plaid_connected ? (
                   <button
                     data-action
-                    onClick={() => handleSync(acc.id)}
+                    onClick={(e) => handleSync(acc.id, e)}
                     disabled={syncingId === acc.id}
+                    title="Hold Shift+Click to re-sync all historical transactions"
                     className="flex items-center gap-1.5 text-sm text-[#4F7FFF] hover:text-[#3D6FEF] transition-colors disabled:opacity-50"
                   >
                     <RefreshCw
@@ -526,18 +753,222 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
                     <PlaidLinkButton
                       businessId={businessId}
                       existingAccountId={acc.id}
-                      onSuccess={handlePlaidSuccess}
+                      onConnected={handlePlaidConnected}
                       buttonLabel="Connect to bank"
                       buttonClassName="flex items-center gap-1.5 text-sm text-[#6B7A99] hover:text-[#4F7FFF] transition-colors"
                     />
-                    <p className="mt-1 text-[11px] text-[#64748b]">
-                      🔒 2FA verification required
-                    </p>
+                    <p className="mt-1 text-[11px] text-[#64748b]">🔒 2FA verification required</p>
                   </div>
                 )}
               </div>
             </Link>
           ))}
+        </div>
+      )}
+
+      {/* ── Account Mapping Modal ─────────────────────────────────────────── */}
+      {plaidConnectionData && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-[#111827] border border-[#1E2A45] rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl">
+            {/* Modal header */}
+            <div className="flex items-center justify-between px-6 py-5 border-b border-[#1E2A45]">
+              <div>
+                <h2 className="font-syne font-bold text-xl text-[#E8ECF4]">Map Your Accounts</h2>
+                <p className="text-sm text-[#6B7A99] mt-0.5">
+                  {plaidConnectionData.institutionName} · Choose what to do with each account
+                </p>
+              </div>
+              <button
+                onClick={closeMappingModal}
+                className="p-1.5 text-[#6B7A99] hover:text-[#E8ECF4] transition-colors"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Modal body */}
+            <div className="overflow-y-auto flex-1 px-6 py-5 space-y-5">
+              {plaidConnectionData.plaidAccounts.map((plaidAcc) => {
+                const mapping = accountMappings[plaidAcc.plaid_account_id];
+                if (!mapping) return null;
+                return (
+                  <div
+                    key={plaidAcc.plaid_account_id}
+                    className="bg-[#0A0F1E] border border-[#1E2A45] rounded-xl p-4"
+                  >
+                    {/* Plaid account info */}
+                    <div className="flex items-start justify-between mb-3">
+                      <div>
+                        <p className="font-medium text-[#E8ECF4] text-sm">{plaidAcc.name}</p>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <span className="text-xs text-[#6B7A99] capitalize">
+                            {plaidAcc.subtype ?? plaidAcc.type}
+                          </span>
+                          {plaidAcc.mask && (
+                            <span className="text-xs text-[#6B7A99] font-mono">
+                              ••••{plaidAcc.mask}
+                            </span>
+                          )}
+                          {plaidAcc.balance_current != null && (
+                            <span className="text-xs text-[#6B7A99]">
+                              {formatCurrency(plaidAcc.balance_current)}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Action dropdown */}
+                    <div className="mb-3">
+                      <label className="block text-xs text-[#6B7A99] mb-1.5">Action</label>
+                      <div className="relative">
+                        <select
+                          value={mapping.action}
+                          onChange={(e) =>
+                            updateMapping(plaidAcc.plaid_account_id, {
+                              action: e.target.value as MappingAction,
+                            })
+                          }
+                          className={inputCls + " pr-8 appearance-none"}
+                        >
+                          <option value="create_new">Create new account</option>
+                          {unconnectedAccounts.length > 0 && (
+                            <option value="map_existing">Map to existing account</option>
+                          )}
+                          <option value="skip">Skip this account</option>
+                        </select>
+                        <ChevronDown
+                          size={14}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6B7A99] pointer-events-none"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Map to existing: existing account selector */}
+                    {mapping.action === "map_existing" && (
+                      <div>
+                        <label className="block text-xs text-[#6B7A99] mb-1.5">
+                          Select existing account
+                        </label>
+                        <div className="relative">
+                          <select
+                            value={mapping.existingAccountId ?? ""}
+                            onChange={(e) =>
+                              updateMapping(plaidAcc.plaid_account_id, {
+                                existingAccountId: e.target.value,
+                              })
+                            }
+                            className={inputCls + " pr-8 appearance-none"}
+                          >
+                            <option value="">— Choose an account —</option>
+                            {unconnectedAccounts.map((acc) => (
+                              <option key={acc.id} value={acc.id}>
+                                {acc.bank_name} · {acc.name}
+                                {acc.last_four ? ` (••••${acc.last_four})` : ""}
+                              </option>
+                            ))}
+                          </select>
+                          <ChevronDown
+                            size={14}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6B7A99] pointer-events-none"
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Create new: inline fields */}
+                    {mapping.action === "create_new" && (
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs text-[#6B7A99] mb-1.5">
+                            Account name
+                          </label>
+                          <input
+                            type="text"
+                            value={mapping.newAccount.name}
+                            onChange={(e) =>
+                              updateNewAccount(plaidAcc.plaid_account_id, {
+                                name: e.target.value,
+                              })
+                            }
+                            className={inputCls}
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-[#6B7A99] mb-1.5">
+                            Account type
+                          </label>
+                          <div className="relative">
+                            <select
+                              value={mapping.newAccount.account_type}
+                              onChange={(e) =>
+                                updateNewAccount(plaidAcc.plaid_account_id, {
+                                  account_type: e.target.value,
+                                })
+                              }
+                              className={inputCls + " pr-8 appearance-none"}
+                            >
+                              <option value="checking">Checking</option>
+                              <option value="savings">Savings</option>
+                              <option value="credit_card">Credit Card</option>
+                              <option value="cash">Cash</option>
+                              <option value="other">Other</option>
+                            </select>
+                            <ChevronDown
+                              size={14}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6B7A99] pointer-events-none"
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-xs text-[#6B7A99] mb-1.5">
+                            Last 4 digits
+                          </label>
+                          <input
+                            type="text"
+                            value={mapping.newAccount.last_four}
+                            maxLength={4}
+                            onChange={(e) => {
+                              const val = e.target.value.replace(/\D/g, "");
+                              updateNewAccount(plaidAcc.plaid_account_id, { last_four: val });
+                            }}
+                            className={inputCls}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Modal footer */}
+            <div className="px-6 py-4 border-t border-[#1E2A45] flex items-center justify-between gap-3">
+              <p className="text-xs text-[#6B7A99]">
+                Transactions will be pulled from{" "}
+                <span className="text-[#E8ECF4]">{syncStartDate}</span>
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={closeMappingModal}
+                  disabled={isSavingMappings}
+                  className="px-4 py-2 border border-[#1E2A45] text-[#6B7A99] hover:text-[#E8ECF4] hover:border-[#4F7FFF]/50 text-sm rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleConnectAccounts}
+                  disabled={isSavingMappings}
+                  className="px-5 py-2 bg-[#4F7FFF] hover:bg-[#3D6FEF] disabled:opacity-60 text-white font-medium text-sm rounded-lg transition-colors flex items-center gap-2"
+                >
+                  {isSavingMappings && (
+                    <RefreshCw size={14} className="animate-spin" />
+                  )}
+                  {isSavingMappings ? "Connecting…" : "Connect Accounts"}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 

@@ -5,16 +5,26 @@ import { useEffect, useState } from 'react'
 import { Link2 } from 'lucide-react'
 import MfaGate from './mfa-gate'
 
+export interface PlaidAccountInfo {
+  plaid_account_id: string
+  name: string
+  official_name: string | null
+  type: string
+  subtype: string | null
+  mask: string | null
+  balance_current: number | null
+  balance_available: number | null
+}
+
 interface PlaidLinkButtonProps {
   businessId: string
   existingAccountId?: string
-  onSuccess: (data: {
-    accountId?: string
+  onConnected: (data: {
+    accessToken: string
+    itemId: string
     institutionName: string
-    accountName: string
-    accountMask: string
-    accountSubtype: string
-    plaidAccountId: string
+    institutionId: string
+    plaidAccounts: PlaidAccountInfo[]
     existingAccountId?: string
   }) => void
   onExit?: () => void
@@ -25,7 +35,7 @@ interface PlaidLinkButtonProps {
 export default function PlaidLinkButton({
   businessId,
   existingAccountId,
-  onSuccess,
+  onConnected,
   onExit,
   buttonLabel = 'Connect Bank',
   buttonClassName,
@@ -52,37 +62,33 @@ export default function PlaidLinkButton({
   const { open, ready } = usePlaidLink({
     token: linkToken ?? '',
     onSuccess: async (public_token: string, metadata: PlaidLinkOnSuccessMetadata) => {
-      const account = metadata.accounts[0]
       const institution = metadata.institution
 
-      const res = await fetch('/api/plaid/exchange-token', {
+      // Step 1: Exchange public token for access token (no DB save)
+      const exchangeRes = await fetch('/api/plaid/exchange-token', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          public_token,
-          plaid_account_id: account.id,
-          institution_name: institution?.name,
-          institution_id: institution?.institution_id,
-          account_name: account.name,
-          account_mask: account.mask,
-          account_subtype: account.subtype,
-          existing_account_id: existingAccountId,
-          business_id: businessId,
-        }),
+        body: JSON.stringify({ public_token }),
       })
+      const exchangeData = await exchangeRes.json()
+      if (!exchangeData.success) return
 
-      const data = await res.json()
-      if (data.success) {
-        onSuccess({
-          accountId: data.account?.id,
-          institutionName: institution?.name ?? '',
-          accountName: account.name,
-          accountMask: account.mask ?? '',
-          accountSubtype: account.subtype ?? '',
-          plaidAccountId: account.id,
-          existingAccountId,
-        })
-      }
+      // Step 2: Fetch all Plaid accounts for this item
+      const accountsRes = await fetch('/api/plaid/get-accounts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ access_token: exchangeData.access_token }),
+      })
+      const accountsData = await accountsRes.json()
+
+      onConnected({
+        accessToken: exchangeData.access_token,
+        itemId: exchangeData.item_id,
+        institutionName: institution?.name ?? '',
+        institutionId: institution?.institution_id ?? '',
+        plaidAccounts: accountsData.accounts ?? [],
+        existingAccountId,
+      })
     },
     onExit: () => onExit?.(),
   })
