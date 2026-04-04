@@ -35,6 +35,8 @@ export async function uploadTransactions(
       account_id: accountId,
       raw_csv_row: t.raw_csv_row,
       account_type: getAccountType(t.category ?? "Uncategorized"),
+      payee_name: t.payee_name || "Unknown",
+      payee_id: null,
     }));
 
     const { error } = await supabase.from("transactions").insert(rows);
