@@ -64,6 +64,20 @@ function mapSubtype(subtype: string | null): string {
   return SUBTYPE_MAP[subtype.toLowerCase()] ?? "checking";
 }
 
+function getCompatibleTypes(plaidSubtype: string | null): string[] {
+  const subtype = (plaidSubtype ?? "").toLowerCase();
+  if (["checking", "savings", "money market", "prepaid"].includes(subtype)) {
+    return ["checking", "savings"];
+  }
+  if (["credit card", "paypal"].includes(subtype)) {
+    return ["credit_card"];
+  }
+  if (["loan", "mortgage", "student", "auto", "home equity"].includes(subtype)) {
+    return ["other"];
+  }
+  return ["checking", "savings", "credit_card", "cash", "other"];
+}
+
 // ── Display constants ────────────────────────────────────────────────────────
 
 const TYPE_LABELS: Record<string, string> = {
@@ -265,13 +279,25 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
     const unconnectedAccounts = accounts.filter((a) => !a.is_plaid_connected);
 
     data.plaidAccounts.forEach((plaidAcc, idx) => {
-      // If opened from an existing account card, pre-select it for the first Plaid account
-      const preselectedId =
-        idx === 0 && data.existingAccountId ? data.existingAccountId : undefined;
+      const compatibleTypes = getCompatibleTypes(plaidAcc.subtype);
+      const compatibleUnconnected = unconnectedAccounts.filter((a) =>
+        compatibleTypes.includes(a.account_type)
+      );
+
+      // If opened from an existing account card, only pre-select it if it's a compatible type
+      const preselectedAccount =
+        idx === 0 && data.existingAccountId
+          ? unconnectedAccounts.find(
+              (a) => a.id === data.existingAccountId && compatibleTypes.includes(a.account_type)
+            )
+          : undefined;
+
+      const defaultExistingId =
+        preselectedAccount?.id ?? (idx === 0 && compatibleUnconnected[0]?.id);
 
       mappings[plaidAcc.plaid_account_id] = {
-        action: preselectedId ? "map_existing" : unconnectedAccounts.length > 0 && idx === 0 ? "map_existing" : "create_new",
-        existingAccountId: preselectedId ?? (idx === 0 && unconnectedAccounts[0] ? unconnectedAccounts[0].id : undefined),
+        action: defaultExistingId ? "map_existing" : "create_new",
+        existingAccountId: defaultExistingId || undefined,
         newAccount: {
           name: plaidAcc.name,
           account_type: mapSubtype(plaidAcc.subtype),
@@ -807,6 +833,15 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
               {plaidConnectionData.plaidAccounts.map((plaidAcc) => {
                 const mapping = accountMappings[plaidAcc.plaid_account_id];
                 if (!mapping) return null;
+
+                const compatibleAccounts = unconnectedAccounts.filter((acc) =>
+                  getCompatibleTypes(plaidAcc.subtype).includes(acc.account_type)
+                );
+                const hasCompatible = compatibleAccounts.length > 0;
+                const subtypeLabel =
+                  TYPE_LABELS[mapSubtype(plaidAcc.subtype)] ??
+                  (plaidAcc.subtype ? plaidAcc.subtype.charAt(0).toUpperCase() + plaidAcc.subtype.slice(1) : "Account");
+
                 return (
                   <div
                     key={plaidAcc.plaid_account_id}
@@ -815,11 +850,17 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
                     {/* Plaid account info */}
                     <div className="flex items-start justify-between mb-3">
                       <div>
-                        <p className="font-medium text-[#E8ECF4] text-sm">{plaidAcc.name}</p>
-                        <div className="flex items-center gap-2 mt-0.5">
-                          <span className="text-xs text-[#6B7A99] capitalize">
-                            {plaidAcc.subtype ?? plaidAcc.type}
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium text-[#E8ECF4] text-sm">{plaidAcc.name}</p>
+                          <span
+                            className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                              TYPE_COLORS[mapSubtype(plaidAcc.subtype)] ?? TYPE_COLORS.other
+                            }`}
+                          >
+                            {subtypeLabel}
                           </span>
+                        </div>
+                        <div className="flex items-center gap-2 mt-0.5">
                           {plaidAcc.mask && (
                             <span className="text-xs text-[#6B7A99] font-mono">
                               ••••{plaidAcc.mask}
@@ -848,9 +889,13 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
                           className={inputCls + " pr-8 appearance-none"}
                         >
                           <option value="create_new">Create new account</option>
-                          {unconnectedAccounts.length > 0 && (
-                            <option value="map_existing">Map to existing account</option>
-                          )}
+                          <option
+                            value="map_existing"
+                            disabled={!hasCompatible}
+                            title={!hasCompatible ? "No compatible accounts available" : undefined}
+                          >
+                            Map to existing account{!hasCompatible ? " (none available)" : ""}
+                          </option>
                           <option value="skip">Skip this account</option>
                         </select>
                         <ChevronDown
@@ -858,9 +903,14 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
                           className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6B7A99] pointer-events-none"
                         />
                       </div>
+                      {!hasCompatible && mapping.action !== "skip" && (
+                        <p className="mt-1.5 text-xs text-[#6B7A99]">
+                          No existing {subtypeLabel.toLowerCase()} accounts available to map to — a new account will be created.
+                        </p>
+                      )}
                     </div>
 
-                    {/* Map to existing: existing account selector */}
+                    {/* Map to existing: compatible account selector */}
                     {mapping.action === "map_existing" && (
                       <div>
                         <label className="block text-xs text-[#6B7A99] mb-1.5">
@@ -877,7 +927,7 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
                             className={inputCls + " pr-8 appearance-none"}
                           >
                             <option value="">— Choose an account —</option>
-                            {unconnectedAccounts.map((acc) => (
+                            {compatibleAccounts.map((acc) => (
                               <option key={acc.id} value={acc.id}>
                                 {acc.bank_name} · {acc.name}
                                 {acc.last_four ? ` (••••${acc.last_four})` : ""}
