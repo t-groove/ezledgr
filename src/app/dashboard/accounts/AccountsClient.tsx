@@ -13,6 +13,7 @@ import {
   RefreshCw,
   Info,
   ChevronDown,
+  AlertCircle,
 } from "lucide-react";
 import {
   createBankAccount,
@@ -834,10 +835,7 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
                 const mapping = accountMappings[plaidAcc.plaid_account_id];
                 if (!mapping) return null;
 
-                const compatibleAccounts = unconnectedAccounts.filter((acc) =>
-                  getCompatibleTypes(plaidAcc.subtype).includes(acc.account_type)
-                );
-                const hasCompatible = compatibleAccounts.length > 0;
+                const compatibleAccounts = unconnectedAccounts;
                 const subtypeLabel =
                   TYPE_LABELS[mapSubtype(plaidAcc.subtype)] ??
                   (plaidAcc.subtype ? plaidAcc.subtype.charAt(0).toUpperCase() + plaidAcc.subtype.slice(1) : "Account");
@@ -889,13 +887,9 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
                           className={inputCls + " pr-8 appearance-none"}
                         >
                           <option value="create_new">Create new account</option>
-                          <option
-                            value="map_existing"
-                            disabled={!hasCompatible}
-                            title={!hasCompatible ? "No compatible accounts available" : undefined}
-                          >
-                            Map to existing account{!hasCompatible ? " (none available)" : ""}
-                          </option>
+                          {unconnectedAccounts.length > 0 && (
+                            <option value="map_existing">Map to existing account</option>
+                          )}
                           <option value="skip">Skip this account</option>
                         </select>
                         <ChevronDown
@@ -903,14 +897,9 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
                           className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6B7A99] pointer-events-none"
                         />
                       </div>
-                      {!hasCompatible && mapping.action !== "skip" && (
-                        <p className="mt-1.5 text-xs text-[#6B7A99]">
-                          No existing {subtypeLabel.toLowerCase()} accounts available to map to — a new account will be created.
-                        </p>
-                      )}
                     </div>
 
-                    {/* Map to existing: compatible account selector */}
+                    {/* Map to existing: account selector + mismatch warning */}
                     {mapping.action === "map_existing" && (
                       <div>
                         <label className="block text-xs text-[#6B7A99] mb-1.5">
@@ -931,6 +920,9 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
                               <option key={acc.id} value={acc.id}>
                                 {acc.bank_name} · {acc.name}
                                 {acc.last_four ? ` (••••${acc.last_four})` : ""}
+                                {!getCompatibleTypes(plaidAcc.subtype).includes(acc.account_type)
+                                  ? ` [${TYPE_LABELS[acc.account_type] ?? acc.account_type} → ${subtypeLabel}]`
+                                  : ""}
                               </option>
                             ))}
                           </select>
@@ -939,6 +931,28 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
                             className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6B7A99] pointer-events-none"
                           />
                         </div>
+                        {(() => {
+                          const selectedAcc = unconnectedAccounts.find(
+                            (a) => a.id === mapping.existingAccountId
+                          );
+                          const plaidType = mapSubtype(plaidAcc.subtype);
+                          if (
+                            selectedAcc &&
+                            !getCompatibleTypes(plaidAcc.subtype).includes(selectedAcc.account_type)
+                          ) {
+                            return (
+                              <p className="text-xs text-amber-400 mt-1.5 flex items-center gap-1">
+                                <AlertCircle size={12} className="shrink-0" />
+                                &ldquo;{selectedAcc.name}&rdquo; is set to{" "}
+                                <strong>{TYPE_LABELS[selectedAcc.account_type]}</strong>. It will
+                                be updated to{" "}
+                                <strong>{TYPE_LABELS[plaidType] ?? plaidType}</strong> to match
+                                Plaid.
+                              </p>
+                            );
+                          }
+                          return null;
+                        })()}
                       </div>
                     )}
 

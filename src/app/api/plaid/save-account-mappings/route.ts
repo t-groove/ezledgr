@@ -1,6 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '../../../../../supabase/server'
 
+function mapPlaidSubtype(subtype: string | null): string {
+  const s = (subtype ?? '').toLowerCase()
+  if (['checking'].includes(s)) return 'checking'
+  if (['savings', 'money market', 'cd'].includes(s)) return 'savings'
+  if (['credit card', 'credit'].includes(s)) return 'credit_card'
+  if (['cash management', 'prepaid'].includes(s)) return 'cash'
+  return 'other'
+}
+
 interface PlaidAccountInfo {
   plaid_account_id: string
   name: string
@@ -72,6 +81,7 @@ export async function POST(req: NextRequest) {
           is_plaid_connected: true,
           last_four: mapping.plaid_account.mask,
           bank_name: institution_name,
+          account_type: mapPlaidSubtype(mapping.plaid_account.subtype),
         })
         .eq('id', mapping.existing_account_id)
         .eq('business_id', business_id)
