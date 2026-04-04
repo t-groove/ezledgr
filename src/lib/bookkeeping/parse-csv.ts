@@ -3,6 +3,7 @@ import { ALL_CATEGORIES } from "./categories";
 export interface ParsedTransaction {
   date: string;
   description: string;
+  payee_name: string;
   amount: number;
   type: "income" | "expense";
   category?: string;
@@ -12,6 +13,7 @@ export interface ParsedTransaction {
 export interface ParseResult {
   transactions: ParsedTransaction[];
   errors: Array<{ row: string; reason: string }>;
+  payeeSource: "payee_column" | "description_column" | "unknown";
 }
 
 export interface ColumnMap {
@@ -52,6 +54,40 @@ function parseCSVLine(line: string): string[] {
 
 function normalizeHeader(h: string): string {
   return h.toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+
+function resolvePayee(row: Record<string, string>, headers: string[]): string {
+  const payeeColumns = ['payee', 'payee name', 'vendor', 'merchant', 'name', 'paid to', 'received from'];
+  const descColumns = ['description', 'memo', 'narrative', 'details', 'transaction description'];
+
+  const headerMap = Object.fromEntries(
+    headers.map(h => [h.toLowerCase().trim(), h])
+  );
+
+  for (const col of payeeColumns) {
+    if (headerMap[col]) {
+      const val = (row[headerMap[col]] ?? '').trim();
+      if (val) return val;
+    }
+  }
+
+  for (const col of descColumns) {
+    if (headerMap[col]) {
+      const val = (row[headerMap[col]] ?? '').trim();
+      if (val) return val;
+    }
+  }
+
+  return 'Unknown';
+}
+
+function getPayeeSource(headers: string[]): "payee_column" | "description_column" | "unknown" {
+  const payeeColumns = ['payee', 'payee name', 'vendor', 'merchant', 'name', 'paid to', 'received from'];
+  const descColumns = ['description', 'memo', 'narrative', 'details', 'transaction description'];
+  const normalized = headers.map(h => h.toLowerCase().trim());
+  if (payeeColumns.some(col => normalized.includes(col))) return "payee_column";
+  if (descColumns.some(col => normalized.includes(col))) return "description_column";
+  return "unknown";
 }
 
 
@@ -183,13 +219,13 @@ export function parseCSV(csvString: string): ParseResult {
   const lines = csvString.replace(/\r\n/g, "\n").replace(/\r/g, "\n").split("\n");
 
   if (lines.length < 2) {
-    return { transactions, errors: [{ row: "", reason: "File appears empty or has no data rows" }] };
+    return { transactions, errors: [{ row: "", reason: "File appears empty or has no data rows" }], payeeSource: "unknown" };
   }
 
   // Check first non-empty line to determine format
   const firstNonEmptyLine = lines.find(l => l.trim());
   if (!firstNonEmptyLine) {
-    return { transactions, errors: [{ row: "", reason: "File is empty" }] };
+    return { transactions, errors: [{ row: "", reason: "File is empty" }], payeeSource: "unknown" };
   }
 
   const firstCols = parseCSVLine(firstNonEmptyLine.trim());
@@ -202,6 +238,7 @@ export function parseCSV(csvString: string): ParseResult {
   let dataStartIdx: number;
   let columnMap: ColumnMap | null = null;
   let isWellsFargoFormat = false;
+  let csvHeaders: string[] = [];
 
   if (firstFieldLooksLikeDate && firstCols.length >= 5) {
     // No-header format: date, amount, *, empty, description
@@ -222,6 +259,7 @@ export function parseCSV(csvString: string): ParseResult {
       if (map.dateIdx !== -1 && map.descriptionIdx !== -1) {
         headerLineIdx = i;
         columnMap = map;
+        csvHeaders = headers;
         break;
       }
     }
@@ -229,10 +267,16 @@ export function parseCSV(csvString: string): ParseResult {
       return {
         transactions,
         errors: [{ row: lines[0], reason: "Could not detect required columns (date, description)" }],
+        payeeSource: "unknown",
       };
     }
     dataStartIdx = headerLineIdx + 1;
   }
+
+  // Determine which source will be used for payee_name
+  const payeeSource: ParseResult["payeeSource"] = isWellsFargoFormat
+    ? "description_column"
+    : getPayeeSource(csvHeaders);
 
   const { dateIdx, descriptionIdx, referenceIdx, payeeIdx, amountIdx, creditIdx, debitIdx, categoryIdx } =
     isWellsFargoFormat
@@ -314,9 +358,21 @@ export function parseCSV(csvString: string): ParseResult {
       }
     }
 
+    // Resolve payee_name: use header-keyed row for header-based formats,
+    // fall back to description for WellsFargo (no-header) format.
+    let payee_name: string;
+    if (isWellsFargoFormat) {
+      payee_name = description;
+    } else {
+      const rowRecord: Record<string, string> = {};
+      csvHeaders.forEach((h, idx) => { rowRecord[h] = cols[idx] ?? ""; });
+      payee_name = resolvePayee(rowRecord, csvHeaders);
+    }
+
     transactions.push({
       date: dateStr,
       description,
+      payee_name,
       amount,
       type,
       category,
@@ -324,5 +380,5 @@ export function parseCSV(csvString: string): ParseResult {
     });
   }
 
-  return { transactions, errors };
+  return { transactions, errors, payeeSource };
 }
