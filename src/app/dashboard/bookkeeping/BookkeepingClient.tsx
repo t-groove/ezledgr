@@ -379,7 +379,7 @@ function UploadPanel({ bankAccounts, onImportSuccess, onAccountCreated }: Upload
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-[#1E2A45] bg-[#0A0F1E]">
-                  {["Date", "Description", "Amount", "Type", "Category"].map((h) => (
+                  {["Date", "Payee", "Description", "Category", "Type", "Amount"].map((h) => (
                     <th
                       key={h}
                       className="text-left px-4 py-3 text-[#6B7A99] font-medium"
@@ -398,19 +398,30 @@ function UploadPanel({ bankAccounts, onImportSuccess, onAccountCreated }: Upload
                     <td className="px-4 py-3 text-[#E8ECF4] whitespace-nowrap">
                       {formatDate(t.date)}
                     </td>
+                    <td className="px-4 py-3 max-w-[160px] truncate">
+                      {(!t.payee_name || t.payee_name === "Unknown") ? (
+                        <span className="flex items-center gap-1">
+                          <AlertCircle size={13} className="text-amber-400 flex-shrink-0" />
+                          <span className="text-sm text-[#6B7A99] italic">Unknown</span>
+                        </span>
+                      ) : (
+                        <span className="text-sm text-[#E8ECF4] truncate" title={t.payee_name}>{t.payee_name}</span>
+                      )}
+                    </td>
                     <td
                       className="px-4 py-3 text-[#E8ECF4] max-w-xs truncate"
                       title={t.description}
                     >
                       {t.description}
                     </td>
-                    <td
-                      className={`px-4 py-3 font-medium whitespace-nowrap ${
-                        t.type === "income" ? "text-[#22C55E]" : "text-[#EF4444]"
-                      }`}
-                    >
-                      {t.type === "income" ? "+" : "-"}
-                      {formatCurrency(t.amount)}
+                    <td className="px-4 py-3">
+                      {t.category ? (
+                        <span className="text-sm text-[#6B7A99]">{t.category}</span>
+                      ) : (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[#1E2A45] text-[#6B7A99]">
+                          Uncategorized
+                        </span>
+                      )}
                     </td>
                     <td className="px-4 py-3">
                       <span
@@ -423,14 +434,13 @@ function UploadPanel({ bankAccounts, onImportSuccess, onAccountCreated }: Upload
                         {t.type === "income" ? "Income" : "Expense"}
                       </span>
                     </td>
-                    <td className="px-4 py-3">
-                      {t.category ? (
-                        <span className="text-sm text-[#6B7A99]">{t.category}</span>
-                      ) : (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[#1E2A45] text-[#6B7A99]">
-                          Uncategorized
-                        </span>
-                      )}
+                    <td
+                      className={`px-4 py-3 font-medium whitespace-nowrap ${
+                        t.type === "income" ? "text-[#22C55E]" : "text-[#EF4444]"
+                      }`}
+                    >
+                      {t.type === "income" ? "+" : "-"}
+                      {formatCurrency(t.amount)}
                     </td>
                   </tr>
                 ))}
