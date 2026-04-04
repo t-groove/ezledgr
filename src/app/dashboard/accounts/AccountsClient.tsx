@@ -313,10 +313,19 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
     if (!plaidConnectionData) return;
     setIsSavingMappings(true);
 
-    const mappingsList = plaidConnectionData.plaidAccounts.map((plaidAcc) => ({
-      plaid_account: plaidAcc,
-      ...accountMappings[plaidAcc.plaid_account_id],
-    }));
+    // Serialize to snake_case for the API — the local state uses camelCase keys
+    // but the route expects existing_account_id and new_account.
+    const mappingsList = plaidConnectionData.plaidAccounts.map((plaidAcc) => {
+      const m = accountMappings[plaidAcc.plaid_account_id];
+      return {
+        plaid_account: plaidAcc,
+        action: m.action,
+        existing_account_id: m.existingAccountId,
+        new_account: m.newAccount,
+      };
+    });
+
+    console.log('Saving mappings with business_id:', businessId, 'mappings:', mappingsList);
 
     const saveRes = await fetch("/api/plaid/save-account-mappings", {
       method: "POST",
@@ -332,12 +341,19 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
     });
 
     const saveData = await saveRes.json();
+    console.log('save-account-mappings response:', saveData);
 
     if (!saveData.success) {
       showToast("Failed to save account connections.", "error");
       setIsSavingMappings(false);
       return;
     }
+
+    const effectiveSyncStartDate =
+      syncStartDate ||
+      new Date(new Date().setFullYear(new Date().getFullYear() - 1))
+        .toISOString()
+        .split("T")[0];
 
     // Trigger initial historical sync for each newly connected account
     const connectedIds: string[] = saveData.connected_account_ids ?? [];
@@ -346,7 +362,7 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
         fetch("/api/plaid/sync-transactions", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ account_id: id, syncStartDate }),
+          body: JSON.stringify({ account_id: id, syncStartDate: effectiveSyncStartDate }),
         })
       )
     );

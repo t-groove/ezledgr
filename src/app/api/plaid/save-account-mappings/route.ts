@@ -44,14 +44,19 @@ export async function POST(req: NextRequest) {
     mappings: AccountMapping[]
   } = await req.json()
 
+  if (!business_id) {
+    return NextResponse.json({ error: 'business_id is required' }, { status: 400 })
+  }
+
   const connectedAccountIds: string[] = []
   let isPrimaryTokenSaved = false
+  const nonSkipped = mappings.filter(m => m.action !== 'skip')
 
   for (const mapping of mappings) {
     if (mapping.action === 'skip') continue
 
     // Only the first connected account stores the access_token.
-    // All others share the same item_id and look it up at sync time.
+    // All others share plaid_item_id and look up the token at sync time.
     const tokenForThisAccount = isPrimaryTokenSaved ? null : access_token
     if (!isPrimaryTokenSaved) isPrimaryTokenSaved = true
 
@@ -69,11 +74,15 @@ export async function POST(req: NextRequest) {
           bank_name: institution_name,
         })
         .eq('id', mapping.existing_account_id)
-        .eq('user_id', user.id)
+        .eq('business_id', business_id)
         .select('id')
         .single()
 
-      if (!error && data) {
+      if (error) {
+        console.error('save-account-mappings map_existing error:', error)
+        continue
+      }
+      if (data) {
         connectedAccountIds.push(data.id)
       }
     } else if (mapping.action === 'create_new' && mapping.new_account) {
@@ -96,11 +105,19 @@ export async function POST(req: NextRequest) {
         .select('id')
         .single()
 
-      if (!error && data) {
+      if (error) {
+        console.error('save-account-mappings create_new error:', error)
+        continue
+      }
+      if (data) {
         connectedAccountIds.push(data.id)
       }
     }
   }
 
-  return NextResponse.json({ success: true, connected_account_ids: connectedAccountIds })
+  return NextResponse.json({
+    success: true,
+    connected_account_ids: connectedAccountIds,
+    total_attempted: nonSkipped.length,
+  })
 }
