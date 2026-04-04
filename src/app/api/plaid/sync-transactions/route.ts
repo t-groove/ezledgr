@@ -57,6 +57,8 @@ export async function POST(req: NextRequest) {
       account_id: string
       date: string
       description: string
+      payee_name: string
+      payee_id: null
       amount: number
       type: string
       category: string
@@ -65,7 +67,8 @@ export async function POST(req: NextRequest) {
     }> = []
 
     for (const t of accountTransactions) {
-      const description = t.merchant_name ?? t.name ?? 'Unknown'
+      const payeeName = t.merchant_name ?? t.name ?? 'Unknown'
+      const description = t.name ?? t.merchant_name ?? 'Unknown'
       const amount = Math.abs(t.amount)
 
       const { data: existing } = await supabase
@@ -74,7 +77,7 @@ export async function POST(req: NextRequest) {
         .eq('account_id', bankAccount.id)
         .eq('date', t.date)
         .eq('amount', amount)
-        .eq('description', description)
+        .eq('description', t.name ?? t.merchant_name ?? 'Unknown')
         .limit(1)
 
       if (!existing || existing.length === 0) {
@@ -84,6 +87,8 @@ export async function POST(req: NextRequest) {
           account_id: bankAccount.id,
           date: t.date,
           description,
+          payee_name: payeeName,
+          payee_id: null,
           amount,
           type: t.amount > 0 ? 'expense' : 'income',
           category: 'Uncategorized',
