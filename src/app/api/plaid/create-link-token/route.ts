@@ -23,6 +23,7 @@ export async function POST(req: NextRequest) {
       transactions: {
         days_requested: 730,
       },
+      webhook: process.env.PLAID_WEBHOOK_URL ?? 'https://www.ezledgr.com/api/plaid/webhook',
       ...(process.env.NEXT_PUBLIC_SITE_URL && {
         redirect_uri: process.env.NEXT_PUBLIC_SITE_URL + '/dashboard/accounts',
       }),
@@ -34,10 +35,9 @@ export async function POST(req: NextRequest) {
     console.log('Link token created successfully')
     return NextResponse.json({ link_token: response.data.link_token })
   } catch (error: unknown) {
-    const err = error as { response?: { data: unknown }; message?: string }
-    console.error('Plaid link token error:', err.response?.data ?? error)
+    console.error('[plaid][create-link-token] error:', error)
     return NextResponse.json(
-      { error: err.response?.data ?? err.message },
+      { error: 'An unexpected error occurred. Please try again.' },
       { status: 500 }
     )
   }
