@@ -4,7 +4,6 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import {
   Pencil,
-  Trash2,
   Plus,
   Building2,
   X,
@@ -22,6 +21,7 @@ import {
   getAccountSummary,
 } from "./actions";
 import type { AccountSummary } from "./actions";
+import { createClient as createBrowserClient } from "../../../../supabase/client";
 import PlaidLinkButton from "@/components/PlaidLinkButton";
 import type { PlaidAccountInfo } from "@/components/PlaidLinkButton";
 
@@ -117,6 +117,15 @@ function formatRelativeTime(dateStr: string): string {
   return `${days}d ago`;
 }
 
+function formatSyncDate(dateStr: string | null): string {
+  if (!dateStr) return "Never synced";
+  return new Date(dateStr).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 interface FormState {
@@ -168,14 +177,13 @@ interface Props {
 
 export default function AccountsClient({ initialAccounts, businessId }: Props) {
   const [accounts, setAccounts] = useState<AccountSummary[]>(initialAccounts);
-  const [showForm, setShowForm] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingAccount, setEditingAccount] = useState<AccountSummary | null>(null);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [formError, setFormError] = useState<string | null>(null);
   const [isSaving, startSaving] = useTransition();
-  const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [syncingId, setSyncingId] = useState<string | null>(null);
+  const [isDisconnecting, setIsDisconnecting] = useState(false);
   const [toast, setToast] = useState<ToastState | null>(null);
 
   // Sync start date — shared across all connect / sync operations
@@ -202,6 +210,7 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
 
   const openEdit = (acc: AccountSummary) => {
     setEditingId(acc.id);
+    setEditingAccount(acc);
     setForm({
       name: acc.name,
       bank_name: acc.bank_name,
@@ -209,11 +218,10 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
       last_four: acc.last_four ?? "",
     });
     setFormError(null);
-    setShowForm(true);
   };
 
   const closeForm = () => {
-    setShowForm(false);
+    setEditingAccount(null);
     setEditingId(null);
     setForm(EMPTY_FORM);
     setFormError(null);
@@ -259,15 +267,44 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
   };
 
   const handleDelete = async (id: string) => {
-    setDeletingId(id);
     const result = await deleteBankAccount(id);
     if (result.success) {
       setAccounts((prev) => prev.filter((a) => a.id !== id));
+      closeForm();
       showToast("Account deleted", "success");
     } else {
       showToast("Failed to delete account", "error");
     }
-    setDeletingId(null);
+  };
+
+  const handleDisconnectPlaid = async () => {
+    if (!editingAccount) return;
+    setIsDisconnecting(true);
+    const supabase = createBrowserClient();
+    const { error } = await supabase
+      .from("bank_accounts")
+      .update({
+        plaid_access_token: null,
+        plaid_item_id: null,
+        plaid_account_id: null,
+        plaid_cursor: null,
+        is_plaid_connected: false,
+      })
+      .eq("id", editingAccount.id);
+    setIsDisconnecting(false);
+    if (!error) {
+      setAccounts((prev) =>
+        prev.map((a) =>
+          a.id === editingAccount.id ? { ...a, is_plaid_connected: false } : a
+        )
+      );
+      setEditingAccount((prev) =>
+        prev ? { ...prev, is_plaid_connected: false } : null
+      );
+      showToast("Plaid disconnected successfully.", "success");
+    } else {
+      showToast("Failed to disconnect. Please try again.", "error");
+    }
   };
 
   // ── Plaid connection flow ──────────────────────────────────────────────────
@@ -415,39 +452,6 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
     );
   };
 
-  // ── Sync button ────────────────────────────────────────────────────────────
-
-  const handleSync = async (accountId: string, e: React.MouseEvent) => {
-    const resetCursor = e.shiftKey;
-    setSyncingId(accountId);
-
-    const res = await fetch("/api/plaid/sync-transactions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        account_id: accountId,
-        syncStartDate,
-        ...(resetCursor && { resetCursor: true }),
-      }),
-    });
-
-    const data = await res.json();
-    setSyncingId(null);
-
-    if (data.success) {
-      showToast(
-        resetCursor
-          ? `Re-synced all history. ${data.added} transactions imported.`
-          : `Synced! ${data.added} new transactions added.`,
-        "success"
-      );
-      const fresh = await getAccountSummary();
-      setAccounts(fresh);
-    } else {
-      showToast("Sync failed. Please try again.", "error");
-    }
-  };
-
   // ── Shared input style ─────────────────────────────────────────────────────
 
   const inputCls =
@@ -558,105 +562,137 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
         </div>
       )}
 
-      {/* Inline edit/add form panel */}
-      <div
-        className={`overflow-hidden transition-[max-height,opacity] duration-300 ease-in-out ${
-          showForm ? "max-h-[520px] opacity-100" : "max-h-0 opacity-0"
-        }`}
-      >
-        <div className="bg-[#111827] border border-[#1E2A45] rounded-xl p-6 mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-syne text-lg font-semibold text-[#E8ECF4]">
-              {editingId ? "Edit Account" : "Add Account"}
-            </h2>
-            <button
-              onClick={closeForm}
-              className="p-1 text-[#6B7A99] hover:text-[#E8ECF4] transition-colors"
-            >
-              <X size={18} />
-            </button>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-            <div>
-              <label className="block text-xs text-[#6B7A99] mb-1.5">
-                Account nickname *
-              </label>
-              <input
-                type="text"
-                placeholder="e.g. Business Checking"
-                value={form.name}
-                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                className={inputCls}
-              />
-            </div>
-            <div>
-              <label className="block text-xs text-[#6B7A99] mb-1.5">Bank name *</label>
-              <input
-                type="text"
-                placeholder="e.g. Wells Fargo"
-                value={form.bank_name}
-                onChange={(e) => setForm((f) => ({ ...f, bank_name: e.target.value }))}
-                className={inputCls}
-              />
-            </div>
-            <div>
-              <label className="block text-xs text-[#6B7A99] mb-1.5">Account type</label>
-              <select
-                value={form.account_type}
-                onChange={(e) =>
-                  setForm((f) => ({
-                    ...f,
-                    account_type: e.target.value as FormState["account_type"],
-                  }))
-                }
-                className={inputCls}
+      {/* ── Edit Account Modal ────────────────────────────────────────────── */}
+      {editingAccount && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-[#111827] border border-[#1E2A45] rounded-2xl w-full max-w-lg max-h-[90vh] flex flex-col shadow-2xl overflow-y-auto">
+            <div className="flex items-center justify-between px-6 py-5 border-b border-[#1E2A45]">
+              <h2 className="font-syne text-lg font-semibold text-[#E8ECF4]">Edit Account</h2>
+              <button
+                onClick={closeForm}
+                className="p-1 text-[#6B7A99] hover:text-[#E8ECF4] transition-colors"
               >
-                <option value="checking">Checking</option>
-                <option value="savings">Savings</option>
-                <option value="credit_card">Credit Card</option>
-                <option value="cash">Cash</option>
-                <option value="other">Other</option>
-              </select>
+                <X size={18} />
+              </button>
             </div>
-            <div>
-              <label className="block text-xs text-[#6B7A99] mb-1.5">
-                Last 4 digits (optional)
-              </label>
-              <input
-                type="text"
-                placeholder="e.g. 1234"
-                value={form.last_four}
-                maxLength={4}
-                onChange={(e) => {
-                  const val = e.target.value.replace(/\D/g, "");
-                  setForm((f) => ({ ...f, last_four: val }));
-                }}
-                className={inputCls}
-              />
+
+            <div className="px-6 py-5 space-y-4">
+              {/* Fields */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs text-[#6B7A99] mb-1.5">
+                    Account nickname *
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Business Checking"
+                    value={form.name}
+                    onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                    className={inputCls}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-[#6B7A99] mb-1.5">Bank name *</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Wells Fargo"
+                    value={form.bank_name}
+                    onChange={(e) => setForm((f) => ({ ...f, bank_name: e.target.value }))}
+                    className={inputCls}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-[#6B7A99] mb-1.5">Account type</label>
+                  <select
+                    value={form.account_type}
+                    onChange={(e) =>
+                      setForm((f) => ({
+                        ...f,
+                        account_type: e.target.value as FormState["account_type"],
+                      }))
+                    }
+                    className={inputCls}
+                  >
+                    <option value="checking">Checking</option>
+                    <option value="savings">Savings</option>
+                    <option value="credit_card">Credit Card</option>
+                    <option value="cash">Cash</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs text-[#6B7A99] mb-1.5">
+                    Last 4 digits (optional)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. 1234"
+                    value={form.last_four}
+                    maxLength={4}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/\D/g, "");
+                      setForm((f) => ({ ...f, last_four: val }));
+                    }}
+                    className={inputCls}
+                  />
+                </div>
+              </div>
+
+              {formError && <p className="text-sm text-[#EF4444]">{formError}</p>}
+
+              <div className="flex gap-3">
+                <button
+                  onClick={handleSave}
+                  disabled={isSaving}
+                  className="px-5 py-2 bg-[#4F7FFF] hover:bg-[#3D6FEF] disabled:opacity-60 text-white font-medium text-sm rounded-lg transition-colors"
+                >
+                  {isSaving ? "Saving…" : "Save"}
+                </button>
+                <button
+                  onClick={closeForm}
+                  disabled={isSaving}
+                  className="px-5 py-2 border border-[#1E2A45] text-[#6B7A99] hover:text-[#E8ECF4] hover:border-[#4F7FFF]/50 text-sm rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+
+              {/* Plaid disconnect */}
+              {editingAccount.is_plaid_connected && (
+                <div className="border-t border-[#1E2A45] pt-4 mt-2">
+                  <p className="text-sm font-medium text-white mb-1">Plaid Connection</p>
+                  <p className="text-xs text-[#6B7A99] mb-3">
+                    Disconnecting will stop automatic syncing. Your existing transactions will not
+                    be deleted.
+                  </p>
+                  <button
+                    onClick={handleDisconnectPlaid}
+                    disabled={isDisconnecting}
+                    className="text-sm text-amber-400 hover:text-amber-300 border border-amber-400/30 rounded-lg px-3 py-1.5 transition-colors disabled:opacity-50"
+                  >
+                    {isDisconnecting ? "Disconnecting…" : "Disconnect from Plaid"}
+                  </button>
+                </div>
+              )}
+
+              {/* Danger zone */}
+              <div className="border-t border-[#1E2A45] pt-4 mt-2">
+                <p className="text-sm font-medium text-red-400 mb-1">Danger Zone</p>
+                <p className="text-xs text-[#6B7A99] mb-3">
+                  Deleting this account will remove it from EZ Ledgr. Transactions associated with
+                  this account will remain but will be unlinked.
+                </p>
+                <button
+                  onClick={() => handleDelete(editingAccount.id)}
+                  className="text-sm text-red-400 hover:text-red-300 border border-red-400/30 rounded-lg px-3 py-1.5 transition-colors"
+                >
+                  Delete Account
+                </button>
+              </div>
             </div>
-          </div>
-
-          {formError && <p className="text-sm text-[#EF4444] mb-3">{formError}</p>}
-
-          <div className="flex gap-3">
-            <button
-              onClick={handleSave}
-              disabled={isSaving}
-              className="px-5 py-2 bg-[#4F7FFF] hover:bg-[#3D6FEF] disabled:opacity-60 text-white font-medium text-sm rounded-lg transition-colors"
-            >
-              {isSaving ? "Saving…" : "Save"}
-            </button>
-            <button
-              onClick={closeForm}
-              disabled={isSaving}
-              className="px-5 py-2 border border-[#1E2A45] text-[#6B7A99] hover:text-[#E8ECF4] hover:border-[#4F7FFF]/50 text-sm rounded-lg transition-colors"
-            >
-              Cancel
-            </button>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Empty state */}
       {accounts.length === 0 ? (
@@ -692,51 +728,87 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
                 }
               }}
             >
-              {/* Card header */}
-              <div className="flex items-start justify-between mb-3">
-                <div>
-                  <p className="font-syne font-semibold text-[#E8ECF4] text-base leading-tight">
-                    {acc.bank_name}
-                  </p>
-                  <p className="text-sm text-[#6B7A99] mt-0.5">{acc.name}</p>
-
-                  {acc.is_plaid_connected && (
-                    <div className="flex items-center gap-2 mt-1.5">
-                      <span className="flex items-center gap-1 text-xs text-[#22C55E]">
-                        <div className="w-1.5 h-1.5 rounded-full bg-[#22C55E] animate-pulse" />
-                        Connected
-                      </span>
-                      {acc.plaid_last_synced_at && (
-                        <span className="text-xs text-[#6B7A99]">
-                          · Synced {formatRelativeTime(acc.plaid_last_synced_at)}
-                        </span>
-                      )}
+              {/* ── Card header ── */}
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3 min-w-0">
+                  {/* Logo or type-colored fallback */}
+                  {acc.plaid_logo_url ? (
+                    <img
+                      src={acc.plaid_logo_url}
+                      alt={acc.bank_name}
+                      className="w-8 h-8 rounded-full object-contain flex-shrink-0 bg-white p-0.5"
+                    />
+                  ) : (
+                    <div
+                      className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                        TYPE_COLORS[acc.account_type] ?? TYPE_COLORS.other
+                      }`}
+                    >
+                      <Building2 size={14} />
                     </div>
                   )}
+                  <div className="min-w-0">
+                    <p className="font-medium text-[#E8ECF4] text-sm truncate leading-tight">
+                      {acc.plaid_official_name ?? acc.name}
+                    </p>
+                    {acc.last_four && (
+                      <p className="text-xs text-[#6B7A99] font-mono mt-0.5">
+                        ••••{acc.last_four}
+                      </p>
+                    )}
+                  </div>
                 </div>
-                <div className="flex items-center gap-1" data-action>
-                  <button
-                    data-action
-                    onClick={() => openEdit(acc)}
-                    className="p-1.5 rounded text-[#6B7A99] hover:text-[#4F7FFF] hover:bg-[#4F7FFF]/10 transition-colors"
-                    title="Edit account"
+                {acc.is_plaid_connected && (
+                  <span className="flex items-center gap-1 text-xs text-[#22C55E] flex-shrink-0 ml-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#22C55E] animate-pulse" />
+                    Connected
+                  </span>
+                )}
+              </div>
+
+              {/* ── Balance section ── */}
+              <div className="flex items-stretch bg-[#0A0F1E] rounded-lg overflow-hidden mb-4">
+                {/* Bank Balance (Plaid) */}
+                <div className="flex-1 p-3">
+                  <p className="text-[11px] text-[#6B7A99] mb-1 font-medium uppercase tracking-wide">
+                    Bank Balance
+                  </p>
+                  <p className="text-lg font-semibold text-[#E8ECF4]">
+                    {acc.is_plaid_connected ? "—" : "—"}
+                  </p>
+                  <p className="text-[11px] text-[#6B7A99] mt-1">
+                    {acc.is_plaid_connected
+                      ? formatSyncDate(acc.plaid_last_synced_at)
+                      : "Not connected"}
+                  </p>
+                </div>
+                {/* Divider */}
+                <div className="w-px bg-[#1E2A45]" />
+                {/* EZ Ledgr Balance */}
+                <div className="flex-1 p-3">
+                  <p className="text-[11px] text-[#6B7A99] mb-1 font-medium uppercase tracking-wide">
+                    EZ Ledgr Balance
+                  </p>
+                  <p
+                    className={`text-lg font-semibold ${
+                      acc.net > 0
+                        ? "text-[#22C55E]"
+                        : acc.net < 0
+                        ? "text-[#EF4444]"
+                        : "text-[#E8ECF4]"
+                    }`}
                   >
-                    <Pencil size={14} />
-                  </button>
-                  <button
-                    data-action
-                    onClick={() => handleDelete(acc.id)}
-                    disabled={deletingId === acc.id}
-                    className="p-1.5 rounded text-[#6B7A99] hover:text-[#EF4444] hover:bg-[#EF4444]/10 transition-colors disabled:opacity-40"
-                    title="Delete account"
-                  >
-                    <Trash2 size={14} />
-                  </button>
+                    {formatCurrency(acc.net)}
+                  </p>
+                  <p className="text-[11px] text-[#6B7A99] mt-1">
+                    From {acc.transaction_count} transaction
+                    {acc.transaction_count !== 1 ? "s" : ""}
+                  </p>
                 </div>
               </div>
 
-              {/* Badges row */}
-              <div className="flex items-center gap-2 mb-4">
+              {/* ── Card footer ── */}
+              <div className="flex items-center justify-between pt-3 border-t border-[#1E2A45]">
                 <span
                   className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
                     TYPE_COLORS[acc.account_type] ?? TYPE_COLORS.other
@@ -744,77 +816,30 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
                 >
                   {TYPE_LABELS[acc.account_type] ?? "Other"}
                 </span>
-                {acc.last_four && (
-                  <span className="text-sm text-[#6B7A99] font-mono">
-                    ••••{acc.last_four}
-                  </span>
-                )}
-              </div>
-
-              {/* Stats row */}
-              <div className="grid grid-cols-3 gap-3 mb-3">
-                <div className="bg-[#0A0F1E] rounded-lg p-2.5 text-center">
-                  <p className="text-xs text-[#6B7A99] mb-0.5">Transactions</p>
-                  <p className="text-sm font-semibold text-[#E8ECF4]">
-                    {acc.transaction_count}
-                  </p>
-                </div>
-                <div className="bg-[#0A0F1E] rounded-lg p-2.5 text-center">
-                  <p className="text-xs text-[#6B7A99] mb-0.5">Income</p>
-                  <p className="text-sm font-semibold text-[#22C55E]">
-                    {formatCurrency(acc.total_income)}
-                  </p>
-                </div>
-                <div className="bg-[#0A0F1E] rounded-lg p-2.5 text-center">
-                  <p className="text-xs text-[#6B7A99] mb-0.5">Expenses</p>
-                  <p className="text-sm font-semibold text-[#EF4444]">
-                    {formatCurrency(acc.total_expenses)}
-                  </p>
-                </div>
-              </div>
-
-              {/* Net balance */}
-              <div className="flex items-center justify-between pt-3 border-t border-[#1E2A45]">
-                <p className="text-xs text-[#6B7A99]">Net</p>
-                <p
-                  className={`text-sm font-bold ${
-                    acc.net >= 0 ? "text-[#22C55E]" : "text-[#EF4444]"
-                  }`}
+                <button
+                  data-action
+                  onClick={() => openEdit(acc)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-[#6B7A99] hover:text-[#E8ECF4] hover:bg-[#1E2A45] rounded-lg transition-colors"
+                  title="Edit account"
                 >
-                  {acc.net >= 0 ? "+" : ""}
-                  {formatCurrency(acc.net)}
-                </p>
+                  <Pencil size={12} />
+                  Edit
+                </button>
               </div>
 
-              {/* Plaid sync / connect button */}
-              <div data-action className="mt-3">
-                {acc.is_plaid_connected ? (
-                  <button
-                    data-action
-                    onClick={(e) => handleSync(acc.id, e)}
-                    disabled={syncingId === acc.id}
-                    title="Hold Shift+Click to re-sync all historical transactions"
-                    className="flex items-center gap-1.5 text-sm text-[#4F7FFF] hover:text-[#3D6FEF] transition-colors disabled:opacity-50"
-                  >
-                    <RefreshCw
-                      size={14}
-                      className={syncingId === acc.id ? "animate-spin" : ""}
-                    />
-                    {syncingId === acc.id ? "Syncing..." : "Sync now"}
-                  </button>
-                ) : (
-                  <div>
-                    <PlaidLinkButton
-                      businessId={businessId}
-                      existingAccountId={acc.id}
-                      onConnected={handlePlaidConnected}
-                      buttonLabel="Connect to bank"
-                      buttonClassName="flex items-center gap-1.5 text-sm text-[#6B7A99] hover:text-[#4F7FFF] transition-colors"
-                    />
-                    <p className="mt-1 text-[11px] text-[#64748b]">🔒 2FA verification required</p>
-                  </div>
-                )}
-              </div>
+              {/* Connect to bank (unconnected only) */}
+              {!acc.is_plaid_connected && (
+                <div data-action className="mt-3 pt-3 border-t border-[#1E2A45]">
+                  <PlaidLinkButton
+                    businessId={businessId}
+                    existingAccountId={acc.id}
+                    onConnected={handlePlaidConnected}
+                    buttonLabel="Connect to bank"
+                    buttonClassName="flex items-center gap-1.5 text-sm text-[#6B7A99] hover:text-[#4F7FFF] transition-colors"
+                  />
+                  <p className="mt-1 text-[11px] text-[#64748b]">🔒 2FA verification required</p>
+                </div>
+              )}
             </Link>
           ))}
         </div>
