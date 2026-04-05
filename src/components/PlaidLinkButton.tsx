@@ -21,7 +21,6 @@ interface PlaidLinkButtonProps {
   businessId: string
   existingAccountId?: string
   onConnected: (data: {
-    accessToken: string
     itemId: string
     institutionName: string
     institutionId: string
@@ -65,7 +64,8 @@ export default function PlaidLinkButton({
     onSuccess: async (public_token: string, metadata: PlaidLinkOnSuccessMetadata) => {
       const institution = metadata.institution
 
-      // Step 1: Exchange public token for access token (no DB save)
+      // Exchange the public token server-side. The response contains item_id and
+      // account metadata — no access_token is ever sent to the browser.
       const exchangeRes = await fetch('/api/plaid/exchange-token', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -74,20 +74,13 @@ export default function PlaidLinkButton({
       const exchangeData = await exchangeRes.json()
       if (!exchangeData.success) return
 
-      // Step 2: Fetch all Plaid accounts for this item
-      const accountsRes = await fetch('/api/plaid/get-accounts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ access_token: exchangeData.access_token }),
-      })
-      const accountsData = await accountsRes.json()
-
+      // exchange-token fetches accounts server-side and returns them directly.
+      // No second round-trip to get-accounts is needed.
       onConnected({
-        accessToken: exchangeData.access_token,
         itemId: exchangeData.item_id,
         institutionName: institution?.name ?? '',
         institutionId: institution?.institution_id ?? '',
-        plaidAccounts: accountsData.accounts ?? [],
+        plaidAccounts: exchangeData.accounts ?? [],
         existingAccountId,
       })
     },

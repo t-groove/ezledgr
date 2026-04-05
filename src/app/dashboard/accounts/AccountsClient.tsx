@@ -167,7 +167,6 @@ interface AccountMapping {
 }
 
 interface PlaidConnectionData {
-  accessToken: string;
   itemId: string;
   institutionName: string;
   institutionId: string;
@@ -440,7 +439,6 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        access_token: plaidConnectionData.accessToken,
         item_id: plaidConnectionData.itemId,
         institution_name: plaidConnectionData.institutionName,
         institution_id: plaidConnectionData.institutionId,
