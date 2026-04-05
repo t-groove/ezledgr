@@ -22,6 +22,8 @@ export interface BankAccount {
   plaid_account_id: string | null;
   plaid_balance_current: number | null;
   plaid_balance_available: number | null;
+  opening_balance: number;
+  opening_balance_date: string | null;
 }
 
 export interface AccountSummary extends BankAccount {
@@ -57,6 +59,8 @@ export async function createBankAccount(data: {
   bank_name: string;
   account_type: string;
   last_four?: string;
+  opening_balance?: number;
+  opening_balance_date?: string;
 }): Promise<{ success: true; account: BankAccount } | { success: false; error: string }> {
   try {
     const supabase = await createClient();
@@ -77,12 +81,54 @@ export async function createBankAccount(data: {
         bank_name: data.bank_name,
         account_type: data.account_type,
         last_four: data.last_four || null,
+        opening_balance: data.opening_balance ?? 0,
+        opening_balance_date: data.opening_balance_date ?? null,
       })
       .select()
       .single();
 
     if (error) return { success: false, error: error.message };
     return { success: true, account: account as BankAccount };
+  } catch (err) {
+    return { success: false, error: String(err) };
+  }
+}
+
+export async function createOpeningBalanceTransaction(
+  accountId: string,
+  businessId: string,
+  amount: number,
+  date: string
+): Promise<{ success: boolean; error?: string }> {
+  if (amount === 0) return { success: true };
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return { success: false, error: "Not authenticated" };
+
+    const absAmount = Math.abs(amount);
+    const type = amount >= 0 ? "income" : "expense";
+
+    const { error } = await supabase.from("transactions").insert({
+      user_id: user.id,
+      business_id: businessId,
+      account_id: accountId,
+      date,
+      description: "Beginning Balance",
+      payee_name: "Beginning Balance",
+      payee_id: null,
+      amount: absAmount,
+      type,
+      category: "Opening Balance",
+      account_type: type === "income" ? "Income" : "Expense",
+      is_opening_balance: true,
+      raw_csv_row: null,
+    });
+
+    if (error) return { success: false, error: error.message };
+    return { success: true };
   } catch (err) {
     return { success: false, error: String(err) };
   }
@@ -192,6 +238,9 @@ export async function getAccountSummary(): Promise<AccountSummary[]> {
     summaryMap.set(acc.id, { count: 0, income: 0, expenses: 0 });
   }
 
+  // Note: Beginning Balance transactions (is_opening_balance=true)
+  // are intentionally included in the net calculation to seed
+  // the correct starting balance for each account.
   for (const t of transactions ?? []) {
     if (!t.account_id || !summaryMap.has(t.account_id)) continue;
     const s = summaryMap.get(t.account_id)!;

@@ -31,6 +31,8 @@ interface AccountMapping {
     account_type: string
     last_four: string
   }
+  opening_balance: number
+  opening_balance_date: string
 }
 
 export async function POST(req: NextRequest) {
@@ -87,6 +89,8 @@ export async function POST(req: NextRequest) {
           plaid_logo_url: mapping.plaid_account.logo_url ?? null,
           plaid_balance_current: mapping.plaid_account.balance_current ?? null,
           plaid_balance_available: mapping.plaid_account.balance_available ?? null,
+          opening_balance: mapping.opening_balance ?? 0,
+          opening_balance_date: mapping.opening_balance_date ?? null,
         })
         .eq('id', mapping.existing_account_id)
         .eq('business_id', business_id)
@@ -99,6 +103,27 @@ export async function POST(req: NextRequest) {
       }
       if (data) {
         connectedAccountIds.push(data.id)
+
+        if (mapping.opening_balance !== 0) {
+          const openingDate = mapping.opening_balance_date ?? new Date().toISOString().split('T')[0]
+          const amount = Math.abs(mapping.opening_balance)
+          const type = mapping.opening_balance >= 0 ? 'income' : 'expense'
+          await supabase.from('transactions').insert({
+            user_id: user.id,
+            business_id,
+            account_id: data.id,
+            date: openingDate,
+            description: 'Beginning Balance',
+            payee_name: 'Beginning Balance',
+            payee_id: null,
+            amount,
+            type,
+            category: 'Opening Balance',
+            account_type: type === 'income' ? 'Income' : 'Expense',
+            is_opening_balance: true,
+            raw_csv_row: null,
+          })
+        }
       }
     } else if (mapping.action === 'create_new' && mapping.new_account) {
       const { data, error } = await supabase
@@ -120,6 +145,8 @@ export async function POST(req: NextRequest) {
           plaid_logo_url: mapping.plaid_account.logo_url ?? null,
           plaid_balance_current: mapping.plaid_account.balance_current ?? null,
           plaid_balance_available: mapping.plaid_account.balance_available ?? null,
+          opening_balance: mapping.opening_balance ?? 0,
+          opening_balance_date: mapping.opening_balance_date ?? null,
         })
         .select('id')
         .single()
@@ -130,6 +157,27 @@ export async function POST(req: NextRequest) {
       }
       if (data) {
         connectedAccountIds.push(data.id)
+
+        if (mapping.opening_balance !== 0) {
+          const openingDate = mapping.opening_balance_date ?? new Date().toISOString().split('T')[0]
+          const amount = Math.abs(mapping.opening_balance)
+          const type = mapping.opening_balance >= 0 ? 'income' : 'expense'
+          await supabase.from('transactions').insert({
+            user_id: user.id,
+            business_id,
+            account_id: data.id,
+            date: openingDate,
+            description: 'Beginning Balance',
+            payee_name: 'Beginning Balance',
+            payee_id: null,
+            amount,
+            type,
+            category: 'Opening Balance',
+            account_type: type === 'income' ? 'Income' : 'Expense',
+            is_opening_balance: true,
+            raw_csv_row: null,
+          })
+        }
       }
     }
   }

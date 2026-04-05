@@ -1957,7 +1957,7 @@ export default function BookkeepingClient({
 
                           {/* Payee */}
                           <td className={`px-4 py-3 min-w-0 ${successCellId === `${t.id}-payee` ? "ring-1 ring-[#22C55E] rounded" : ""}`}>
-                            {editingPayeeId === t.id ? (
+                            {!t.is_opening_balance && editingPayeeId === t.id ? (
                               <PayeeCombobox
                                 payeeName={editingPayeeRef.current?.payee_name ?? ""}
                                 onChange={(payee_id, payee_name) => {
@@ -1976,8 +1976,9 @@ export default function BookkeepingClient({
                               />
                             ) : (
                               <div
-                                className="flex items-center gap-1.5 group/payee cursor-pointer min-w-0"
+                                className={`flex items-center gap-1.5 min-w-0 ${t.is_opening_balance ? "cursor-default" : "group/payee cursor-pointer"}`}
                                 onClick={() => {
+                                  if (t.is_opening_balance) return;
                                   editingPayeeRef.current = {
                                     id: t.id,
                                     payee_id: t.payee_id,
@@ -1987,17 +1988,12 @@ export default function BookkeepingClient({
                                   };
                                   setEditingPayeeId(t.id);
                                 }}
-                                title="Click to edit payee"
+                                title={t.is_opening_balance ? undefined : "Click to edit payee"}
                               >
-                                {(!t.payee_name || t.payee_name === "Unknown") ? (
-                                  <>
-                                    <AlertCircle size={13} className="text-amber-400 flex-shrink-0" />
-                                    <span className="text-sm text-[#6B7A99] italic">Unknown</span>
-                                  </>
-                                ) : (
-                                  <span className="text-sm text-[#E8ECF4] truncate" title={t.payee_name}>{t.payee_name}</span>
+                                <span className="text-sm text-[#E8ECF4] truncate" title={t.payee_name}>{t.payee_name}</span>
+                                {!t.is_opening_balance && (
+                                  <Pencil size={11} className="text-[#6B7A99] opacity-0 group-hover/payee:opacity-100 flex-shrink-0 ml-auto transition-opacity" />
                                 )}
-                                <Pencil size={11} className="text-[#6B7A99] opacity-0 group-hover/payee:opacity-100 flex-shrink-0 ml-auto transition-opacity" />
                               </div>
                             )}
                           </td>
@@ -2051,7 +2047,7 @@ export default function BookkeepingClient({
 
                           {/* Description */}
                           <td className={`px-4 py-3 min-w-0 ${successCellId === `${t.id}-description` ? "ring-1 ring-[#22C55E] rounded" : ""}`}>
-                            {editingDescriptionId === t.id ? (
+                            {!t.is_opening_balance && editingDescriptionId === t.id ? (
                               <input
                                 autoFocus
                                 type="text"
@@ -2079,22 +2075,30 @@ export default function BookkeepingClient({
                                   className="truncate text-[#E8ECF4] cursor-default"
                                   title={t.description}
                                   onDoubleClick={() => {
+                                    if (t.is_opening_balance) return;
                                     setEditingDescriptionId(t.id);
                                     setEditingDescriptionValue(t.description);
                                   }}
                                 >
                                   {t.description}
                                 </div>
-                                <button
-                                  onClick={() => {
-                                    setEditingDescriptionId(t.id);
-                                    setEditingDescriptionValue(t.description);
-                                  }}
-                                  className="opacity-0 group-hover:opacity-100 text-[#6B7A99] hover:text-[#4F7FFF] transition-opacity flex-shrink-0"
-                                  title="Edit description"
-                                >
-                                  <Pencil size={12} />
-                                </button>
+                                {t.is_opening_balance && (
+                                  <span className="ml-1 text-xs px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-400 font-medium whitespace-nowrap flex-shrink-0">
+                                    Beginning Balance
+                                  </span>
+                                )}
+                                {!t.is_opening_balance && (
+                                  <button
+                                    onClick={() => {
+                                      setEditingDescriptionId(t.id);
+                                      setEditingDescriptionValue(t.description);
+                                    }}
+                                    className="opacity-0 group-hover:opacity-100 text-[#6B7A99] hover:text-[#4F7FFF] transition-opacity flex-shrink-0"
+                                    title="Edit description"
+                                  >
+                                    <Pencil size={12} />
+                                  </button>
+                                )}
                               </div>
                             )}
                           </td>

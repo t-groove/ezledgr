@@ -19,6 +19,7 @@ import {
   updateBankAccount,
   deleteBankAccount,
   getAccountSummary,
+  createOpeningBalanceTransaction,
 } from "./actions";
 import type { AccountSummary } from "./actions";
 import { createClient as createBrowserClient } from "../../../../supabase/client";
@@ -133,6 +134,8 @@ interface FormState {
   bank_name: string;
   account_type: "checking" | "savings" | "credit_card" | "cash" | "other";
   last_four: string;
+  opening_balance: number;
+  opening_balance_date: string;
 }
 
 const EMPTY_FORM: FormState = {
@@ -140,6 +143,8 @@ const EMPTY_FORM: FormState = {
   bank_name: "",
   account_type: "checking",
   last_four: "",
+  opening_balance: 0,
+  opening_balance_date: new Date().toISOString().split("T")[0],
 };
 
 interface ToastState {
@@ -157,6 +162,8 @@ interface AccountMapping {
     account_type: string;
     last_four: string;
   };
+  opening_balance: number;
+  opening_balance_date: string;
 }
 
 interface PlaidConnectionData {
@@ -251,12 +258,27 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
       if (editingId) {
         result = await updateBankAccount(editingId, payload);
       } else {
-        result = await createBankAccount({ ...payload, last_four: lastFour ?? undefined });
+        result = await createBankAccount({
+          ...payload,
+          last_four: lastFour ?? undefined,
+          opening_balance: form.opening_balance,
+          opening_balance_date: form.opening_balance_date,
+        });
       }
 
       if (!result.success) {
         setFormError(result.error ?? "Something went wrong.");
         return;
+      }
+
+      // Create Beginning Balance transaction for new manual accounts
+      if (!editingId && result.success && "account" in result) {
+        await createOpeningBalanceTransaction(
+          result.account.id,
+          businessId,
+          form.opening_balance,
+          form.opening_balance_date
+        );
       }
 
       const fresh = await getAccountSummary();
@@ -341,6 +363,8 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
           account_type: mapSubtype(plaidAcc.subtype),
           last_four: plaidAcc.mask ?? "",
         },
+        opening_balance: plaidAcc.balance_current ?? 0,
+        opening_balance_date: new Date().toISOString().split("T")[0],
       };
     });
 
@@ -397,6 +421,8 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
         action: m.action,
         existing_account_id: m.existingAccountId,
         new_account: m.newAccount,
+        opening_balance: m.opening_balance ?? 0,
+        opening_balance_date: m.opening_balance_date ?? new Date().toISOString().split("T")[0],
       };
     });
 
@@ -640,6 +666,42 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
                   />
                 </div>
               </div>
+
+              {/* Opening Balance — only shown when creating a new account */}
+              {!editingId && (
+                <div className="p-3 bg-[#0D1829] rounded-lg border border-[#1E2A45]">
+                  <p className="text-xs font-medium text-[#E8ECF4] mb-1">Beginning Balance</p>
+                  <p className="text-xs text-[#6B7A99] mb-3">
+                    The balance of this account on the date you start tracking in EZ Ledgr.
+                  </p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs text-[#6B7A99] mb-1.5">Amount</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        placeholder="0.00"
+                        value={form.opening_balance}
+                        onChange={(e) =>
+                          setForm((f) => ({ ...f, opening_balance: parseFloat(e.target.value) || 0 }))
+                        }
+                        className={inputCls}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-[#6B7A99] mb-1.5">As of date</label>
+                      <input
+                        type="date"
+                        value={form.opening_balance_date}
+                        onChange={(e) =>
+                          setForm((f) => ({ ...f, opening_balance_date: e.target.value }))
+                        }
+                        className={inputCls}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {formError && <p className="text-sm text-[#EF4444]">{formError}</p>}
 
@@ -1061,6 +1123,47 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
                             }}
                             className={inputCls}
                           />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Opening Balance — shown for all non-skipped actions */}
+                    {mapping.action !== "skip" && (
+                      <div className="mt-3 p-3 bg-[#0D1829] rounded-lg border border-[#1E2A45]">
+                        <p className="text-xs font-medium text-[#E8ECF4] mb-1">Beginning Balance</p>
+                        <p className="text-xs text-[#6B7A99] mb-3">
+                          The balance of this account on the date you start tracking in EZ Ledgr.
+                          Pre-filled from your bank.
+                        </p>
+                        <div className="flex gap-3">
+                          <div className="flex-1">
+                            <label className="text-xs text-[#6B7A99] mb-1 block">Amount</label>
+                            <input
+                              type="number"
+                              step="0.01"
+                              placeholder="0.00"
+                              value={mapping.opening_balance}
+                              onChange={(e) =>
+                                updateMapping(plaidAcc.plaid_account_id, {
+                                  opening_balance: parseFloat(e.target.value) || 0,
+                                })
+                              }
+                              className={inputCls}
+                            />
+                          </div>
+                          <div className="flex-1">
+                            <label className="text-xs text-[#6B7A99] mb-1 block">As of date</label>
+                            <input
+                              type="date"
+                              value={mapping.opening_balance_date}
+                              onChange={(e) =>
+                                updateMapping(plaidAcc.plaid_account_id, {
+                                  opening_balance_date: e.target.value,
+                                })
+                              }
+                              className={inputCls}
+                            />
+                          </div>
                         </div>
                       </div>
                     )}

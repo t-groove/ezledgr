@@ -81,6 +81,8 @@ export interface Transaction {
   parent_id?: string | null;
   split_index?: number | null;
   children?: Transaction[];
+  // Opening balance
+  is_opening_balance?: boolean;
 }
 
 export async function getTransactions(
