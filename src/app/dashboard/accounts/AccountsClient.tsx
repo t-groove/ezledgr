@@ -300,7 +300,7 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
         action: defaultExistingId ? "map_existing" : "create_new",
         existingAccountId: defaultExistingId || undefined,
         newAccount: {
-          name: plaidAcc.name,
+          name: "",
           account_type: mapSubtype(plaidAcc.subtype),
           last_four: plaidAcc.mask ?? "",
         },
@@ -338,6 +338,17 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
 
   const handleConnectAccounts = async () => {
     if (!plaidConnectionData) return;
+
+    const missingNames = plaidConnectionData.plaidAccounts.filter((acc) => {
+      const mapping = accountMappings[acc.plaid_account_id];
+      return mapping?.action === "create_new" && !mapping.newAccount?.name?.trim();
+    });
+
+    if (missingNames.length > 0) {
+      showToast("Please enter a nickname for all new accounts.", "error");
+      return;
+    }
+
     setIsSavingMappings(true);
 
     // Serialize to snake_case for the API — the local state uses camelCase keys
@@ -961,10 +972,11 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
                       <div className="grid grid-cols-2 gap-3">
                         <div>
                           <label className="block text-xs text-[#6B7A99] mb-1.5">
-                            Account name
+                            Account nickname *
                           </label>
                           <input
                             type="text"
+                            placeholder="e.g. Business Checking"
                             value={mapping.newAccount.name}
                             onChange={(e) =>
                               updateNewAccount(plaidAcc.plaid_account_id, {
