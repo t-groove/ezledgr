@@ -9,11 +9,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
+  try {
   const { account_id, syncStartDate, resetCursor } = await req.json()
 
   const { data: bankAccount, error: accountError } = await supabase
     .from('bank_accounts')
-    .select('*')
+    .select('id, user_id, business_id, plaid_access_token, plaid_item_id, plaid_account_id, plaid_cursor, bank_name, account_type, last_four, is_active')
     .eq('id', account_id)
     .eq('user_id', user.id)
     .single()
@@ -201,4 +202,11 @@ export async function POST(req: NextRequest) {
     modified: modified.length,
     removed: removed.length,
   })
+  } catch (error) {
+    console.error('[plaid][sync-transactions] error:', error)
+    return NextResponse.json(
+      { error: 'An unexpected error occurred. Please try again.' },
+      { status: 500 }
+    )
+  }
 }
