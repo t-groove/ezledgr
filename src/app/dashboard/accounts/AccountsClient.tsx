@@ -544,7 +544,10 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
               <button
                 onClick={() => {
                   setShowAddModal(false);
-                  setShowForm(true);
+                  setEditingId(null);
+                  setForm(EMPTY_FORM);
+                  setFormError(null);
+                  setEditingAccount({ id: "" } as AccountSummary);
                 }}
                 className="w-full flex items-center justify-center gap-2 px-4 py-2.5 border border-[#1E2A45] hover:border-[#4F7FFF]/50 text-[#E8ECF4] font-medium rounded-lg text-sm transition-colors"
               >
