@@ -196,6 +196,12 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
   // Sync start date — shared across all connect / sync operations
   const [syncStartDate, setSyncStartDate] = useState(getDefaultSyncStartDate());
 
+  // Beginning balance — collected before Plaid Link, passed into mapping state
+  const [openingBalance, setOpeningBalance] = useState<number>(0);
+
+  // Which unconnected card is showing the inline connect popover (account id)
+  const [showConnectPopover, setShowConnectPopover] = useState<string | null>(null);
+
   // Plaid account mapping modal state
   const [plaidConnectionData, setPlaidConnectionData] = useState<PlaidConnectionData | null>(null);
   const [accountMappings, setAccountMappings] = useState<Record<string, AccountMapping>>({});
@@ -365,8 +371,8 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
           account_type: mapSubtype(plaidAcc.subtype),
           last_four: plaidAcc.mask ?? "",
         },
-        opening_balance: plaidAcc.balance_current ?? 0,
-        opening_balance_date: new Date().toISOString().split("T")[0],
+        opening_balance: openingBalance,
+        opening_balance_date: syncStartDate ?? new Date().toISOString().split("T")[0],
       };
     });
 
@@ -474,6 +480,8 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
     setAccounts(fresh);
     setIsSavingMappings(false);
     closeMappingModal();
+    setOpeningBalance(0);
+    setShowConnectPopover(null);
     showToast(
       `${connectedIds.length} account${connectedIds.length !== 1 ? "s" : ""} connected and synced!`,
       "success"
@@ -527,25 +535,45 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
                 Sync transactions automatically via Plaid. Supports 12,000+ US banks.
               </p>
 
-              {/* Historical sync date picker */}
-              <div className="mb-4">
-                <label className="flex items-center gap-1.5 text-xs text-[#6B7A99] mb-1.5">
-                  Pull transactions from:
-                  <span
-                    title="Choose how far back to import transactions on first connect"
-                    className="cursor-help text-[#6B7A99] hover:text-[#E8ECF4] transition-colors"
-                  >
-                    <Info size={12} />
-                  </span>
-                </label>
-                <input
-                  type="date"
-                  value={syncStartDate}
-                  min={getMinSyncDate()}
-                  max={getMaxSyncDate()}
-                  onChange={(e) => setSyncStartDate(e.target.value)}
-                  className={inputCls}
-                />
+              {/* Historical sync date picker + beginning balance */}
+              <div className="flex flex-col gap-4 p-4 bg-[#0D1829] rounded-lg border border-[#1E2A45] mb-4">
+                <p className="text-sm font-medium text-[#E8ECF4]">Set up your account history</p>
+                <div>
+                  <label className="flex items-center gap-1.5 text-xs text-[#6B7A99] mb-1.5">
+                    Pull transactions from
+                    <span
+                      title="Choose how far back to import transactions on first connect"
+                      className="cursor-help text-[#6B7A99] hover:text-[#E8ECF4] transition-colors"
+                    >
+                      <Info size={12} />
+                    </span>
+                  </label>
+                  <input
+                    type="date"
+                    value={syncStartDate}
+                    min={getMinSyncDate()}
+                    max={getMaxSyncDate()}
+                    onChange={(e) => setSyncStartDate(e.target.value)}
+                    className={inputCls}
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-[#6B7A99] mb-1.5 block">
+                    Beginning balance on that date
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={openingBalance}
+                    onChange={(e) => setOpeningBalance(parseFloat(e.target.value) || 0)}
+                    className={inputCls}
+                    placeholder="0.00"
+                  />
+                  <p className="text-xs text-[#6B7A99] mt-1">
+                    Check your bank statement for the balance on your chosen start date. This seeds
+                    your EZ Ledgr balance so it matches your bank.
+                  </p>
+                </div>
               </div>
 
               <PlaidLinkButton
@@ -901,14 +929,63 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
               {/* Connect to bank (unconnected only) */}
               {!acc.is_plaid_connected && (
                 <div data-action className="mt-3 pt-3 border-t border-[#1E2A45]">
-                  <PlaidLinkButton
-                    businessId={businessId}
-                    existingAccountId={acc.id}
-                    onConnected={handlePlaidConnected}
-                    buttonLabel="Connect to bank"
-                    buttonClassName="flex items-center gap-1.5 text-sm text-[#6B7A99] hover:text-[#4F7FFF] transition-colors"
-                  />
-                  <p className="mt-1 text-[11px] text-[#64748b]">🔒 2FA verification required</p>
+                  {showConnectPopover === acc.id ? (
+                    <div className="flex flex-col gap-3 p-3 bg-[#0D1829] rounded-lg border border-[#1E2A45]">
+                      <p className="text-xs font-medium text-[#E8ECF4]">Set up your account history</p>
+                      <div>
+                        <label className="text-xs text-[#6B7A99] mb-1 block">Pull transactions from</label>
+                        <input
+                          type="date"
+                          value={syncStartDate}
+                          min={getMinSyncDate()}
+                          max={getMaxSyncDate()}
+                          onChange={(e) => setSyncStartDate(e.target.value)}
+                          className={inputCls}
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs text-[#6B7A99] mb-1 block">Beginning balance on that date</label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={openingBalance}
+                          onChange={(e) => setOpeningBalance(parseFloat(e.target.value) || 0)}
+                          className={inputCls}
+                          placeholder="0.00"
+                        />
+                        <p className="text-xs text-[#6B7A99] mt-1">
+                          Check your bank statement for the balance on your chosen start date.
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <PlaidLinkButton
+                          businessId={businessId}
+                          existingAccountId={acc.id}
+                          onConnected={handlePlaidConnected}
+                          buttonLabel="Continue to Bank Connection"
+                          buttonClassName="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-[#4F7FFF] hover:bg-[#3D6FEF] text-white font-medium text-xs rounded-lg transition-colors"
+                        />
+                        <button
+                          onClick={() => setShowConnectPopover(null)}
+                          className="px-3 py-2 text-xs text-[#6B7A99] hover:text-[#E8ECF4] border border-[#1E2A45] rounded-lg transition-colors"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                      <p className="text-[11px] text-[#64748b]">🔒 2FA verification required</p>
+                    </div>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => setShowConnectPopover(acc.id)}
+                        className="flex items-center gap-1.5 text-sm text-[#6B7A99] hover:text-[#4F7FFF] transition-colors"
+                      >
+                        <Link2 size={14} />
+                        Connect to bank
+                      </button>
+                      <p className="mt-1 text-[11px] text-[#64748b]">🔒 2FA verification required</p>
+                    </>
+                  )}
                 </div>
               )}
             </Link>
@@ -938,6 +1015,28 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
 
             {/* Modal body */}
             <div className="overflow-y-auto flex-1 px-6 py-5 space-y-5">
+              {/* Read-only summary of what was configured before connecting */}
+              <div className="bg-[#0D1829] rounded-lg p-3 border border-[#1E2A45]">
+                <div className="flex justify-between text-sm">
+                  <span className="text-[#6B7A99]">Transactions from:</span>
+                  <span className="text-[#E8ECF4] font-medium">
+                    {syncStartDate
+                      ? new Date(syncStartDate + "T00:00:00").toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })
+                      : "All available"}
+                  </span>
+                </div>
+                <div className="flex justify-between text-sm mt-1">
+                  <span className="text-[#6B7A99]">Beginning balance:</span>
+                  <span className="text-[#E8ECF4] font-medium">
+                    {formatCurrency(openingBalance)}
+                  </span>
+                </div>
+              </div>
+
               {plaidConnectionData.plaidAccounts.map((plaidAcc) => {
                 const mapping = accountMappings[plaidAcc.plaid_account_id];
                 if (!mapping) return null;
@@ -1129,46 +1228,6 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
                       </div>
                     )}
 
-                    {/* Opening Balance — shown for all non-skipped actions */}
-                    {mapping.action !== "skip" && (
-                      <div className="mt-3 p-3 bg-[#0D1829] rounded-lg border border-[#1E2A45]">
-                        <p className="text-xs font-medium text-[#E8ECF4] mb-1">Beginning Balance</p>
-                        <p className="text-xs text-[#6B7A99] mb-3">
-                          The balance of this account on the date you start tracking in EZ Ledgr.
-                          Pre-filled from your bank.
-                        </p>
-                        <div className="flex gap-3">
-                          <div className="flex-1">
-                            <label className="text-xs text-[#6B7A99] mb-1 block">Amount</label>
-                            <input
-                              type="number"
-                              step="0.01"
-                              placeholder="0.00"
-                              value={mapping.opening_balance}
-                              onChange={(e) =>
-                                updateMapping(plaidAcc.plaid_account_id, {
-                                  opening_balance: parseFloat(e.target.value) || 0,
-                                })
-                              }
-                              className={inputCls}
-                            />
-                          </div>
-                          <div className="flex-1">
-                            <label className="text-xs text-[#6B7A99] mb-1 block">As of date</label>
-                            <input
-                              type="date"
-                              value={mapping.opening_balance_date}
-                              onChange={(e) =>
-                                updateMapping(plaidAcc.plaid_account_id, {
-                                  opening_balance_date: e.target.value,
-                                })
-                              }
-                              className={inputCls}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    )}
                   </div>
                 );
               })}
