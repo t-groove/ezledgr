@@ -300,7 +300,7 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
         action: defaultExistingId ? "map_existing" : "create_new",
         existingAccountId: defaultExistingId || undefined,
         newAccount: {
-          name: "",
+          name: plaidAcc.official_name ?? plaidAcc.name ?? "",
           account_type: mapSubtype(plaidAcc.subtype),
           last_four: plaidAcc.mask ?? "",
         },
@@ -985,6 +985,9 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
                             }
                             className={inputCls}
                           />
+                          <p className="text-xs text-[#6B7A99] mt-1">
+                            Pre-filled from your bank — feel free to customize
+                          </p>
                         </div>
                         <div>
                           <label className="block text-xs text-[#6B7A99] mb-1.5">

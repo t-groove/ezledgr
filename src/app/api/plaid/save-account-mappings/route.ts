@@ -14,6 +14,7 @@ interface PlaidAccountInfo {
   plaid_account_id: string
   name: string
   official_name: string | null
+  logo_url: string | null
   type: string
   subtype: string | null
   mask: string | null
@@ -82,6 +83,8 @@ export async function POST(req: NextRequest) {
           last_four: mapping.plaid_account.mask,
           bank_name: institution_name,
           account_type: mapPlaidSubtype(mapping.plaid_account.subtype),
+          plaid_official_name: mapping.plaid_account.official_name ?? null,
+          plaid_logo_url: mapping.plaid_account.logo_url ?? null,
         })
         .eq('id', mapping.existing_account_id)
         .eq('business_id', business_id)
@@ -111,6 +114,8 @@ export async function POST(req: NextRequest) {
           plaid_institution_name: institution_name,
           plaid_institution_id: institution_id,
           is_plaid_connected: true,
+          plaid_official_name: mapping.plaid_account.official_name ?? null,
+          plaid_logo_url: mapping.plaid_account.logo_url ?? null,
         })
         .select('id')
         .single()

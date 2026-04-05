@@ -9,6 +9,7 @@ export interface PlaidAccountInfo {
   plaid_account_id: string
   name: string
   official_name: string | null
+  logo_url: string | null
   type: string
   subtype: string | null
   mask: string | null

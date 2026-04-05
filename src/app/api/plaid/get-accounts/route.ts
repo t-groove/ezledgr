@@ -16,6 +16,9 @@ export async function POST(req: NextRequest) {
       plaid_account_id: a.account_id,
       name: a.name,
       official_name: a.official_name ?? null,
+      // Plaid does not return logo on accountsGet — logo comes from institutionsGetById.
+      // logo_url is included in the shape for forward-compatibility; always null here.
+      logo_url: null as string | null,
       type: a.type,
       subtype: a.subtype ?? null,
       mask: a.mask ?? null,

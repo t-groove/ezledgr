@@ -15,6 +15,8 @@ export interface BankAccount {
   created_at: string;
   is_plaid_connected: boolean | null;
   plaid_institution_name: string | null;
+  plaid_official_name: string | null;
+  plaid_logo_url: string | null;
   plaid_last_synced_at: string | null;
   plaid_item_id: string | null;
   plaid_account_id: string | null;
