@@ -101,8 +101,8 @@ function formatCurrency(amount: number): string {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   }).format(amount);
 }
 
@@ -776,7 +776,7 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
                   <p className="text-[11px] text-[#6B7A99] mb-1 font-medium uppercase tracking-wide">
                     Bank Balance
                   </p>
-                  <p className="text-lg font-semibold text-[#E8ECF4]">
+                  <p className="text-2xl font-semibold text-[#E8ECF4]">
                     {acc.is_plaid_connected ? "—" : "—"}
                   </p>
                   <p className="text-[11px] text-[#6B7A99] mt-1">
@@ -793,7 +793,7 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
                     EZ Ledgr Balance
                   </p>
                   <p
-                    className={`text-lg font-semibold ${
+                    className={`text-2xl font-semibold ${
                       acc.net > 0
                         ? "text-[#22C55E]"
                         : acc.net < 0
