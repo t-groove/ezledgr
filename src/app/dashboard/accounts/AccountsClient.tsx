@@ -223,6 +223,8 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
       bank_name: acc.bank_name,
       account_type: acc.account_type,
       last_four: acc.last_four ?? "",
+      opening_balance: acc.opening_balance ?? 0,
+      opening_balance_date: acc.opening_balance_date ?? new Date().toISOString().split("T")[0],
     });
     setFormError(null);
   };
