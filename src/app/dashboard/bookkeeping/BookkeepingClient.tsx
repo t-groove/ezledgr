@@ -1856,16 +1856,16 @@ export default function BookkeepingClient({
             <div className="overflow-x-auto rounded-lg border border-[#1E2A45]">
               <table className="w-full text-sm table-fixed min-w-[1000px]">
                 <colgroup>
-                  <col className="w-10" />
-                  <col className="w-32" />
+                  <col className="w-8" />
+                  <col className="w-28" />
                   <col className="w-36" />
-                  <col className="w-36" />
+                  <col className="w-40" />
                   <col />
-                  <col className="w-44" />
+                  <col className="w-48" />
                   <col className="w-12" />
                   <col className="w-24" />
                   <col className="w-28" />
-                  <col className="w-10" />
+                  <col className="w-16" />
                 </colgroup>
                 <thead>
                   <tr className="border-b border-[#1E2A45] bg-[#0A0F1E]">
@@ -1956,7 +1956,7 @@ export default function BookkeepingClient({
                           </td>
 
                           {/* Payee */}
-                          <td className={`px-4 py-3 min-w-0 ${successCellId === `${t.id}-payee` ? "ring-1 ring-[#22C55E] rounded" : ""}`}>
+                          <td className={`px-4 py-3 min-w-0 truncate overflow-hidden ${successCellId === `${t.id}-payee` ? "ring-1 ring-[#22C55E] rounded" : ""}`}>
                             {!t.is_opening_balance && editingPayeeId === t.id ? (
                               <PayeeCombobox
                                 payeeName={editingPayeeRef.current?.payee_name ?? ""}
@@ -1999,9 +1999,9 @@ export default function BookkeepingClient({
                           </td>
 
                           {/* Account */}
-                          <td className="px-4 py-3">
+                          <td className="px-4 py-3 truncate overflow-hidden" title={linkedAccount?.name}>
                             {linkedAccount ? (
-                              <span className="text-sm text-[#6B7A99] whitespace-nowrap">
+                              <span className="text-sm text-[#6B7A99] truncate block">
                                 {linkedAccount.name}
                               </span>
                             ) : isAssigning ? (
@@ -2046,7 +2046,7 @@ export default function BookkeepingClient({
                           </td>
 
                           {/* Description */}
-                          <td className={`px-4 py-3 min-w-0 ${successCellId === `${t.id}-description` ? "ring-1 ring-[#22C55E] rounded" : ""}`}>
+                          <td className={`px-4 py-3 min-w-0 truncate overflow-hidden ${successCellId === `${t.id}-description` ? "ring-1 ring-[#22C55E] rounded" : ""}`} title={t.description}>
                             {!t.is_opening_balance && editingDescriptionId === t.id ? (
                               <input
                                 autoFocus
@@ -2274,14 +2274,14 @@ export default function BookkeepingClient({
                               <td className="px-4 py-2" />
 
                               {/* Account: split indicator */}
-                              <td className="px-4 py-2">
+                              <td className="px-4 py-2 truncate overflow-hidden">
                                 <span className="text-xs text-[#A855F7]/70 whitespace-nowrap">
                                   split {idx + 1}/{splitChildren.length}
                                 </span>
                               </td>
 
                               {/* Description: indented */}
-                              <td className="px-4 py-2 min-w-0">
+                              <td className="px-4 py-2 min-w-0 truncate overflow-hidden">
                                 <div className="flex items-center gap-2 pl-4 border-l-2 border-[#A855F7]/40">
                                   <span className="truncate text-sm text-[#6B7A99]" title={child.description}>
                                     {child.description}
