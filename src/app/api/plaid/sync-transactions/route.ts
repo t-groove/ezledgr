@@ -51,6 +51,8 @@ export async function POST(req: NextRequest) {
   let added: Array<{ account_id: string; date: string; merchant_name?: string; name?: string; amount: number }> = []
   let modified: Array<{ account_id: string }> = []
   let removed: Array<{ account_id: string }> = []
+  let balanceCurrent: number | null = null
+  let balanceAvailable: number | null = null
 
   if (!bankAccount.plaid_cursor) {
     // ── FIRST SYNC: use transactionsGet to pull the chosen historical range ──
@@ -77,6 +79,16 @@ export async function POST(req: NextRequest) {
       totalTransactions = data.total_transactions
       added = added.concat(data.transactions as typeof added)
       offset += data.transactions.length
+
+      // Extract balance from the last page
+      const plaidAccountData = data.accounts?.find(
+        (a: { account_id: string }) => a.account_id === bankAccount.plaid_account_id
+      )
+      if (plaidAccountData) {
+        balanceCurrent = plaidAccountData.balances?.current ?? null
+        balanceAvailable = plaidAccountData.balances?.available ?? null
+      }
+
       if (data.transactions.length === 0) break
     }
   } else {
@@ -95,6 +107,15 @@ export async function POST(req: NextRequest) {
       removed = removed.concat(data.removed as typeof removed)
       hasMore = data.has_more
       cursor = data.next_cursor
+
+      // Extract balance from each page (last page wins)
+      const matchingAccount = data.accounts?.find(
+        (a: { account_id: string }) => a.account_id === bankAccount.plaid_account_id
+      )
+      if (matchingAccount) {
+        balanceCurrent = matchingAccount.balances?.current ?? null
+        balanceAvailable = matchingAccount.balances?.available ?? null
+      }
     }
 
     // Save the new cursor
@@ -163,13 +184,16 @@ export async function POST(req: NextRequest) {
     await supabase.from('transactions').insert(toInsert)
   }
 
-  // For first sync, save the last-synced timestamp (cursor stays null until next transactionsSync)
-  if (!bankAccount.plaid_cursor || resetCursor) {
-    await supabase
-      .from('bank_accounts')
-      .update({ plaid_last_synced_at: new Date().toISOString() })
-      .eq('id', account_id)
-  }
+  // Save balance + last-synced timestamp
+  await supabase
+    .from('bank_accounts')
+    .update({
+      plaid_last_synced_at: new Date().toISOString(),
+      ...(balanceCurrent !== null || balanceAvailable !== null
+        ? { plaid_balance_current: balanceCurrent, plaid_balance_available: balanceAvailable }
+        : {}),
+    })
+    .eq('id', account_id)
 
   return NextResponse.json({
     success: true,

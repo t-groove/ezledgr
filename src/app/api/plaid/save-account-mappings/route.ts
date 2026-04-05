@@ -85,6 +85,8 @@ export async function POST(req: NextRequest) {
           account_type: mapPlaidSubtype(mapping.plaid_account.subtype),
           plaid_official_name: mapping.plaid_account.official_name ?? null,
           plaid_logo_url: mapping.plaid_account.logo_url ?? null,
+          plaid_balance_current: mapping.plaid_account.balance_current ?? null,
+          plaid_balance_available: mapping.plaid_account.balance_available ?? null,
         })
         .eq('id', mapping.existing_account_id)
         .eq('business_id', business_id)
@@ -116,6 +118,8 @@ export async function POST(req: NextRequest) {
           is_plaid_connected: true,
           plaid_official_name: mapping.plaid_account.official_name ?? null,
           plaid_logo_url: mapping.plaid_account.logo_url ?? null,
+          plaid_balance_current: mapping.plaid_account.balance_current ?? null,
+          plaid_balance_available: mapping.plaid_account.balance_available ?? null,
         })
         .select('id')
         .single()

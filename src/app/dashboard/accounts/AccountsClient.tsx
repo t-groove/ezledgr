@@ -776,12 +776,16 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
                   <p className="text-[11px] text-[#6B7A99] mb-1 font-medium uppercase tracking-wide">
                     Bank Balance
                   </p>
-                  <p className="text-2xl font-semibold text-[#E8ECF4]">
-                    {acc.is_plaid_connected ? "—" : "—"}
+                  <p className="text-2xl font-semibold text-white">
+                    {acc.plaid_balance_current !== null && acc.plaid_balance_current !== undefined
+                      ? formatCurrency(acc.plaid_balance_current)
+                      : "—"}
                   </p>
                   <p className="text-[11px] text-[#6B7A99] mt-1">
-                    {acc.is_plaid_connected
-                      ? formatSyncDate(acc.plaid_last_synced_at)
+                    {acc.plaid_balance_current !== null
+                      ? `As of ${formatSyncDate(acc.plaid_last_synced_at)}`
+                      : acc.is_plaid_connected
+                      ? "Sync to update balance"
                       : "Not connected"}
                   </p>
                 </div>

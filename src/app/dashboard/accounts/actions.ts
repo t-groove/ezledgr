@@ -20,6 +20,8 @@ export interface BankAccount {
   plaid_last_synced_at: string | null;
   plaid_item_id: string | null;
   plaid_account_id: string | null;
+  plaid_balance_current: number | null;
+  plaid_balance_available: number | null;
 }
 
 export interface AccountSummary extends BankAccount {
