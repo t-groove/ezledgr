@@ -7,7 +7,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     <BusinessProvider>
       {/* Sidebar is fixed; main area is offset by the sidebar width */}
       <DashboardSidebar />
-      <div className="ml-[240px] min-h-screen bg-[#0A0F1E]">
+      <div className="ml-[240px] min-h-screen bg-[#e8eef6]">
         {children}
       </div>
     </BusinessProvider>

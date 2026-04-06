@@ -103,13 +103,14 @@ export default function DashboardSidebar() {
   const navLabel = displayName ?? email?.split('@')[0] ?? 'Account'
 
   return (
-    <aside className="fixed inset-y-0 left-0 w-[240px] bg-[#111827] border-r border-[#1E2A45] flex flex-col z-40">
+    <aside className="fixed inset-y-0 left-0 w-[240px] bg-[#193764] border-r border-white/10 flex flex-col z-40">
 
       {/* ── Wordmark ─────────────────────────────────────────────────────── */}
       <div className="px-5 pt-6 pb-5 border-b border-[#1E2A45]">
         <Link
           href="/dashboard"
-          className="font-syne text-xl font-bold text-[#E8ECF4] hover:text-[#4F7FFF] transition-colors"
+          className="text-xl font-medium text-white hover:text-white/80 transition-colors"
+          style={{ fontFamily: 'var(--font-ui)' }}
         >
           EZ Ledgr
         </Link>
@@ -202,17 +203,17 @@ export default function DashboardSidebar() {
               href={href}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
                 active
-                  ? 'bg-[#1E2A45] text-[#E8ECF4] font-medium'
-                  : 'text-[#6B7A99] hover:text-[#E8ECF4] hover:bg-[#1E2A45]/60'
+                  ? 'bg-[#2F7FC8] text-white font-medium'
+                  : 'text-[#b8ccdf] hover:text-white hover:bg-white/[0.08]'
               }`}
             >
               <Icon
                 size={17}
-                className={`flex-shrink-0 ${active ? 'text-[#4F7FFF]' : 'text-[#6B7A99]'}`}
+                className={`flex-shrink-0 ${active ? 'text-white' : 'text-[#b8ccdf]'}`}
               />
               <span className="flex-1">{label}</span>
               {active && (
-                <span className="w-1.5 h-1.5 rounded-full bg-[#4F7FFF] flex-shrink-0" />
+                <span className="w-1.5 h-1.5 rounded-full bg-white flex-shrink-0" />
               )}
             </Link>
           )
@@ -220,7 +221,7 @@ export default function DashboardSidebar() {
       </nav>
 
       {/* ── User section ─────────────────────────────────────────────────── */}
-      <div className="border-t border-[#1E2A45] px-3 py-3 relative" ref={userMenuRef}>
+      <div className="border-t border-white/[0.12] px-3 py-3 relative" ref={userMenuRef}>
 
         {/* Dropdown — opens upward */}
         {userMenuOpen && (

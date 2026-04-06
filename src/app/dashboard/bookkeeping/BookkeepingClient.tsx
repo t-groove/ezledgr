@@ -1580,15 +1580,15 @@ export default function BookkeepingClient({
           <div className="grid grid-cols-3 gap-3 mb-5">
             <div className="bg-[#0A0F1E] border border-[#1E2A45] rounded-lg p-4">
               <p className="text-xs text-[#6B7A99] mb-1">Total In</p>
-              <p className="text-lg font-bold text-[#22C55E]">{formatCurrency(totalIncome)}</p>
+              <p className="font-accounting text-lg font-bold amount-positive">{formatCurrency(totalIncome)}</p>
             </div>
             <div className="bg-[#0A0F1E] border border-[#1E2A45] rounded-lg p-4">
               <p className="text-xs text-[#6B7A99] mb-1">Total Out</p>
-              <p className="text-lg font-bold text-[#EF4444]">{formatCurrency(totalExpenses)}</p>
+              <p className="font-accounting text-lg font-bold amount-negative">{formatCurrency(totalExpenses)}</p>
             </div>
             <div className="bg-[#0A0F1E] border border-[#1E2A45] rounded-lg p-4">
               <p className="text-xs text-[#6B7A99] mb-1">Net</p>
-              <p className={`text-lg font-bold ${netProfit >= 0 ? "text-[#22C55E]" : "text-[#EF4444]"}`}>
+              <p className={`font-accounting text-lg font-bold ${netProfit >= 0 ? "amount-positive" : "amount-negative"}`}>
                 {netProfit >= 0 ? "+" : ""}
                 {formatCurrency(netProfit)}
               </p>
@@ -2214,8 +2214,8 @@ export default function BookkeepingClient({
                               />
                             ) : (
                               <span
-                                className={`${isSplitParent ? "cursor-default" : "cursor-pointer hover:underline"} ${
-                                  t.type === "income" ? "text-[#22C55E]" : "text-[#EF4444]"
+                                className={`font-accounting ${isSplitParent ? "cursor-default" : "cursor-pointer hover:underline"} ${
+                                  t.type === "income" ? "amount-positive" : "amount-negative"
                                 }`}
                                 onClick={() => {
                                   if (!isSplitParent)
@@ -2336,7 +2336,7 @@ export default function BookkeepingClient({
 
                               {/* Amount */}
                               <td className="px-4 py-2 text-right font-medium whitespace-nowrap">
-                                <span className={child.type === "income" ? "text-[#22C55E]" : "text-[#EF4444]"}>
+                                <span className={`font-accounting ${child.type === "income" ? "amount-positive" : "amount-negative"}`}>
                                   {child.type === "income" ? "+" : "-"}
                                   {formatCurrency(Number(child.amount))}
                                 </span>

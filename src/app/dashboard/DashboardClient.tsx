@@ -83,7 +83,7 @@ function KpiCard({ label, value, color, icon, iconBg, subtext }: KpiCardProps) {
           {icon}
         </div>
       </div>
-      <p className="font-syne text-2xl font-bold leading-none" style={{ color }}>
+      <p className="font-accounting text-2xl font-bold leading-none" style={{ color }}>
         {value}
       </p>
       <p className="text-xs text-[#6B7A99]">{subtext}</p>
@@ -424,11 +424,11 @@ export default function DashboardClient({
                   )}
                   {acc.transaction_count > 0 && (
                     <p
-                      className={`font-syne font-bold text-2xl leading-none mt-1 ${
+                      className={`font-accounting font-bold text-2xl leading-none mt-1 ${
                         acc.net > 0
-                          ? "text-[#22C55E]"
+                          ? "amount-positive"
                           : acc.net < 0
-                          ? "text-[#EF4444]"
+                          ? "amount-negative"
                           : "text-[#6B7A99]"
                       }`}
                     >

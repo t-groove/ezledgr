@@ -62,22 +62,28 @@ const config = {
   				border: 'hsl(var(--sidebar-border))',
   				ring: 'hsl(var(--sidebar-ring))'
   			},
-  			// Centerbase custom colors
+  			// EZ Ledgr brand colors
   			navy: {
-  				DEFAULT: '#0A0F1E',
-  				light: '#111827',
+  				DEFAULT: '#193764',
+  				light: '#e8eef6',
+  				mid: '#2f5c9a',
   			},
-  			slate: {
-  				custom: '#6B7A99',
+  			ledger: {
+  				DEFAULT: '#2F7FC8',
+  				light: '#daeaf8',
   			},
-  			electric: {
-  				DEFAULT: '#4F7FFF',
-  				hover: '#3D6FEF',
+  			credit: {
+  				DEFAULT: '#2FB45B',
+  				light: '#e6f7ee',
+  				dark: '#1a7a40',
   			},
-  			surface: {
-  				DEFAULT: '#111827',
-  				border: '#1E2A45',
+  			debit: {
+  				DEFAULT: '#C0392B',
+  				light: '#fdecea',
+  				dark: '#922b21',
   			},
+  			slate: '#6B7280',
+  			surface: '#f5f4f2',
   		},
   		fontFamily: {
   			syne: ['var(--font-syne)', 'sans-serif'],

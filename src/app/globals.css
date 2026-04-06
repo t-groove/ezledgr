@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500&family=Roboto+Mono:wght@400;500&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -39,6 +41,22 @@
     --sidebar-border: 222 39% 19%;
     --sidebar-ring: 223 100% 65%;
     color-scheme: dark;
+
+    /* EZ Ledgr brand tokens */
+    --font-ui: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Arial', sans-serif;
+    --font-mono: 'Roboto Mono', 'Courier New', Courier, monospace;
+    --color-navy: #193764;
+    --color-sky: #e8eef6;
+    --color-ledger: #2F7FC8;
+    --color-credit: #2FB45B;
+    --color-credit-light: #e6f7ee;
+    --color-credit-dark: #1a7a40;
+    --color-debit: #C0392B;
+    --color-debit-light: #fdecea;
+    --color-debit-dark: #922b21;
+    --color-slate: #6B7280;
+    --color-surface: #f5f4f2;
+    --color-border: #dde4ef;
   }
 
   .dark {
@@ -83,5 +101,22 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-ui);
+    color: var(--color-navy);
+    background-color: var(--color-sky);
   }
+}
+
+.font-accounting {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+.amount-positive {
+  color: var(--color-credit-dark);
+}
+
+.amount-negative {
+  color: var(--color-debit);
 }

@@ -866,7 +866,7 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
                   <p className="text-[11px] text-[#6B7A99] mb-1 font-medium uppercase tracking-wide">
                     Bank Balance
                   </p>
-                  <p className="text-2xl font-semibold text-white">
+                  <p className="font-accounting text-2xl font-semibold text-white">
                     {acc.plaid_balance_current !== null && acc.plaid_balance_current !== undefined
                       ? formatCurrency(acc.plaid_balance_current)
                       : "—"}
@@ -887,11 +887,11 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
                     EZ Ledgr Balance
                   </p>
                   <p
-                    className={`text-2xl font-semibold ${
+                    className={`font-accounting text-2xl font-semibold ${
                       acc.net > 0
-                        ? "text-[#22C55E]"
+                        ? "amount-positive"
                         : acc.net < 0
-                        ? "text-[#EF4444]"
+                        ? "amount-negative"
                         : "text-[#E8ECF4]"
                     }`}
                   >
@@ -1029,7 +1029,7 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
                 </div>
                 <div className="flex justify-between text-sm mt-1">
                   <span className="text-[#6B7A99]">Beginning balance:</span>
-                  <span className="text-[#E8ECF4] font-medium">
+                  <span className="font-accounting text-[#E8ECF4] font-medium">
                     {formatCurrency(openingBalance)}
                   </span>
                 </div>
@@ -1069,7 +1069,7 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
                             </span>
                           )}
                           {plaidAcc.balance_current != null && (
-                            <span className="text-xs text-[#6B7A99]">
+                            <span className="font-accounting text-xs text-[#6B7A99]">
                               {formatCurrency(plaidAcc.balance_current)}
                             </span>
                           )}
