@@ -76,7 +76,7 @@ interface KpiCardProps {
 
 function KpiCard({ label, value, color, icon, iconBg, subtext }: KpiCardProps) {
   return (
-    <div className="bg-[#111827] border border-[#1E2A45] rounded-xl p-5 flex flex-col gap-3">
+    <div className="bg-white border border-[#dde4ef] rounded-xl p-5 flex flex-col gap-3">
       <div className="flex items-start justify-between">
         <p className="text-sm text-[#6B7A99]">{label}</p>
         <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 ${iconBg}`}>
@@ -126,7 +126,7 @@ function ActionItem({
         <span style={{ color }}>{icon}</span>
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold text-[#E8ECF4] mb-0.5">{title}</p>
+        <p className="text-sm font-semibold text-[#193764] mb-0.5">{title}</p>
         <p className="text-xs text-[#6B7A99]">{description}</p>
       </div>
       <Link
@@ -165,11 +165,11 @@ function OnboardingCard() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh]">
-      <div className="w-full max-w-md bg-[#111827] border border-[#1E2A45] rounded-2xl p-8">
+      <div className="w-full max-w-md bg-white border border-[#dde4ef] rounded-2xl p-8">
         <div className="w-12 h-12 rounded-full bg-[#4F7FFF]/10 flex items-center justify-center mb-6">
           <Building2 size={24} className="text-[#4F7FFF]" />
         </div>
-        <h1 className="font-syne text-2xl font-bold text-[#E8ECF4] mb-1">
+        <h1 className="font-syne text-2xl font-bold text-[#193764] mb-1">
           Welcome to EZ Ledgr!
         </h1>
         <p className="text-sm text-[#6B7A99] mb-6">Let&apos;s set up your business.</p>
@@ -183,7 +183,7 @@ function OnboardingCard() {
               onChange={(e) => setName(e.target.value)}
               placeholder="Acme LLC"
               required
-              className="w-full bg-[#0A0F1E] border border-[#1E2A45] text-[#E8ECF4] text-sm rounded-lg px-3 py-2.5 focus:outline-none focus:border-[#4F7FFF] placeholder:text-[#6B7A99]"
+              className="w-full bg-[#f5f4f2] border border-[#dde4ef] text-[#193764] text-sm rounded-lg px-3 py-2.5 focus:outline-none focus:border-[#4F7FFF] placeholder:text-[#6B7A99]"
             />
           </div>
           <div>
@@ -191,7 +191,7 @@ function OnboardingCard() {
             <select
               value={entityType}
               onChange={(e) => setEntityType(e.target.value)}
-              className="w-full bg-[#0A0F1E] border border-[#1E2A45] text-[#E8ECF4] text-sm rounded-lg px-3 py-2.5 focus:outline-none focus:border-[#4F7FFF] cursor-pointer"
+              className="w-full bg-[#f5f4f2] border border-[#dde4ef] text-[#193764] text-sm rounded-lg px-3 py-2.5 focus:outline-none focus:border-[#4F7FFF] cursor-pointer"
             >
               {ENTITY_TYPES.map((t) => (
                 <option key={t} value={t}>
@@ -266,7 +266,7 @@ export default function DashboardClient({
     <div className="flex flex-col gap-10">
       {/* ── Page header ─────────────────────────────────────────────────── */}
       <header>
-        <h1 className="font-syne text-3xl font-bold text-[#E8ECF4]">
+        <h1 className="font-syne text-3xl font-bold text-[#193764]">
           {greeting()}, {userName}
         </h1>
         <p className="text-sm text-[#6B7A99] mt-1">
@@ -277,7 +277,7 @@ export default function DashboardClient({
       {/* ── Section 1: YTD P&L ──────────────────────────────────────────── */}
       <section>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-syne text-xl font-semibold text-[#E8ECF4]">
+          <h2 className="font-syne text-xl font-semibold text-[#193764]">
             Year-to-date Performance
           </h2>
           <Link href="/dashboard/reports" className="text-sm text-[#4F7FFF] hover:underline">
@@ -329,7 +329,7 @@ export default function DashboardClient({
       {/* ── Section 2: Action Items ───────────────────────────────────────── */}
       <section>
         <div className="mb-4">
-          <h2 className="font-syne text-xl font-semibold text-[#E8ECF4]">Action Items</h2>
+          <h2 className="font-syne text-xl font-semibold text-[#193764]">Action Items</h2>
           <p className="text-sm text-[#6B7A99] mt-0.5">Things that need your attention</p>
         </div>
 
@@ -389,16 +389,16 @@ export default function DashboardClient({
       {/* ── Section 3: Bank Accounts ─────────────────────────────────────── */}
       <section>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-syne text-xl font-semibold text-[#E8ECF4]">Bank Accounts</h2>
+          <h2 className="font-syne text-xl font-semibold text-[#193764]">Bank Accounts</h2>
           <Link href="/dashboard/accounts" className="text-sm text-[#4F7FFF] hover:underline">
             Manage accounts →
           </Link>
         </div>
 
         {bankAccounts.length === 0 ? (
-          <div className="bg-[#111827] border border-[#1E2A45] rounded-xl p-8 text-center">
+          <div className="bg-white border border-[#dde4ef] rounded-xl p-8 text-center">
             <Building2 size={32} className="text-[#6B7A99] mx-auto mb-3" />
-            <p className="text-[#E8ECF4] font-medium mb-1">No bank accounts connected yet</p>
+            <p className="text-[#193764] font-medium mb-1">No bank accounts connected yet</p>
             <p className="text-sm text-[#6B7A99] mb-4">
               Add a bank account to start organizing your transactions.
             </p>
@@ -414,7 +414,7 @@ export default function DashboardClient({
             {bankAccounts.map((acc) => (
               <div
                 key={acc.id}
-                className="bg-[#111827] border border-[#1E2A45] rounded-xl p-5 flex flex-col"
+                className="bg-white border border-[#dde4ef] rounded-xl p-5 flex flex-col"
               >
                 <div className="flex items-start justify-between mb-1">
                   {acc.bank_name && acc.bank_name !== "None" ? (
@@ -437,7 +437,7 @@ export default function DashboardClient({
                     </p>
                   )}
                 </div>
-                <p className="font-syne font-semibold text-[#E8ECF4] text-base mb-3">{acc.name}</p>
+                <p className="font-syne font-semibold text-[#193764] text-base mb-3">{acc.name}</p>
                 <div className="flex items-center gap-2 mb-4">
                   <span
                     className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${

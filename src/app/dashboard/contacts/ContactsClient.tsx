@@ -110,8 +110,8 @@ export default function ContactsClient({ initialContacts }: ContactsClientProps)
   const tabCls = (tab: FilterTab) =>
     `px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
       filterTab === tab
-        ? "bg-[#1E2A45] text-[#E8ECF4]"
-        : "text-[#6B7A99] hover:text-[#E8ECF4]"
+        ? "bg-[#e8eef6] text-[#193764]"
+        : "text-[#6B7A99] hover:text-[#193764]"
     }`;
 
   return (
@@ -119,7 +119,7 @@ export default function ContactsClient({ initialContacts }: ContactsClientProps)
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-6">
         <div>
-          <h1 className="font-syne text-3xl font-bold text-[#E8ECF4]">Contacts</h1>
+          <h1 className="font-syne text-3xl font-bold text-[#193764]">Contacts</h1>
           <p className="text-sm text-[#6B7A99] mt-1">
             Manage your customers, vendors, and other contacts
           </p>
@@ -149,11 +149,11 @@ export default function ContactsClient({ initialContacts }: ContactsClientProps)
 
       {/* Empty state */}
       {contacts.length === 0 ? (
-        <div className="bg-[#111827] border border-[#1E2A45] rounded-xl flex flex-col items-center justify-center py-20 text-center">
-          <div className="w-16 h-16 rounded-full bg-[#1E2A45] flex items-center justify-center mb-4">
+        <div className="bg-white border border-[#dde4ef] rounded-xl flex flex-col items-center justify-center py-20 text-center">
+          <div className="w-16 h-16 rounded-full bg-[#e8eef6] flex items-center justify-center mb-4">
             <Users size={28} className="text-[#6B7A99]" />
           </div>
-          <p className="font-syne font-semibold text-[#E8ECF4] text-lg mb-1">No contacts yet</p>
+          <p className="font-syne font-semibold text-[#193764] text-lg mb-1">No contacts yet</p>
           <p className="text-sm text-[#6B7A99] mb-5">
             Add customers, vendors, and other contacts to link them to transactions.
           </p>
@@ -166,15 +166,15 @@ export default function ContactsClient({ initialContacts }: ContactsClientProps)
           </button>
         </div>
       ) : filtered.length === 0 ? (
-        <div className="bg-[#111827] border border-[#1E2A45] rounded-xl flex items-center justify-center py-16">
+        <div className="bg-white border border-[#dde4ef] rounded-xl flex items-center justify-center py-16">
           <p className="text-[#6B7A99]">No contacts match this filter.</p>
         </div>
       ) : (
-        <div className="bg-[#111827] border border-[#1E2A45] rounded-xl overflow-hidden">
+        <div className="bg-white border border-[#dde4ef] rounded-xl overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-[#1E2A45] bg-[#0A0F1E]">
+                <tr className="border-b border-[#dde4ef] bg-[#e8eef6]">
                   <th className="px-5 py-3 text-left text-[#6B7A99] font-medium">Name</th>
                   <th className="px-4 py-3 text-left text-[#6B7A99] font-medium">Type</th>
                   <th className="px-4 py-3 text-left text-[#6B7A99] font-medium">Email</th>
@@ -186,11 +186,11 @@ export default function ContactsClient({ initialContacts }: ContactsClientProps)
                 {filtered.map((c) => (
                   <tr
                     key={c.id}
-                    className="border-b border-[#1E2A45] last:border-0 hover:bg-[#1E2A45]/20 group"
+                    className="border-b border-[#dde4ef] last:border-0 hover:bg-[#f0f4fa] group"
                   >
                     {/* Name */}
                     <td className="px-5 py-3">
-                      <p className="font-medium text-[#E8ECF4]">{c.display_name}</p>
+                      <p className="font-medium text-[#193764]">{c.display_name}</p>
                       {c.company_name && (
                         <p className="text-xs text-[#6B7A99] mt-0.5">{c.company_name}</p>
                       )}
@@ -212,7 +212,7 @@ export default function ContactsClient({ initialContacts }: ContactsClientProps)
                       {c.email ? (
                         <a
                           href={`mailto:${c.email}`}
-                          className="hover:text-[#E8ECF4] transition-colors"
+                          className="hover:text-[#193764] transition-colors"
                         >
                           {c.email}
                         </a>
@@ -244,7 +244,7 @@ export default function ContactsClient({ initialContacts }: ContactsClientProps)
                           </button>
                           <button
                             onClick={() => setConfirmDeleteId(null)}
-                            className="px-2.5 py-1 border border-[#1E2A45] text-[#6B7A99] hover:text-[#E8ECF4] text-xs rounded-lg transition-colors"
+                            className="px-2.5 py-1 border border-[#dde4ef] text-[#6B7A99] hover:text-[#193764] text-xs rounded-lg transition-colors"
                           >
                             No
                           </button>

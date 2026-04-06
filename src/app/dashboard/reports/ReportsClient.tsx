@@ -73,8 +73,8 @@ function MonthlyTooltip({ active, payload, label }: {
   const expenses = payload.find((p) => p.dataKey === "expenses")?.value ?? 0;
   const profit   = payload.find((p) => p.dataKey === "profit")?.value   ?? 0;
   return (
-    <div className="bg-[#111827] border border-[#1E2A45] rounded-lg p-3 text-sm shadow-xl">
-      <p className="font-syne font-semibold text-[#E8ECF4] mb-2">{label}</p>
+    <div className="bg-white border border-[#dde4ef] rounded-lg p-3 text-sm shadow-xl">
+      <p className="font-syne font-semibold text-[#193764] mb-2">{label}</p>
       <p className="text-[#22C55E]">Income: {formatCurrency(income)}</p>
       <p className="text-[#EF4444]">Expenses: {formatCurrency(expenses)}</p>
       <p style={{ color: profit >= 0 ? "#4F7FFF" : "#EF4444" }}>
@@ -92,8 +92,8 @@ function ProfitTooltip({ active, payload, label }: {
   if (!active || !payload?.length) return null;
   const profit = payload[0]?.value ?? 0;
   return (
-    <div className="bg-[#111827] border border-[#1E2A45] rounded-lg p-3 text-sm shadow-xl">
-      <p className="font-syne font-semibold text-[#E8ECF4] mb-1">{label}</p>
+    <div className="bg-white border border-[#dde4ef] rounded-lg p-3 text-sm shadow-xl">
+      <p className="font-syne font-semibold text-[#193764] mb-1">{label}</p>
       <p style={{ color: profit >= 0 ? "#4F7FFF" : "#EF4444" }}>
         Net Profit: {formatCurrency(profit)}
       </p>
@@ -117,7 +117,7 @@ function SummaryCard({
   const Icon =
     positive === false ? TrendingDown : TrendingUp;
   return (
-    <div className="bg-[#111827] border border-[#1E2A45] rounded-xl p-5">
+    <div className="bg-white border border-[#dde4ef] rounded-xl p-5">
       <p className="text-sm text-[#6B7A99] mb-3">{label}</p>
       <div className="flex items-end justify-between gap-2">
         <p className="text-2xl font-bold leading-none" style={{ color }}>
@@ -141,8 +141,8 @@ function CategoryBreakdown({
   colors: string[];
 }) {
   return (
-    <div className="bg-[#111827] border border-[#1E2A45] rounded-xl p-6">
-      <h2 className="font-syne text-lg font-semibold text-[#E8ECF4] mb-4">
+    <div className="bg-white border border-[#dde4ef] rounded-xl p-6">
+      <h2 className="font-syne text-lg font-semibold text-[#193764] mb-4">
         {title}
       </h2>
       {data.length === 0 ? (
@@ -174,8 +174,8 @@ function CategoryBreakdown({
                     if (!active || !payload?.length) return null;
                     const d = payload[0].payload as CategoryData;
                     return (
-                      <div className="bg-[#111827] border border-[#1E2A45] rounded-lg p-2 text-xs shadow-xl">
-                        <p className="text-[#E8ECF4] font-medium">{d.category}</p>
+                      <div className="bg-white border border-[#dde4ef] rounded-lg p-2 text-xs shadow-xl">
+                        <p className="text-[#193764] font-medium">{d.category}</p>
                         <p className="text-[#6B7A99]">
                           {formatCurrency(d.amount)} ({d.percentage.toFixed(1)}%)
                         </p>
@@ -190,7 +190,7 @@ function CategoryBreakdown({
           {/* Category table */}
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-[#1E2A45]">
+              <tr className="border-b border-[#dde4ef]">
                 <th className="text-left py-2 text-[#6B7A99] font-medium">
                   Category
                 </th>
@@ -204,17 +204,17 @@ function CategoryBreakdown({
             </thead>
             <tbody>
               {data.map((row, i) => (
-                <tr key={row.category} className="border-b border-[#1E2A45]">
+                <tr key={row.category} className="border-b border-[#dde4ef]">
                   <td className="py-2">
                     <div className="flex items-center gap-2">
                       <span
                         className="inline-block w-2.5 h-2.5 rounded-full flex-shrink-0"
                         style={{ backgroundColor: colors[i % colors.length] }}
                       />
-                      <span className="text-[#E8ECF4]">{row.category}</span>
+                      <span className="text-[#193764]">{row.category}</span>
                     </div>
                   </td>
-                  <td className="py-2 text-right text-[#E8ECF4]">
+                  <td className="py-2 text-right text-[#193764]">
                     {formatCurrency(row.amount)}
                   </td>
                   <td className="py-2 text-right text-[#6B7A99]">
@@ -302,7 +302,7 @@ export default function ReportsClient({ initialData, initialYear, initialAccount
       {/* ── Header ────────────────────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-8">
         <div>
-          <h1 className="font-syne text-3xl font-bold text-[#E8ECF4]">
+          <h1 className="font-syne text-3xl font-bold text-[#193764]">
             Reports
           </h1>
           <p className="text-sm text-[#6B7A99] mt-1">
@@ -317,7 +317,7 @@ export default function ReportsClient({ initialData, initialYear, initialAccount
             <select
               value={selectedAccountId}
               onChange={(e) => handleAccountChange(e.target.value)}
-              className="bg-[#111827] border border-[#1E2A45] text-[#E8ECF4] text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-[#4F7FFF] cursor-pointer"
+              className="bg-white border border-[#dde4ef] text-[#193764] text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-[#4F7FFF] cursor-pointer"
             >
               <option value="">All Accounts</option>
               {initialAccounts.map((acc) => (
@@ -332,7 +332,7 @@ export default function ReportsClient({ initialData, initialYear, initialAccount
             <select
               value={year}
               onChange={(e) => handleYearChange(Number(e.target.value))}
-              className="bg-[#111827] border border-[#1E2A45] text-[#E8ECF4] text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-[#4F7FFF] cursor-pointer"
+              className="bg-white border border-[#dde4ef] text-[#193764] text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-[#4F7FFF] cursor-pointer"
             >
               {yearsToShow.map((y) => (
                 <option key={y} value={y}>
@@ -346,7 +346,7 @@ export default function ReportsClient({ initialData, initialYear, initialAccount
             <>
               <button
                 onClick={handleExportPDF}
-                className="flex items-center gap-2 px-3 py-2 text-sm text-[#6B7A99] border border-[#1E2A45] rounded-lg hover:text-[#E8ECF4] hover:border-[#4F7FFF] transition-colors"
+                className="flex items-center gap-2 px-3 py-2 text-sm text-[#6B7A99] border border-[#dde4ef] rounded-lg hover:text-[#193764] hover:border-[#4F7FFF] transition-colors"
               >
                 <FileDown className="h-4 w-4" />
                 Export PDF
@@ -354,7 +354,7 @@ export default function ReportsClient({ initialData, initialYear, initialAccount
 
               <button
                 onClick={() => window.print()}
-                className="flex items-center gap-2 px-3 py-2 text-sm text-[#6B7A99] border border-[#1E2A45] rounded-lg hover:text-[#E8ECF4] hover:border-[#4F7FFF] transition-colors"
+                className="flex items-center gap-2 px-3 py-2 text-sm text-[#6B7A99] border border-[#dde4ef] rounded-lg hover:text-[#193764] hover:border-[#4F7FFF] transition-colors"
               >
                 <Printer className="h-4 w-4" />
                 Print
@@ -370,8 +370,8 @@ export default function ReportsClient({ initialData, initialYear, initialAccount
           onClick={() => setActiveTab("overview")}
           className={`px-5 py-2 rounded-lg text-sm transition-colors ${
             activeTab === "overview"
-              ? "bg-[#111827] border border-[#1E2A45] text-[#E8ECF4] font-medium"
-              : "text-[#6B7A99] hover:text-[#E8ECF4]"
+              ? "bg-white border border-[#dde4ef] text-[#193764] font-medium"
+              : "text-[#6B7A99] hover:text-[#193764]"
           }`}
         >
           Overview
@@ -380,8 +380,8 @@ export default function ReportsClient({ initialData, initialYear, initialAccount
           onClick={() => setActiveTab("statement")}
           className={`px-5 py-2 rounded-lg text-sm transition-colors ${
             activeTab === "statement"
-              ? "bg-[#111827] border border-[#1E2A45] text-[#E8ECF4] font-medium"
-              : "text-[#6B7A99] hover:text-[#E8ECF4]"
+              ? "bg-white border border-[#dde4ef] text-[#193764] font-medium"
+              : "text-[#6B7A99] hover:text-[#193764]"
           }`}
         >
           P&amp;L Statement
@@ -390,8 +390,8 @@ export default function ReportsClient({ initialData, initialYear, initialAccount
           onClick={() => setActiveTab("balance")}
           className={`px-5 py-2 rounded-lg text-sm transition-colors ${
             activeTab === "balance"
-              ? "bg-[#111827] border border-[#1E2A45] text-[#E8ECF4] font-medium"
-              : "text-[#6B7A99] hover:text-[#E8ECF4]"
+              ? "bg-white border border-[#dde4ef] text-[#193764] font-medium"
+              : "text-[#6B7A99] hover:text-[#193764]"
           }`}
         >
           Balance Sheet
@@ -421,8 +421,8 @@ export default function ReportsClient({ initialData, initialYear, initialAccount
 
       {/* ── Overview tab ──────────────────────────────────────────────────── */}
       {activeTab === "overview" && (!hasData ? (
-        <div className="bg-[#111827] border border-[#1E2A45] rounded-xl p-12 text-center">
-          <p className="text-[#E8ECF4] text-lg mb-2">
+        <div className="bg-white border border-[#dde4ef] rounded-xl p-12 text-center">
+          <p className="text-[#193764] text-lg mb-2">
             No transactions found for {year}.
           </p>
           <p className="text-[#6B7A99] text-sm mb-6">
@@ -466,8 +466,8 @@ export default function ReportsClient({ initialData, initialYear, initialAccount
           </div>
 
           {/* ── Monthly Overview (ComposedChart) ───────────────────────────── */}
-          <div className="bg-[#111827] border border-[#1E2A45] rounded-xl p-6 mb-6">
-            <h2 className="font-syne text-lg font-semibold text-[#E8ECF4] mb-4">
+          <div className="bg-white border border-[#dde4ef] rounded-xl p-6 mb-6">
+            <h2 className="font-syne text-lg font-semibold text-[#193764] mb-4">
               Monthly Overview
             </h2>
             <ResponsiveContainer width="100%" height={320}>
@@ -475,11 +475,11 @@ export default function ReportsClient({ initialData, initialYear, initialAccount
                 data={monthly}
                 margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
               >
-                <CartesianGrid strokeDasharray="3 3" stroke="#1E2A45" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#dde4ef" />
                 <XAxis
                   dataKey="month"
                   tick={{ fill: "#6B7A99", fontSize: 12 }}
-                  axisLine={{ stroke: "#1E2A45" }}
+                  axisLine={{ stroke: "#dde4ef" }}
                   tickLine={false}
                 />
                 <YAxis
@@ -518,8 +518,8 @@ export default function ReportsClient({ initialData, initialYear, initialAccount
           </div>
 
           {/* ── Profit Trend (AreaChart) ───────────────────────────────────── */}
-          <div className="bg-[#111827] border border-[#1E2A45] rounded-xl p-6 mb-6">
-            <h2 className="font-syne text-lg font-semibold text-[#E8ECF4] mb-4">
+          <div className="bg-white border border-[#dde4ef] rounded-xl p-6 mb-6">
+            <h2 className="font-syne text-lg font-semibold text-[#193764] mb-4">
               Profit Trend
             </h2>
             <ResponsiveContainer width="100%" height={200}>
@@ -533,11 +533,11 @@ export default function ReportsClient({ initialData, initialYear, initialAccount
                     <stop offset="95%" stopColor="#4F7FFF" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1E2A45" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#dde4ef" />
                 <XAxis
                   dataKey="month"
                   tick={{ fill: "#6B7A99", fontSize: 12 }}
-                  axisLine={{ stroke: "#1E2A45" }}
+                  axisLine={{ stroke: "#dde4ef" }}
                   tickLine={false}
                 />
                 <YAxis
@@ -577,14 +577,14 @@ export default function ReportsClient({ initialData, initialYear, initialAccount
           </div>
 
           {/* ── Monthly Detail Table ───────────────────────────────────────── */}
-          <div className="bg-[#111827] border border-[#1E2A45] rounded-xl p-6">
-            <h2 className="font-syne text-lg font-semibold text-[#E8ECF4] mb-4">
+          <div className="bg-white border border-[#dde4ef] rounded-xl p-6">
+            <h2 className="font-syne text-lg font-semibold text-[#193764] mb-4">
               Monthly Detail
             </h2>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-[#1E2A45]">
+                  <tr className="border-b border-[#dde4ef]">
                     <th className="text-left py-3 px-4 text-[#6B7A99] font-medium">
                       Month
                     </th>
@@ -606,10 +606,10 @@ export default function ReportsClient({ initialData, initialYear, initialAccount
                   {monthlyWithMargin.map((row, i) => (
                     <tr
                       key={row.month}
-                      className="border-b border-[#1E2A45]"
-                      style={{ backgroundColor: i % 2 === 1 ? "#0D1526" : undefined }}
+                      className="border-b border-[#dde4ef]"
+                      style={{ backgroundColor: i % 2 === 1 ? "#f5f4f2" : undefined }}
                     >
-                      <td className="py-3 px-4 text-[#E8ECF4]">{row.month}</td>
+                      <td className="py-3 px-4 text-[#193764]">{row.month}</td>
                       <td className="py-3 px-4 text-right text-[#22C55E]">
                         {formatCurrency(row.income)}
                       </td>
@@ -638,7 +638,7 @@ export default function ReportsClient({ initialData, initialYear, initialAccount
                 </tbody>
                 <tfoot>
                   <tr className="border-t-2 border-[#4F7FFF]">
-                    <td className="py-3 px-4 font-bold text-[#E8ECF4]">Total</td>
+                    <td className="py-3 px-4 font-bold text-[#193764]">Total</td>
                     <td className="py-3 px-4 text-right font-bold text-[#22C55E]">
                       {formatCurrency(totals.income)}
                     </td>

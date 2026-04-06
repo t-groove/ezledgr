@@ -172,8 +172,8 @@ export default function TeamClient({
       <div className="flex flex-col gap-6">
         {/* Invite form */}
         {isOwner && (
-          <div className="bg-[#111827] border border-[#1E2A45] rounded-xl p-6">
-            <h2 className="font-syne text-lg font-semibold text-[#E8ECF4] mb-4">
+          <div className="bg-white border border-[#dde4ef] rounded-xl p-6">
+            <h2 className="font-syne text-lg font-semibold text-[#193764] mb-4">
               Invite Team Member
             </h2>
             <form onSubmit={handleInvite} className="flex flex-wrap gap-3 items-end">
@@ -185,7 +185,7 @@ export default function TeamClient({
                   onChange={(e) => setInviteEmail(e.target.value)}
                   required
                   placeholder="colleague@example.com"
-                  className="w-full bg-[#0A0F1E] border border-[#1E2A45] text-[#E8ECF4] text-sm
+                  className="w-full bg-[#f5f4f2] border border-[#dde4ef] text-[#193764] text-sm
                     rounded-lg px-3 py-2 focus:outline-none focus:border-[#4F7FFF]
                     placeholder:text-[#6B7A99]"
                 />
@@ -195,7 +195,7 @@ export default function TeamClient({
                 <select
                   value={inviteRole}
                   onChange={(e) => setInviteRole(e.target.value)}
-                  className="bg-[#0A0F1E] border border-[#1E2A45] text-[#E8ECF4] text-sm
+                  className="bg-[#f5f4f2] border border-[#dde4ef] text-[#193764] text-sm
                     rounded-lg px-3 py-2 focus:outline-none focus:border-[#4F7FFF] cursor-pointer"
                 >
                   {ASSIGNABLE_ROLES.map((r) => (
@@ -216,14 +216,14 @@ export default function TeamClient({
         )}
 
         {/* Members table */}
-        <div className="bg-[#111827] border border-[#1E2A45] rounded-xl overflow-hidden">
-          <div className="px-6 py-4 border-b border-[#1E2A45]">
-            <h2 className="font-syne text-lg font-semibold text-[#E8ECF4]">Team Members</h2>
+        <div className="bg-white border border-[#dde4ef] rounded-xl overflow-hidden">
+          <div className="px-6 py-4 border-b border-[#dde4ef]">
+            <h2 className="font-syne text-lg font-semibold text-[#193764]">Team Members</h2>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-[#1E2A45]">
+                <tr className="border-b border-[#dde4ef]">
                   <th className="text-left px-6 py-3 text-[#6B7A99] font-medium">Name / Email</th>
                   <th className="text-left px-4 py-3 text-[#6B7A99] font-medium">Role</th>
                   <th className="text-left px-4 py-3 text-[#6B7A99] font-medium">Status</th>
@@ -236,12 +236,12 @@ export default function TeamClient({
                 {members.map((member) => (
                   <tr
                     key={member.id}
-                    className="border-b border-[#1E2A45] last:border-0
-                      hover:bg-[#1E2A45]/20 transition-colors"
+                    className="border-b border-[#dde4ef] last:border-0
+                      hover:bg-[#f0f4fa] transition-colors"
                   >
                     <td className="px-6 py-3">
                       <div>
-                        <p className="font-medium text-[#E8ECF4]">{member.display_name}</p>
+                        <p className="font-medium text-[#193764]">{member.display_name}</p>
                         {member.email && member.email !== member.display_name && (
                           <p className="text-xs text-[#6B7A99]">{member.email}</p>
                         )}
@@ -277,7 +277,7 @@ export default function TeamClient({
                               value={member.role}
                               onChange={(e) => handleRoleChange(member.user_id, e.target.value)}
                               disabled={memberPending}
-                              className="bg-[#0A0F1E] border border-[#1E2A45] text-[#E8ECF4]
+                              className="bg-[#f5f4f2] border border-[#dde4ef] text-[#193764]
                                 text-xs rounded-lg px-2 py-1 focus:outline-none
                                 focus:border-[#4F7FFF] cursor-pointer disabled:opacity-50"
                             >
@@ -308,16 +308,16 @@ export default function TeamClient({
 
         {/* Pending invitations */}
         {invitations.length > 0 && (
-          <div className="bg-[#111827] border border-[#1E2A45] rounded-xl overflow-hidden">
-            <div className="px-6 py-4 border-b border-[#1E2A45]">
-              <h2 className="font-syne text-lg font-semibold text-[#E8ECF4]">
+          <div className="bg-white border border-[#dde4ef] rounded-xl overflow-hidden">
+            <div className="px-6 py-4 border-b border-[#dde4ef]">
+              <h2 className="font-syne text-lg font-semibold text-[#193764]">
                 Pending Invitations
               </h2>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-[#1E2A45]">
+                  <tr className="border-b border-[#dde4ef]">
                     <th className="text-left px-6 py-3 text-[#6B7A99] font-medium">Email</th>
                     <th className="text-left px-4 py-3 text-[#6B7A99] font-medium">Role</th>
                     <th className="text-left px-4 py-3 text-[#6B7A99] font-medium">Invited</th>
@@ -333,10 +333,10 @@ export default function TeamClient({
                     return (
                       <tr
                         key={inv.id}
-                        className="border-b border-[#1E2A45] last:border-0
-                          hover:bg-[#1E2A45]/20 transition-colors"
+                        className="border-b border-[#dde4ef] last:border-0
+                          hover:bg-[#f0f4fa] transition-colors"
                       >
-                        <td className="px-6 py-3 text-[#E8ECF4]">{inv.invited_email}</td>
+                        <td className="px-6 py-3 text-[#193764]">{inv.invited_email}</td>
                         <td className="px-4 py-3">
                           <span
                             className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium

@@ -80,7 +80,7 @@ interface Props {
 // ── Shared input class ────────────────────────────────────────────────────────
 
 const inputCls =
-  "bg-[#0A0F1E] border border-[#1E2A45] text-[#E8ECF4] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#4F7FFF] placeholder:text-[#6B7A99] w-full";
+  "bg-[#f5f4f2] border border-[#dde4ef] text-[#193764] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#4F7FFF] placeholder:text-[#6B7A99] w-full";
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
@@ -101,13 +101,13 @@ function LinesSummary({ lines }: { lines: JournalEntry["journal_entry_lines"] })
       {debits.map((l) => (
         <div key={l.id} className="text-[#6B7A99]">
           <span className="text-[#4F7FFF] font-medium">DR</span> {l.account_name}{" "}
-          <span className="text-[#E8ECF4]">{fmtAmt(Number(l.debit))}</span>
+          <span className="text-[#193764]">{fmtAmt(Number(l.debit))}</span>
         </div>
       ))}
       {credits.map((l) => (
         <div key={l.id} className="text-[#6B7A99]">
           <span className="text-[#A855F7] font-medium">CR</span> {l.account_name}{" "}
-          <span className="text-[#E8ECF4]">{fmtAmt(Number(l.credit))}</span>
+          <span className="text-[#193764]">{fmtAmt(Number(l.credit))}</span>
         </div>
       ))}
     </div>
@@ -330,7 +330,7 @@ export default function JournalEntriesClient({ initialEntries }: Props) {
       {/* ── Header ──────────────────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-6">
         <div>
-          <h1 className="font-syne text-3xl font-bold text-[#E8ECF4]">Journal Entries</h1>
+          <h1 className="font-syne text-3xl font-bold text-[#193764]">Journal Entries</h1>
           <p className="text-sm text-[#6B7A99] mt-1">Non-cash accounting adjustments</p>
         </div>
         {!showForm && (
@@ -355,16 +355,16 @@ export default function JournalEntriesClient({ initialEntries }: Props) {
 
       {/* ── New Entry Form Panel ─────────────────────────────────────────── */}
       {showForm && (
-        <div className="bg-[#111827] border border-[#1E2A45] rounded-xl p-6 mb-6">
+        <div className="bg-white border border-[#dde4ef] rounded-xl p-6 mb-6">
 
           {/* Entry type selector */}
           {entryMode === "select" && (
             <div>
               <div className="flex items-center justify-between mb-5">
-                <h2 className="font-syne text-xl font-bold text-[#E8ECF4]">New Journal Entry</h2>
+                <h2 className="font-syne text-xl font-bold text-[#193764]">New Journal Entry</h2>
                 <button
                   onClick={closeForm}
-                  className="text-sm text-[#6B7A99] hover:text-[#E8ECF4] transition-colors"
+                  className="text-sm text-[#6B7A99] hover:text-[#193764] transition-colors"
                 >
                   Cancel
                 </button>
@@ -373,25 +373,25 @@ export default function JournalEntriesClient({ initialEntries }: Props) {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <button
                   onClick={() => setEntryMode("depreciation")}
-                  className="flex items-start gap-4 p-5 bg-[#0A0F1E] border border-[#1E2A45] rounded-xl hover:border-[#A855F7]/50 hover:bg-[#A855F7]/5 transition-all text-left"
+                  className="flex items-start gap-4 p-5 bg-[#f5f4f2] border border-[#dde4ef] rounded-xl hover:border-[#A855F7]/50 hover:bg-[#A855F7]/5 transition-all text-left"
                 >
                   <div className="p-2 bg-[#A855F7]/10 rounded-lg">
                     <TrendingDown size={22} className="text-[#A855F7]" />
                   </div>
                   <div>
-                    <p className="font-syne font-semibold text-[#E8ECF4] mb-1">Depreciation Entry</p>
+                    <p className="font-syne font-semibold text-[#193764] mb-1">Depreciation Entry</p>
                     <p className="text-xs text-[#6B7A99]">Record asset depreciation</p>
                   </div>
                 </button>
                 <button
                   onClick={() => setEntryMode("manual")}
-                  className="flex items-start gap-4 p-5 bg-[#0A0F1E] border border-[#1E2A45] rounded-xl hover:border-[#4F7FFF]/50 hover:bg-[#4F7FFF]/5 transition-all text-left"
+                  className="flex items-start gap-4 p-5 bg-[#f5f4f2] border border-[#dde4ef] rounded-xl hover:border-[#4F7FFF]/50 hover:bg-[#4F7FFF]/5 transition-all text-left"
                 >
                   <div className="p-2 bg-[#4F7FFF]/10 rounded-lg">
                     <FileText size={22} className="text-[#4F7FFF]" />
                   </div>
                   <div>
-                    <p className="font-syne font-semibold text-[#E8ECF4] mb-1">Manual Journal Entry</p>
+                    <p className="font-syne font-semibold text-[#193764] mb-1">Manual Journal Entry</p>
                     <p className="text-xs text-[#6B7A99]">Custom debit/credit entry</p>
                   </div>
                 </button>
@@ -405,11 +405,11 @@ export default function JournalEntriesClient({ initialEntries }: Props) {
               <div className="flex items-center gap-3 mb-5">
                 <button
                   onClick={() => setEntryMode("select")}
-                  className="text-[#6B7A99] hover:text-[#E8ECF4] transition-colors"
+                  className="text-[#6B7A99] hover:text-[#193764] transition-colors"
                 >
                   <ChevronLeft size={18} />
                 </button>
-                <h2 className="font-syne text-xl font-bold text-[#E8ECF4]">Depreciation Entry</h2>
+                <h2 className="font-syne text-xl font-bold text-[#193764]">Depreciation Entry</h2>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
@@ -449,7 +449,7 @@ export default function JournalEntriesClient({ initialEntries }: Props) {
               </div>
 
               {depMethod === "straight_line" ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5 p-4 bg-[#0A0F1E] border border-[#1E2A45] rounded-lg">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5 p-4 bg-[#f5f4f2] border border-[#dde4ef] rounded-lg">
                   <div>
                     <label className="block text-xs font-medium text-[#6B7A99] mb-1.5">Original Cost ($)</label>
                     <input
@@ -505,7 +505,7 @@ export default function JournalEntriesClient({ initialEntries }: Props) {
                     value={manualDepAmount}
                     onChange={(e) => setManualDepAmount(e.target.value)}
                     placeholder="0.00"
-                    className="bg-[#0A0F1E] border border-[#1E2A45] text-[#E8ECF4] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#4F7FFF] w-48"
+                    className="bg-[#f5f4f2] border border-[#dde4ef] text-[#193764] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#4F7FFF] w-48"
                   />
                 </div>
               )}
@@ -534,44 +534,44 @@ export default function JournalEntriesClient({ initialEntries }: Props) {
               </div>
 
               {/* Preview */}
-              <div className="mb-5 p-4 border border-[#1E2A45] rounded-lg bg-[#0A0F1E]">
+              <div className="mb-5 p-4 border border-[#dde4ef] rounded-lg bg-[#f5f4f2]">
                 <p className="text-xs font-semibold uppercase tracking-wider text-[#6B7A99] mb-3">
                   Journal Entry Preview
                 </p>
                 <div className="text-sm text-[#6B7A99] mb-2">
-                  <span>Date: </span><span className="text-[#E8ECF4]">{depDate || "—"}</span>
+                  <span>Date: </span><span className="text-[#193764]">{depDate || "—"}</span>
                   <span className="ml-4">Description: </span>
-                  <span className="text-[#E8ECF4]">{depDescription || "—"}</span>
+                  <span className="text-[#193764]">{depDescription || "—"}</span>
                 </div>
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-[#1E2A45]">
+                    <tr className="border-b border-[#dde4ef]">
                       <th className="text-left py-2 text-[#6B7A99] font-medium">Account</th>
                       <th className="text-right py-2 text-[#6B7A99] font-medium">Debit</th>
                       <th className="text-right py-2 text-[#6B7A99] font-medium">Credit</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr className="border-b border-[#1E2A45]/50">
-                      <td className="py-2 text-[#E8ECF4]">Depreciation Expense</td>
+                    <tr className="border-b border-[#dde4ef]/50">
+                      <td className="py-2 text-[#193764]">Depreciation Expense</td>
                       <td className="py-2 text-right text-[#4F7FFF]">
                         {depAmount > 0 ? formatCurrency(depAmount) : "—"}
                       </td>
                       <td className="py-2 text-right text-[#6B7A99]">—</td>
                     </tr>
-                    <tr className="border-b border-[#1E2A45]/50">
-                      <td className="py-2 text-[#E8ECF4]">Accumulated Depreciation</td>
+                    <tr className="border-b border-[#dde4ef]/50">
+                      <td className="py-2 text-[#193764]">Accumulated Depreciation</td>
                       <td className="py-2 text-right text-[#6B7A99]">—</td>
                       <td className="py-2 text-right text-[#A855F7]">
                         {depAmount > 0 ? formatCurrency(depAmount) : "—"}
                       </td>
                     </tr>
                     <tr className="font-semibold">
-                      <td className="pt-2 text-[#E8ECF4]">Total</td>
-                      <td className="pt-2 text-right text-[#E8ECF4]">
+                      <td className="pt-2 text-[#193764]">Total</td>
+                      <td className="pt-2 text-right text-[#193764]">
                         {depAmount > 0 ? formatCurrency(depAmount) : "—"}
                       </td>
-                      <td className="pt-2 text-right text-[#E8ECF4]">
+                      <td className="pt-2 text-right text-[#193764]">
                         {depAmount > 0 ? formatCurrency(depAmount) : "—"}
                       </td>
                     </tr>
@@ -598,7 +598,7 @@ export default function JournalEntriesClient({ initialEntries }: Props) {
                 </button>
                 <button
                   onClick={closeForm}
-                  className="px-5 py-2.5 border border-[#1E2A45] text-[#6B7A99] hover:text-[#E8ECF4] hover:border-[#4F7FFF]/50 text-sm rounded-lg transition-colors"
+                  className="px-5 py-2.5 border border-[#dde4ef] text-[#6B7A99] hover:text-[#193764] hover:border-[#4F7FFF]/50 text-sm rounded-lg transition-colors"
                 >
                   Cancel
                 </button>
@@ -612,11 +612,11 @@ export default function JournalEntriesClient({ initialEntries }: Props) {
               <div className="flex items-center gap-3 mb-5">
                 <button
                   onClick={() => setEntryMode("select")}
-                  className="text-[#6B7A99] hover:text-[#E8ECF4] transition-colors"
+                  className="text-[#6B7A99] hover:text-[#193764] transition-colors"
                 >
                   <ChevronLeft size={18} />
                 </button>
-                <h2 className="font-syne text-xl font-bold text-[#E8ECF4]">Manual Journal Entry</h2>
+                <h2 className="font-syne text-xl font-bold text-[#193764]">Manual Journal Entry</h2>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
@@ -659,10 +659,10 @@ export default function JournalEntriesClient({ initialEntries }: Props) {
               </div>
 
               {/* Lines table */}
-              <div className="overflow-x-auto rounded-lg border border-[#1E2A45] mb-3">
+              <div className="overflow-x-auto rounded-lg border border-[#dde4ef] mb-3">
                 <table className="w-full text-sm min-w-[700px]">
                   <thead>
-                    <tr className="bg-[#0A0F1E] border-b border-[#1E2A45]">
+                    <tr className="bg-[#e8eef6] border-b border-[#dde4ef]">
                       <th className="px-3 py-2 text-left text-xs font-medium text-[#6B7A99]">Account Name</th>
                       <th className="px-3 py-2 text-left text-xs font-medium text-[#6B7A99] w-36">Account Type</th>
                       <th className="px-3 py-2 text-right text-xs font-medium text-[#4F7FFF] w-28">Debit</th>
@@ -673,7 +673,7 @@ export default function JournalEntriesClient({ initialEntries }: Props) {
                   </thead>
                   <tbody>
                     {manLines.map((line) => (
-                      <tr key={line.id} className="border-b border-[#1E2A45] last:border-0">
+                      <tr key={line.id} className="border-b border-[#dde4ef] last:border-0">
                         <td className="px-3 py-2">
                           <input
                             type="text"
@@ -681,7 +681,7 @@ export default function JournalEntriesClient({ initialEntries }: Props) {
                             value={line.accountName}
                             onChange={(e) => updateManLine(line.id, "accountName", e.target.value)}
                             placeholder="Account name"
-                            className="bg-transparent border border-[#1E2A45] text-[#E8ECF4] rounded px-2 py-1 text-sm focus:outline-none focus:border-[#4F7FFF] w-full placeholder:text-[#6B7A99]"
+                            className="bg-transparent border border-[#dde4ef] text-[#193764] rounded px-2 py-1 text-sm focus:outline-none focus:border-[#4F7FFF] w-full placeholder:text-[#6B7A99]"
                           />
                           <datalist id="common-accounts">
                             {COMMON_ACCOUNTS.map((a) => (
@@ -693,7 +693,7 @@ export default function JournalEntriesClient({ initialEntries }: Props) {
                           <select
                             value={line.accountType}
                             onChange={(e) => updateManLine(line.id, "accountType", e.target.value)}
-                            className="bg-[#0A0F1E] border border-[#1E2A45] text-[#E8ECF4] rounded px-2 py-1 text-xs focus:outline-none focus:border-[#4F7FFF] w-full"
+                            className="bg-[#f5f4f2] border border-[#dde4ef] text-[#193764] rounded px-2 py-1 text-xs focus:outline-none focus:border-[#4F7FFF] w-full"
                           >
                             <option>Income</option>
                             <option>Expense</option>
@@ -710,7 +710,7 @@ export default function JournalEntriesClient({ initialEntries }: Props) {
                             value={line.debit}
                             onChange={(e) => updateManLine(line.id, "debit", e.target.value)}
                             placeholder="0.00"
-                            className="bg-transparent border border-[#1E2A45] text-[#4F7FFF] rounded px-2 py-1 text-sm text-right focus:outline-none focus:border-[#4F7FFF] w-full placeholder:text-[#6B7A99]"
+                            className="bg-transparent border border-[#dde4ef] text-[#4F7FFF] rounded px-2 py-1 text-sm text-right focus:outline-none focus:border-[#4F7FFF] w-full placeholder:text-[#6B7A99]"
                           />
                         </td>
                         <td className="px-3 py-2">
@@ -721,7 +721,7 @@ export default function JournalEntriesClient({ initialEntries }: Props) {
                             value={line.credit}
                             onChange={(e) => updateManLine(line.id, "credit", e.target.value)}
                             placeholder="0.00"
-                            className="bg-transparent border border-[#1E2A45] text-[#A855F7] rounded px-2 py-1 text-sm text-right focus:outline-none focus:border-[#4F7FFF] w-full placeholder:text-[#6B7A99]"
+                            className="bg-transparent border border-[#dde4ef] text-[#A855F7] rounded px-2 py-1 text-sm text-right focus:outline-none focus:border-[#4F7FFF] w-full placeholder:text-[#6B7A99]"
                           />
                         </td>
                         <td className="px-3 py-2">
@@ -730,7 +730,7 @@ export default function JournalEntriesClient({ initialEntries }: Props) {
                             value={line.lineNotes}
                             onChange={(e) => updateManLine(line.id, "lineNotes", e.target.value)}
                             placeholder="Optional"
-                            className="bg-transparent border border-[#1E2A45] text-[#6B7A99] rounded px-2 py-1 text-sm focus:outline-none focus:border-[#4F7FFF] w-full placeholder:text-[#6B7A99]/50"
+                            className="bg-transparent border border-[#dde4ef] text-[#6B7A99] rounded px-2 py-1 text-sm focus:outline-none focus:border-[#4F7FFF] w-full placeholder:text-[#6B7A99]/50"
                           />
                         </td>
                         <td className="px-3 py-2 text-center">
@@ -762,7 +762,7 @@ export default function JournalEntriesClient({ initialEntries }: Props) {
                 className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm mb-5 ${
                   isBalanced
                     ? "bg-[#22C55E]/10 border border-[#22C55E]/20 text-[#22C55E]"
-                    : "bg-[#1E2A45] border border-[#1E2A45] text-[#6B7A99]"
+                    : "bg-[#e8eef6] border border-[#dde4ef] text-[#6B7A99]"
                 }`}
               >
                 <span>
@@ -797,7 +797,7 @@ export default function JournalEntriesClient({ initialEntries }: Props) {
                 </button>
                 <button
                   onClick={closeForm}
-                  className="px-5 py-2.5 border border-[#1E2A45] text-[#6B7A99] hover:text-[#E8ECF4] hover:border-[#4F7FFF]/50 text-sm rounded-lg transition-colors"
+                  className="px-5 py-2.5 border border-[#dde4ef] text-[#6B7A99] hover:text-[#193764] hover:border-[#4F7FFF]/50 text-sm rounded-lg transition-colors"
                 >
                   Cancel
                 </button>
@@ -808,11 +808,11 @@ export default function JournalEntriesClient({ initialEntries }: Props) {
       )}
 
       {/* ── Entries List ─────────────────────────────────────────────────── */}
-      <div className="bg-[#111827] border border-[#1E2A45] rounded-xl overflow-hidden">
+      <div className="bg-white border border-[#dde4ef] rounded-xl overflow-hidden">
         {entries.length === 0 ? (
           <div className="py-16 text-center">
             <TrendingDown size={36} className="text-[#1E2A45] mx-auto mb-3" />
-            <p className="text-[#E8ECF4] text-base mb-1">No journal entries yet</p>
+            <p className="text-[#193764] text-base mb-1">No journal entries yet</p>
             <p className="text-sm text-[#6B7A99]">
               Record your first depreciation entry to track asset values on your balance sheet
             </p>
@@ -821,7 +821,7 @@ export default function JournalEntriesClient({ initialEntries }: Props) {
           <div className="overflow-x-auto">
             <table className="w-full text-sm min-w-[800px]">
               <thead>
-                <tr className="border-b border-[#1E2A45] bg-[#0A0F1E]">
+                <tr className="border-b border-[#dde4ef] bg-[#e8eef6]">
                   <th className="px-4 py-3 text-left text-xs font-medium text-[#6B7A99] w-32">Date</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-[#6B7A99]">Description</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-[#6B7A99] w-32">Type</th>
@@ -834,13 +834,13 @@ export default function JournalEntriesClient({ initialEntries }: Props) {
                 {entries.map((entry) => (
                   <tr
                     key={entry.id}
-                    className="border-b border-[#1E2A45] last:border-0 hover:bg-[#1E2A45]/20 transition-colors"
+                    className="border-b border-[#dde4ef] last:border-0 hover:bg-[#f0f4fa] transition-colors"
                   >
-                    <td className="px-4 py-3 text-[#E8ECF4] whitespace-nowrap">
+                    <td className="px-4 py-3 text-[#193764] whitespace-nowrap">
                       {formatDate(entry.date)}
                     </td>
                     <td className="px-4 py-3">
-                      <p className="text-[#E8ECF4] mb-0.5">{entry.description}</p>
+                      <p className="text-[#193764] mb-0.5">{entry.description}</p>
                       {entry.notes && (
                         <p className="text-xs text-[#6B7A99]">{entry.notes}</p>
                       )}
@@ -870,7 +870,7 @@ export default function JournalEntriesClient({ initialEntries }: Props) {
                           </button>
                           <button
                             onClick={() => setDeletingId(null)}
-                            className="text-xs px-2 py-1 text-[#6B7A99] hover:text-[#E8ECF4] transition-colors"
+                            className="text-xs px-2 py-1 text-[#6B7A99] hover:text-[#193764] transition-colors"
                           >
                             Cancel
                           </button>

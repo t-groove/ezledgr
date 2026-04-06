@@ -489,7 +489,7 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
   // ── Shared input style ─────────────────────────────────────────────────────
 
   const inputCls =
-    "w-full bg-[#0A0F1E] border border-[#1E2A45] text-[#E8ECF4] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#4F7FFF] placeholder:text-[#6B7A99]";
+    "w-full bg-[#f5f4f2] border border-[#dde4ef] text-[#193764] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#4F7FFF] placeholder:text-[#6B7A99]";
 
   const unconnectedAccounts = accounts.filter((a) => !a.is_plaid_connected);
 
@@ -500,7 +500,7 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="font-syne text-3xl font-bold text-[#E8ECF4]">Bank Accounts</h1>
+          <h1 className="font-syne text-3xl font-bold text-[#193764]">Bank Accounts</h1>
           <p className="text-sm text-[#6B7A99] mt-1">
             Organize your transactions by bank account
           </p>
@@ -516,32 +516,32 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
 
       {/* Add Account choice modal */}
       {showAddModal && (
-        <div className="bg-[#111827] border border-[#1E2A45] rounded-xl p-6 mb-6">
-          <h3 className="font-syne font-bold text-lg text-[#E8ECF4] mb-2">Add Bank Account</h3>
+        <div className="bg-white border border-[#dde4ef] rounded-xl p-6 mb-6">
+          <h3 className="font-syne font-bold text-lg text-[#193764] mb-2">Add Bank Account</h3>
           <p className="text-sm text-[#6B7A99] mb-6">
             Connect your bank automatically or add manually.
           </p>
 
           <div className="grid grid-cols-2 gap-4">
             {/* Connect via Plaid */}
-            <div className="bg-[#0A0F1E] border border-[#1E2A45] hover:border-[#4F7FFF]/50 rounded-xl p-5 transition-colors">
+            <div className="bg-[#f5f4f2] border border-[#dde4ef] hover:border-[#4F7FFF]/50 rounded-xl p-5 transition-colors">
               <div className="w-10 h-10 rounded-lg bg-[#4F7FFF]/10 flex items-center justify-center mb-3">
                 <Link2 size={20} className="text-[#4F7FFF]" />
               </div>
-              <h4 className="font-syne font-semibold text-[#E8ECF4] mb-1">Connect Bank</h4>
+              <h4 className="font-syne font-semibold text-[#193764] mb-1">Connect Bank</h4>
               <p className="text-xs text-[#6B7A99] mb-4">
                 Sync transactions automatically via Plaid. Supports 12,000+ US banks.
               </p>
 
               {/* Historical sync date picker + beginning balance */}
-              <div className="flex flex-col gap-4 p-4 bg-[#0D1829] rounded-lg border border-[#1E2A45] mb-4">
-                <p className="text-sm font-medium text-[#E8ECF4]">Set up your account history</p>
+              <div className="flex flex-col gap-4 p-4 bg-[#f5f4f2] rounded-lg border border-[#dde4ef] mb-4">
+                <p className="text-sm font-medium text-[#193764]">Set up your account history</p>
                 <div>
                   <label className="flex items-center gap-1.5 text-xs text-[#6B7A99] mb-1.5">
                     Pull transactions from
                     <span
                       title="Choose how far back to import transactions on first connect"
-                      className="cursor-help text-[#6B7A99] hover:text-[#E8ECF4] transition-colors"
+                      className="cursor-help text-[#6B7A99] hover:text-[#193764] transition-colors"
                     >
                       <Info size={12} />
                     </span>
@@ -587,11 +587,11 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
             </div>
 
             {/* Add manually */}
-            <div className="bg-[#0A0F1E] border border-[#1E2A45] hover:border-[#4F7FFF]/50 rounded-xl p-5 transition-colors">
+            <div className="bg-[#f5f4f2] border border-[#dde4ef] hover:border-[#4F7FFF]/50 rounded-xl p-5 transition-colors">
               <div className="w-10 h-10 rounded-lg bg-[#6B7A99]/10 flex items-center justify-center mb-3">
                 <PencilLine size={20} className="text-[#6B7A99]" />
               </div>
-              <h4 className="font-syne font-semibold text-[#E8ECF4] mb-1">Add Manually</h4>
+              <h4 className="font-syne font-semibold text-[#193764] mb-1">Add Manually</h4>
               <p className="text-xs text-[#6B7A99] mb-4">
                 Add account details manually and import transactions via CSV.
               </p>
@@ -603,7 +603,7 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
                   setFormError(null);
                   setEditingAccount({ id: "" } as AccountSummary);
                 }}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 border border-[#1E2A45] hover:border-[#4F7FFF]/50 text-[#E8ECF4] font-medium rounded-lg text-sm transition-colors"
+                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 border border-[#dde4ef] hover:border-[#4F7FFF]/50 text-[#193764] font-medium rounded-lg text-sm transition-colors"
               >
                 Add manually
               </button>
@@ -612,7 +612,7 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
 
           <button
             onClick={() => setShowAddModal(false)}
-            className="mt-4 text-sm text-[#6B7A99] hover:text-[#E8ECF4] transition-colors"
+            className="mt-4 text-sm text-[#6B7A99] hover:text-[#193764] transition-colors"
           >
             Cancel
           </button>
@@ -622,12 +622,12 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
       {/* ── Edit Account Modal ────────────────────────────────────────────── */}
       {editingAccount && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-[#111827] border border-[#1E2A45] rounded-2xl w-full max-w-lg max-h-[90vh] flex flex-col shadow-2xl overflow-y-auto">
-            <div className="flex items-center justify-between px-6 py-5 border-b border-[#1E2A45]">
-              <h2 className="font-syne text-lg font-semibold text-[#E8ECF4]">Edit Account</h2>
+          <div className="bg-white border border-[#dde4ef] rounded-2xl w-full max-w-lg max-h-[90vh] flex flex-col shadow-2xl overflow-y-auto">
+            <div className="flex items-center justify-between px-6 py-5 border-b border-[#dde4ef]">
+              <h2 className="font-syne text-lg font-semibold text-[#193764]">Edit Account</h2>
               <button
                 onClick={closeForm}
-                className="p-1 text-[#6B7A99] hover:text-[#E8ECF4] transition-colors"
+                className="p-1 text-[#6B7A99] hover:text-[#193764] transition-colors"
               >
                 <X size={18} />
               </button>
@@ -697,8 +697,8 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
 
               {/* Opening Balance — only shown when creating a new account */}
               {!editingId && (
-                <div className="p-3 bg-[#0D1829] rounded-lg border border-[#1E2A45]">
-                  <p className="text-xs font-medium text-[#E8ECF4] mb-1">Beginning Balance</p>
+                <div className="p-3 bg-[#f5f4f2] rounded-lg border border-[#dde4ef]">
+                  <p className="text-xs font-medium text-[#193764] mb-1">Beginning Balance</p>
                   <p className="text-xs text-[#6B7A99] mb-3">
                     The balance of this account on the date you start tracking in EZ Ledgr.
                   </p>
@@ -744,7 +744,7 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
                 <button
                   onClick={closeForm}
                   disabled={isSaving}
-                  className="px-5 py-2 border border-[#1E2A45] text-[#6B7A99] hover:text-[#E8ECF4] hover:border-[#4F7FFF]/50 text-sm rounded-lg transition-colors"
+                  className="px-5 py-2 border border-[#dde4ef] text-[#6B7A99] hover:text-[#193764] hover:border-[#4F7FFF]/50 text-sm rounded-lg transition-colors"
                 >
                   Cancel
                 </button>
@@ -752,7 +752,7 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
 
               {/* Plaid disconnect */}
               {editingAccount.is_plaid_connected && (
-                <div className="border-t border-[#1E2A45] pt-4 mt-2">
+                <div className="border-t border-[#dde4ef] pt-4 mt-2">
                   <p className="text-sm font-medium text-white mb-1">Plaid Connection</p>
                   <p className="text-xs text-[#6B7A99] mb-3">
                     Disconnecting will stop automatic syncing. Your existing transactions will not
@@ -769,7 +769,7 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
               )}
 
               {/* Danger zone */}
-              <div className="border-t border-[#1E2A45] pt-4 mt-2">
+              <div className="border-t border-[#dde4ef] pt-4 mt-2">
                 <p className="text-sm font-medium text-red-400 mb-1">Danger Zone</p>
                 <p className="text-xs text-[#6B7A99] mb-3">
                   Deleting this account will remove it from EZ Ledgr. Transactions associated with
@@ -790,10 +790,10 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
       {/* Empty state */}
       {accounts.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-24 text-center">
-          <div className="w-16 h-16 rounded-full bg-[#1E2A45] flex items-center justify-center mb-4">
+          <div className="w-16 h-16 rounded-full bg-[#e8eef6] flex items-center justify-center mb-4">
             <Building2 size={28} className="text-[#6B7A99]" />
           </div>
-          <p className="font-syne font-semibold text-[#E8ECF4] text-lg mb-1">
+          <p className="font-syne font-semibold text-[#193764] text-lg mb-1">
             No bank accounts yet
           </p>
           <p className="text-sm text-[#6B7A99] mb-6">
@@ -814,7 +814,7 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
             <Link
               key={acc.id}
               href={`/dashboard/bookkeeping?account=${acc.id}`}
-              className="block bg-[#111827] border border-[#1E2A45] rounded-xl p-5 hover:border-[#4F7FFF]/50 transition-colors group"
+              className="block bg-white border border-[#dde4ef] rounded-xl p-5 hover:border-[#4F7FFF]/50 transition-colors group"
               onClick={(e) => {
                 if ((e.target as HTMLElement).closest("[data-action]")) {
                   e.preventDefault();
@@ -841,7 +841,7 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
                     </div>
                   )}
                   <div className="min-w-0">
-                    <p className="font-medium text-[#E8ECF4] text-sm truncate leading-tight">
+                    <p className="font-medium text-[#193764] text-sm truncate leading-tight">
                       {acc.plaid_official_name ?? acc.name}
                     </p>
                     {acc.last_four && (
@@ -860,7 +860,7 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
               </div>
 
               {/* ── Balance section ── */}
-              <div className="flex items-stretch bg-[#0A0F1E] rounded-lg overflow-hidden mb-4">
+              <div className="flex items-stretch bg-[#f5f4f2] rounded-lg overflow-hidden mb-4">
                 {/* Bank Balance (Plaid) */}
                 <div className="flex-1 p-3">
                   <p className="text-[11px] text-[#6B7A99] mb-1 font-medium uppercase tracking-wide">
@@ -880,7 +880,7 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
                   </p>
                 </div>
                 {/* Divider */}
-                <div className="w-px bg-[#1E2A45]" />
+                <div className="w-px bg-[#e8eef6]" />
                 {/* EZ Ledgr Balance */}
                 <div className="flex-1 p-3">
                   <p className="text-[11px] text-[#6B7A99] mb-1 font-medium uppercase tracking-wide">
@@ -892,7 +892,7 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
                         ? "amount-positive"
                         : acc.net < 0
                         ? "amount-negative"
-                        : "text-[#E8ECF4]"
+                        : "text-[#193764]"
                     }`}
                   >
                     {formatCurrency(acc.net)}
@@ -905,7 +905,7 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
               </div>
 
               {/* ── Card footer ── */}
-              <div className="flex items-center justify-between pt-3 border-t border-[#1E2A45]">
+              <div className="flex items-center justify-between pt-3 border-t border-[#dde4ef]">
                 <span
                   className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
                     TYPE_COLORS[acc.account_type] ?? TYPE_COLORS.other
@@ -916,7 +916,7 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
                 <button
                   data-action
                   onClick={() => openEdit(acc)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-[#6B7A99] hover:text-[#E8ECF4] hover:bg-[#1E2A45] rounded-lg transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-[#6B7A99] hover:text-[#193764] hover:bg-[#f0f4fa] rounded-lg transition-colors"
                   title="Edit account"
                 >
                   <Pencil size={12} />
@@ -926,10 +926,10 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
 
               {/* Connect to bank (unconnected only) */}
               {!acc.is_plaid_connected && (
-                <div data-action className="mt-3 pt-3 border-t border-[#1E2A45]">
+                <div data-action className="mt-3 pt-3 border-t border-[#dde4ef]">
                   {showConnectPopover === acc.id ? (
-                    <div className="flex flex-col gap-3 p-3 bg-[#0D1829] rounded-lg border border-[#1E2A45]">
-                      <p className="text-xs font-medium text-[#E8ECF4]">Set up your account history</p>
+                    <div className="flex flex-col gap-3 p-3 bg-[#f5f4f2] rounded-lg border border-[#dde4ef]">
+                      <p className="text-xs font-medium text-[#193764]">Set up your account history</p>
                       <div>
                         <label className="text-xs text-[#6B7A99] mb-1 block">Pull transactions from</label>
                         <input
@@ -965,7 +965,7 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
                         />
                         <button
                           onClick={() => setShowConnectPopover(null)}
-                          className="px-3 py-2 text-xs text-[#6B7A99] hover:text-[#E8ECF4] border border-[#1E2A45] rounded-lg transition-colors"
+                          className="px-3 py-2 text-xs text-[#6B7A99] hover:text-[#193764] border border-[#dde4ef] rounded-lg transition-colors"
                         >
                           Cancel
                         </button>
@@ -994,18 +994,18 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
       {/* ── Account Mapping Modal ─────────────────────────────────────────── */}
       {plaidConnectionData && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-[#111827] border border-[#1E2A45] rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl">
+          <div className="bg-white border border-[#dde4ef] rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl">
             {/* Modal header */}
-            <div className="flex items-center justify-between px-6 py-5 border-b border-[#1E2A45]">
+            <div className="flex items-center justify-between px-6 py-5 border-b border-[#dde4ef]">
               <div>
-                <h2 className="font-syne font-bold text-xl text-[#E8ECF4]">Map Your Accounts</h2>
+                <h2 className="font-syne font-bold text-xl text-[#193764]">Map Your Accounts</h2>
                 <p className="text-sm text-[#6B7A99] mt-0.5">
                   {plaidConnectionData.institutionName} · Choose what to do with each account
                 </p>
               </div>
               <button
                 onClick={closeMappingModal}
-                className="p-1.5 text-[#6B7A99] hover:text-[#E8ECF4] transition-colors"
+                className="p-1.5 text-[#6B7A99] hover:text-[#193764] transition-colors"
               >
                 <X size={18} />
               </button>
@@ -1014,10 +1014,10 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
             {/* Modal body */}
             <div className="overflow-y-auto flex-1 px-6 py-5 space-y-5">
               {/* Read-only summary of what was configured before connecting */}
-              <div className="bg-[#0D1829] rounded-lg p-3 border border-[#1E2A45]">
+              <div className="bg-[#f5f4f2] rounded-lg p-3 border border-[#dde4ef]">
                 <div className="flex justify-between text-sm">
                   <span className="text-[#6B7A99]">Transactions from:</span>
-                  <span className="text-[#E8ECF4] font-medium">
+                  <span className="text-[#193764] font-medium">
                     {syncStartDate
                       ? new Date(syncStartDate + "T00:00:00").toLocaleDateString("en-US", {
                           month: "short",
@@ -1029,7 +1029,7 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
                 </div>
                 <div className="flex justify-between text-sm mt-1">
                   <span className="text-[#6B7A99]">Beginning balance:</span>
-                  <span className="font-accounting text-[#E8ECF4] font-medium">
+                  <span className="font-accounting text-[#193764] font-medium">
                     {formatCurrency(openingBalance)}
                   </span>
                 </div>
@@ -1047,13 +1047,13 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
                 return (
                   <div
                     key={plaidAcc.plaid_account_id}
-                    className="bg-[#0A0F1E] border border-[#1E2A45] rounded-xl p-4"
+                    className="bg-[#f5f4f2] border border-[#dde4ef] rounded-xl p-4"
                   >
                     {/* Plaid account info */}
                     <div className="flex items-start justify-between mb-3">
                       <div>
                         <div className="flex items-center gap-2">
-                          <p className="font-medium text-[#E8ECF4] text-sm">{plaidAcc.name}</p>
+                          <p className="font-medium text-[#193764] text-sm">{plaidAcc.name}</p>
                           <span
                             className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
                               TYPE_COLORS[mapSubtype(plaidAcc.subtype)] ?? TYPE_COLORS.other
@@ -1232,16 +1232,16 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
             </div>
 
             {/* Modal footer */}
-            <div className="px-6 py-4 border-t border-[#1E2A45] flex items-center justify-between gap-3">
+            <div className="px-6 py-4 border-t border-[#dde4ef] flex items-center justify-between gap-3">
               <p className="text-xs text-[#6B7A99]">
                 Transactions will be pulled from{" "}
-                <span className="text-[#E8ECF4]">{syncStartDate}</span>
+                <span className="text-[#193764]">{syncStartDate}</span>
               </p>
               <div className="flex gap-3">
                 <button
                   onClick={closeMappingModal}
                   disabled={isSavingMappings}
-                  className="px-4 py-2 border border-[#1E2A45] text-[#6B7A99] hover:text-[#E8ECF4] hover:border-[#4F7FFF]/50 text-sm rounded-lg transition-colors"
+                  className="px-4 py-2 border border-[#dde4ef] text-[#6B7A99] hover:text-[#193764] hover:border-[#4F7FFF]/50 text-sm rounded-lg transition-colors"
                 >
                   Cancel
                 </button>
