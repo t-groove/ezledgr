@@ -54,7 +54,7 @@ function formatAxisY(v: number) {
 
 const EXPENSE_COLORS = [
   "#EF4444","#F59E0B","#8B5CF6","#EC4899",
-  "#6B7A99","#14B8A6","#F97316","#84CC16",
+  "#6B7280","#14B8A6","#F97316","#84CC16",
 ];
 
 const INCOME_COLORS = [
@@ -113,12 +113,12 @@ function SummaryCard({
   positive: boolean | null;
 }) {
   const color =
-    positive === null ? "#6B7A99" : positive ? "#22C55E" : "#EF4444";
+    positive === null ? "#6B7280" : positive ? "#22C55E" : "#EF4444";
   const Icon =
     positive === false ? TrendingDown : TrendingUp;
   return (
     <div className="bg-white border border-[#dde4ef] rounded-xl p-5">
-      <p className="text-sm text-[#6B7A99] mb-3">{label}</p>
+      <p className="text-sm text-[#6B7280] mb-3">{label}</p>
       <div className="flex items-end justify-between gap-2">
         <p className="text-2xl font-bold leading-none" style={{ color }}>
           {value}
@@ -146,7 +146,7 @@ function CategoryBreakdown({
         {title}
       </h2>
       {data.length === 0 ? (
-        <p className="text-[#6B7A99] text-sm text-center py-12">No data</p>
+        <p className="text-[#6B7280] text-sm text-center py-12">No data</p>
       ) : (
         <>
           {/* Donut chart */}
@@ -176,7 +176,7 @@ function CategoryBreakdown({
                     return (
                       <div className="bg-white border border-[#dde4ef] rounded-lg p-2 text-xs shadow-xl">
                         <p className="text-[#193764] font-medium">{d.category}</p>
-                        <p className="text-[#6B7A99]">
+                        <p className="text-[#6B7280]">
                           {formatCurrency(d.amount)} ({d.percentage.toFixed(1)}%)
                         </p>
                       </div>
@@ -191,13 +191,13 @@ function CategoryBreakdown({
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-[#dde4ef]">
-                <th className="text-left py-2 text-[#6B7A99] font-medium">
+                <th className="text-left py-2 text-[#6B7280] font-medium">
                   Category
                 </th>
-                <th className="text-right py-2 text-[#6B7A99] font-medium">
+                <th className="text-right py-2 text-[#6B7280] font-medium">
                   Amount
                 </th>
-                <th className="text-right py-2 text-[#6B7A99] font-medium">
+                <th className="text-right py-2 text-[#6B7280] font-medium">
                   %
                 </th>
               </tr>
@@ -217,7 +217,7 @@ function CategoryBreakdown({
                   <td className="py-2 text-right text-[#193764]">
                     {formatCurrency(row.amount)}
                   </td>
-                  <td className="py-2 text-right text-[#6B7A99]">
+                  <td className="py-2 text-right text-[#6B7280]">
                     {row.percentage.toFixed(1)}%
                   </td>
                 </tr>
@@ -305,7 +305,7 @@ export default function ReportsClient({ initialData, initialYear, initialAccount
           <h1 className="font-syne text-3xl font-bold text-[#193764]">
             Reports
           </h1>
-          <p className="text-sm text-[#6B7A99] mt-1">
+          <p className="text-sm text-[#6B7280] mt-1">
             {activeTab === "overview" && "Profit & Loss Overview"}
             {activeTab === "statement" && "Profit & Loss Statement"}
             {activeTab === "balance" && "Balance Sheet"}
@@ -346,7 +346,7 @@ export default function ReportsClient({ initialData, initialYear, initialAccount
             <>
               <button
                 onClick={handleExportPDF}
-                className="flex items-center gap-2 px-3 py-2 text-sm text-[#6B7A99] border border-[#dde4ef] rounded-lg hover:text-[#193764] hover:border-[#4F7FFF] transition-colors"
+                className="flex items-center gap-2 px-3 py-2 text-sm text-[#6B7280] border border-[#dde4ef] rounded-lg hover:text-[#193764] hover:border-[#4F7FFF] transition-colors"
               >
                 <FileDown className="h-4 w-4" />
                 Export PDF
@@ -354,7 +354,7 @@ export default function ReportsClient({ initialData, initialYear, initialAccount
 
               <button
                 onClick={() => window.print()}
-                className="flex items-center gap-2 px-3 py-2 text-sm text-[#6B7A99] border border-[#dde4ef] rounded-lg hover:text-[#193764] hover:border-[#4F7FFF] transition-colors"
+                className="flex items-center gap-2 px-3 py-2 text-sm text-[#6B7280] border border-[#dde4ef] rounded-lg hover:text-[#193764] hover:border-[#4F7FFF] transition-colors"
               >
                 <Printer className="h-4 w-4" />
                 Print
@@ -371,7 +371,7 @@ export default function ReportsClient({ initialData, initialYear, initialAccount
           className={`px-5 py-2 rounded-lg text-sm transition-colors ${
             activeTab === "overview"
               ? "bg-white border border-[#dde4ef] text-[#193764] font-medium"
-              : "text-[#6B7A99] hover:text-[#193764]"
+              : "text-[#6B7280] hover:text-[#193764]"
           }`}
         >
           Overview
@@ -381,7 +381,7 @@ export default function ReportsClient({ initialData, initialYear, initialAccount
           className={`px-5 py-2 rounded-lg text-sm transition-colors ${
             activeTab === "statement"
               ? "bg-white border border-[#dde4ef] text-[#193764] font-medium"
-              : "text-[#6B7A99] hover:text-[#193764]"
+              : "text-[#6B7280] hover:text-[#193764]"
           }`}
         >
           P&amp;L Statement
@@ -391,7 +391,7 @@ export default function ReportsClient({ initialData, initialYear, initialAccount
           className={`px-5 py-2 rounded-lg text-sm transition-colors ${
             activeTab === "balance"
               ? "bg-white border border-[#dde4ef] text-[#193764] font-medium"
-              : "text-[#6B7A99] hover:text-[#193764]"
+              : "text-[#6B7280] hover:text-[#193764]"
           }`}
         >
           Balance Sheet
@@ -425,7 +425,7 @@ export default function ReportsClient({ initialData, initialYear, initialAccount
           <p className="text-[#193764] text-lg mb-2">
             No transactions found for {year}.
           </p>
-          <p className="text-[#6B7A99] text-sm mb-6">
+          <p className="text-[#6B7280] text-sm mb-6">
             Import your bank transactions to see your P&L report.
           </p>
           <Link
@@ -478,19 +478,19 @@ export default function ReportsClient({ initialData, initialYear, initialAccount
                 <CartesianGrid strokeDasharray="3 3" stroke="#dde4ef" />
                 <XAxis
                   dataKey="month"
-                  tick={{ fill: "#6B7A99", fontSize: 12 }}
+                  tick={{ fill: "#6B7280", fontSize: 12 }}
                   axisLine={{ stroke: "#dde4ef" }}
                   tickLine={false}
                 />
                 <YAxis
                   tickFormatter={formatAxisY}
-                  tick={{ fill: "#6B7A99", fontSize: 12 }}
+                  tick={{ fill: "#6B7280", fontSize: 12 }}
                   axisLine={false}
                   tickLine={false}
                 />
                 <Tooltip content={<MonthlyTooltip />} />
                 <Legend
-                  wrapperStyle={{ color: "#6B7A99", paddingTop: "16px", fontSize: "13px" }}
+                  wrapperStyle={{ color: "#6B7280", paddingTop: "16px", fontSize: "13px" }}
                 />
                 <Bar
                   dataKey="income"
@@ -536,18 +536,18 @@ export default function ReportsClient({ initialData, initialYear, initialAccount
                 <CartesianGrid strokeDasharray="3 3" stroke="#dde4ef" />
                 <XAxis
                   dataKey="month"
-                  tick={{ fill: "#6B7A99", fontSize: 12 }}
+                  tick={{ fill: "#6B7280", fontSize: 12 }}
                   axisLine={{ stroke: "#dde4ef" }}
                   tickLine={false}
                 />
                 <YAxis
                   tickFormatter={formatAxisY}
-                  tick={{ fill: "#6B7A99", fontSize: 12 }}
+                  tick={{ fill: "#6B7280", fontSize: 12 }}
                   axisLine={false}
                   tickLine={false}
                 />
                 <Tooltip content={<ProfitTooltip />} />
-                <ReferenceLine y={0} stroke="#6B7A99" strokeDasharray="4 4" />
+                <ReferenceLine y={0} stroke="#6B7280" strokeDasharray="4 4" />
                 <Area
                   type="monotone"
                   dataKey="profit"
@@ -585,19 +585,19 @@ export default function ReportsClient({ initialData, initialYear, initialAccount
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-[#dde4ef]">
-                    <th className="text-left py-3 px-4 text-[#6B7A99] font-medium">
+                    <th className="text-left py-3 px-4 text-[#6B7280] font-medium">
                       Month
                     </th>
-                    <th className="text-right py-3 px-4 text-[#6B7A99] font-medium">
+                    <th className="text-right py-3 px-4 text-[#6B7280] font-medium">
                       Income
                     </th>
-                    <th className="text-right py-3 px-4 text-[#6B7A99] font-medium">
+                    <th className="text-right py-3 px-4 text-[#6B7280] font-medium">
                       Expenses
                     </th>
-                    <th className="text-right py-3 px-4 text-[#6B7A99] font-medium">
+                    <th className="text-right py-3 px-4 text-[#6B7280] font-medium">
                       Net Profit
                     </th>
-                    <th className="text-right py-3 px-4 text-[#6B7A99] font-medium">
+                    <th className="text-right py-3 px-4 text-[#6B7280] font-medium">
                       Margin %
                     </th>
                   </tr>

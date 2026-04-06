@@ -113,7 +113,7 @@ function MiniAccountForm({ onSave, onCancel }: MiniAccountFormProps) {
   const [isSaving, startSaving] = useTransition();
 
   const inputCls =
-    "w-full bg-[#f5f4f2] border border-[#dde4ef] text-[#193764] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#4F7FFF] placeholder:text-[#6B7A99]";
+    "w-full bg-[#f5f4f2] border border-[#dde4ef] text-[#193764] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#4F7FFF] placeholder:text-[#6B7280]";
 
   const handleSave = () => {
     if (!form.name.trim()) { setError("Nickname is required."); return; }
@@ -133,7 +133,7 @@ function MiniAccountForm({ onSave, onCancel }: MiniAccountFormProps) {
 
   return (
     <div className="mt-3 p-4 bg-[#f5f4f2] border border-[#dde4ef] rounded-lg">
-      <p className="text-xs font-medium text-[#6B7A99] mb-3">New account details</p>
+      <p className="text-xs font-medium text-[#6B7280] mb-3">New account details</p>
       <div className="grid grid-cols-2 gap-3 mb-3">
         <input
           type="text"
@@ -180,7 +180,7 @@ function MiniAccountForm({ onSave, onCancel }: MiniAccountFormProps) {
         </button>
         <button
           onClick={onCancel}
-          className="px-3 py-1.5 border border-[#dde4ef] text-[#6B7A99] hover:text-[#193764] text-xs rounded-lg transition-colors"
+          className="px-3 py-1.5 border border-[#dde4ef] text-[#6B7280] hover:text-[#193764] text-xs rounded-lg transition-colors"
         >
           Cancel
         </button>
@@ -309,7 +309,7 @@ function UploadPanel({ bankAccounts, onImportSuccess, onAccountCreated }: Upload
   };
 
   const inputCls =
-    "bg-[#f5f4f2] border border-[#dde4ef] text-[#193764] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#4F7FFF] placeholder:text-[#6B7A99]";
+    "bg-[#f5f4f2] border border-[#dde4ef] text-[#193764] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#4F7FFF] placeholder:text-[#6B7280]";
 
   return (
     <div className="bg-white border border-[#dde4ef] rounded-xl p-6 mb-6 relative">
@@ -320,7 +320,7 @@ function UploadPanel({ bankAccounts, onImportSuccess, onAccountCreated }: Upload
             <h2 className="font-syne text-xl font-bold text-[#193764] mb-1">
               Import Bank Transactions
             </h2>
-            <p className="text-sm text-[#6B7A99]">
+            <p className="text-sm text-[#6B7280]">
               Upload a CSV export from your bank. Works with Chase, Bank of America,
               Wells Fargo, and most US banks.
             </p>
@@ -347,10 +347,10 @@ function UploadPanel({ bankAccounts, onImportSuccess, onAccountCreated }: Upload
             >
               <CloudUpload
                 size={24}
-                className={`mb-2 ${isDragging ? "text-[#4F7FFF]" : "text-[#6B7A99]"}`}
+                className={`mb-2 ${isDragging ? "text-[#4F7FFF]" : "text-[#6B7280]"}`}
               />
               <p className="text-[#193764] font-medium text-sm mb-0.5">Drag CSV here</p>
-              <p className="text-xs text-[#6B7A99]">or click to browse</p>
+              <p className="text-xs text-[#6B7280]">or click to browse</p>
               <input
                 ref={fileInputRef}
                 type="file"
@@ -370,7 +370,7 @@ function UploadPanel({ bankAccounts, onImportSuccess, onAccountCreated }: Upload
           <h2 className="font-syne text-xl font-bold text-[#193764] mb-1">
             Import Bank Transactions
           </h2>
-          <p className="text-sm text-[#6B7A99] mb-3">
+          <p className="text-sm text-[#6B7280] mb-3">
             Found{" "}
             <span className="text-[#193764] font-semibold">{preview.length}</span>{" "}
             transactions — showing first 5
@@ -382,7 +382,7 @@ function UploadPanel({ bankAccounts, onImportSuccess, onAccountCreated }: Upload
                   {["Date", "Payee", "Description", "Category", "Type", "Amount"].map((h) => (
                     <th
                       key={h}
-                      className="text-left px-4 py-3 text-[#6B7A99] font-medium"
+                      className="text-left px-4 py-3 text-[#6B7280] font-medium"
                     >
                       {h}
                     </th>
@@ -402,7 +402,7 @@ function UploadPanel({ bankAccounts, onImportSuccess, onAccountCreated }: Upload
                       {(!t.payee_name || t.payee_name === "Unknown") ? (
                         <span className="flex items-center gap-1">
                           <AlertCircle size={13} className="text-amber-400 flex-shrink-0" />
-                          <span className="text-sm text-[#6B7A99] italic">Unknown</span>
+                          <span className="text-sm text-[#6B7280] italic">Unknown</span>
                         </span>
                       ) : (
                         <span className="text-sm text-[#193764] truncate" title={t.payee_name}>{t.payee_name}</span>
@@ -416,9 +416,9 @@ function UploadPanel({ bankAccounts, onImportSuccess, onAccountCreated }: Upload
                     </td>
                     <td className="px-4 py-3">
                       {t.category ? (
-                        <span className="text-sm text-[#6B7A99]">{t.category}</span>
+                        <span className="text-sm text-[#6B7280]">{t.category}</span>
                       ) : (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[#e8eef6] text-[#6B7A99]">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[#e8eef6] text-[#6B7280]">
                           Uncategorized
                         </span>
                       )}
@@ -449,7 +449,7 @@ function UploadPanel({ bankAccounts, onImportSuccess, onAccountCreated }: Upload
           </div>
 
           {/* Selected account confirmation */}
-          <div className="flex items-center gap-2 mb-4 text-sm text-[#6B7A99]">
+          <div className="flex items-center gap-2 mb-4 text-sm text-[#6B7280]">
             <span>Importing to:</span>
             <span className="text-[#193764] font-medium">
               {bankAccounts.find((a) => a.id === selectedAccountId)?.name ?? "Unknown"}
@@ -476,7 +476,7 @@ function UploadPanel({ bankAccounts, onImportSuccess, onAccountCreated }: Upload
             <button
               onClick={() => { setPreview(null); setParsedTransactions([]); setSelectedAccountId(""); }}
               disabled={isPending}
-              className="px-5 py-2.5 border border-[#dde4ef] text-[#6B7A99] hover:text-[#193764] hover:border-[#4F7FFF]/50 rounded-lg text-sm transition-colors"
+              className="px-5 py-2.5 border border-[#dde4ef] text-[#6B7280] hover:text-[#193764] hover:border-[#4F7FFF]/50 rounded-lg text-sm transition-colors"
             >
               Cancel
             </button>
@@ -491,16 +491,16 @@ function UploadPanel({ bankAccounts, onImportSuccess, onAccountCreated }: Upload
             <h3 className="font-syne font-bold text-lg text-[#193764] mb-1">
               Which account is this?
             </h3>
-            <p className="text-sm text-[#6B7A99] mb-5">
+            <p className="text-sm text-[#6B7280] mb-5">
               Select the bank account these transactions belong to before importing.
             </p>
 
             <div className="bg-[#f5f4f2] border border-[#dde4ef] rounded-lg px-4 py-3 mb-5 flex items-center justify-between">
-              <span className="text-sm text-[#6B7A99]">Transactions found</span>
+              <span className="text-sm text-[#6B7280]">Transactions found</span>
               <span className="text-[#193764] font-semibold">{parsedTransactions.length}</span>
             </div>
 
-            <label className="block text-sm text-[#6B7A99] mb-2">Select account</label>
+            <label className="block text-sm text-[#6B7280] mb-2">Select account</label>
             <select
               value={selectedAccountId}
               onChange={(e) => {
@@ -586,7 +586,7 @@ function UploadPanel({ bankAccounts, onImportSuccess, onAccountCreated }: Upload
               </button>
               <button
                 onClick={handleCancelUpload}
-                className="px-4 py-2.5 border border-[#dde4ef] text-[#6B7A99] hover:text-[#193764] rounded-lg text-sm transition-colors"
+                className="px-4 py-2.5 border border-[#dde4ef] text-[#6B7280] hover:text-[#193764] rounded-lg text-sm transition-colors"
               >
                 Cancel
               </button>
@@ -651,7 +651,7 @@ function SplitPanel({ transaction, onSave, onCancel, isSaving }: SplitPanelProps
   const isBalanced = Math.abs(remaining) < 0.005;
 
   const inputCls =
-    "bg-[#f5f4f2] border border-[#dde4ef] text-[#193764] rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#4F7FFF] placeholder:text-[#6B7A99]";
+    "bg-[#f5f4f2] border border-[#dde4ef] text-[#193764] rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#4F7FFF] placeholder:text-[#6B7280]";
 
   const updateLine = (idx: number, field: keyof SplitLine, value: string) => {
     setLines((prev) => {
@@ -709,7 +709,7 @@ function SplitPanel({ transaction, onSave, onCancel, isSaving }: SplitPanelProps
       <div className="flex items-center justify-between mb-3">
         <div>
           <p className="text-sm font-medium text-[#193764]">Split Transaction</p>
-          <p className="text-xs text-[#6B7A99]">
+          <p className="text-xs text-[#6B7280]">
             {transaction.description} — {formatCurrency(total)}
           </p>
         </div>
@@ -718,16 +718,16 @@ function SplitPanel({ transaction, onSave, onCancel, isSaving }: SplitPanelProps
       {/* Split lines */}
       <div className="space-y-2 mb-3">
         <div className="grid grid-cols-[1.5rem_1fr_10rem_6rem_1.5rem] gap-2 items-center">
-          <span className="text-xs text-[#6B7A99] text-center">#</span>
-          <span className="text-xs text-[#6B7A99]">Description</span>
-          <span className="text-xs text-[#6B7A99]">Category</span>
-          <span className="text-xs text-[#6B7A99] text-right">Amount</span>
+          <span className="text-xs text-[#6B7280] text-center">#</span>
+          <span className="text-xs text-[#6B7280]">Description</span>
+          <span className="text-xs text-[#6B7280]">Category</span>
+          <span className="text-xs text-[#6B7280] text-right">Amount</span>
           <span />
         </div>
 
         {lines.map((line, idx) => (
           <div key={idx} className="grid grid-cols-[1.5rem_1fr_10rem_6rem_1.5rem] gap-2 items-center">
-            <span className="text-xs text-[#6B7A99] text-center">{idx + 1}</span>
+            <span className="text-xs text-[#6B7280] text-center">{idx + 1}</span>
             <input
               type="text"
               value={line.description}
@@ -771,7 +771,7 @@ function SplitPanel({ transaction, onSave, onCancel, isSaving }: SplitPanelProps
             <button
               onClick={() => removeLine(idx)}
               disabled={lines.length <= 2}
-              className="p-0.5 text-[#6B7A99] hover:text-[#EF4444] disabled:opacity-30 transition-colors"
+              className="p-0.5 text-[#6B7280] hover:text-[#EF4444] disabled:opacity-30 transition-colors"
               title="Remove line"
             >
               <Trash2 size={12} />
@@ -806,7 +806,7 @@ function SplitPanel({ transaction, onSave, onCancel, isSaving }: SplitPanelProps
         </button>
         <button
           onClick={onCancel}
-          className="px-4 py-1.5 border border-[#dde4ef] text-[#6B7A99] hover:text-[#193764] text-xs rounded-lg transition-colors"
+          className="px-4 py-1.5 border border-[#dde4ef] text-[#6B7280] hover:text-[#193764] text-xs rounded-lg transition-colors"
         >
           Cancel
         </button>
@@ -896,7 +896,7 @@ function PayeeCombobox({ payeeName, onChange, onAddNew, inputCls, onCommit, onCa
               >
                 <span className="text-[#193764] truncate">{c.display_name}</span>
                 {c.company_name && (
-                  <span className="text-xs text-[#6B7A99] flex-shrink-0">{c.company_name}</span>
+                  <span className="text-xs text-[#6B7280] flex-shrink-0">{c.company_name}</span>
                 )}
               </button>
             ))}
@@ -906,7 +906,7 @@ function PayeeCombobox({ payeeName, onChange, onAddNew, inputCls, onCommit, onCa
       <button
         type="button"
         onClick={() => onAddNew(inputValue)}
-        className="px-2.5 border border-[#dde4ef] rounded-lg text-[#6B7A99] hover:text-[#4F7FFF] hover:border-[#4F7FFF]/50 transition-colors flex-shrink-0"
+        className="px-2.5 border border-[#dde4ef] rounded-lg text-[#6B7280] hover:text-[#4F7FFF] hover:border-[#4F7FFF]/50 transition-colors flex-shrink-0"
         title="Create new contact"
       >
         <UserPlus size={14} />
@@ -1427,7 +1427,7 @@ export default function BookkeepingClient({
   };
 
   const inputCls =
-    "bg-[#f5f4f2] border border-[#dde4ef] text-[#193764] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#4F7FFF] placeholder:text-[#6B7A99]";
+    "bg-[#f5f4f2] border border-[#dde4ef] text-[#193764] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#4F7FFF] placeholder:text-[#6B7280]";
 
   return (
     <div>
@@ -1443,7 +1443,7 @@ export default function BookkeepingClient({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
           <div className="flex items-center gap-3">
             <h2 className="font-syne text-xl font-bold text-[#193764]">Transactions</h2>
-            <span className="bg-[#e8eef6] text-[#6B7A99] text-xs font-medium px-2.5 py-0.5 rounded-full">
+            <span className="bg-[#e8eef6] text-[#6B7280] text-xs font-medium px-2.5 py-0.5 rounded-full">
               {filtered.length}
             </span>
           </div>
@@ -1458,7 +1458,7 @@ export default function BookkeepingClient({
             <button
               onClick={handleExportCSV}
               disabled={filtered.length === 0}
-              className="flex items-center gap-2 px-4 py-2 border border-[#dde4ef] text-[#6B7A99] hover:text-[#193764] hover:border-[#4F7FFF]/50 rounded-lg text-sm transition-colors disabled:opacity-40"
+              className="flex items-center gap-2 px-4 py-2 border border-[#dde4ef] text-[#6B7280] hover:text-[#193764] hover:border-[#4F7FFF]/50 rounded-lg text-sm transition-colors disabled:opacity-40"
             >
               <Download size={15} />
               Export CSV
@@ -1566,7 +1566,7 @@ export default function BookkeepingClient({
             className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm border transition-colors ${
               filterPayeeMode === "unknown"
                 ? "bg-amber-500/10 border-amber-500/50 text-amber-400"
-                : "border-[#dde4ef] text-[#6B7A99] hover:text-[#193764] bg-[#f5f4f2]"
+                : "border-[#dde4ef] text-[#6B7280] hover:text-[#193764] bg-[#f5f4f2]"
             }`}
             title="Show only transactions with unknown payee"
           >
@@ -1579,15 +1579,15 @@ export default function BookkeepingClient({
         {transactions.length > 0 && (
           <div className="grid grid-cols-3 gap-3 mb-5">
             <div className="bg-[#f5f4f2] border border-[#dde4ef] rounded-lg p-4">
-              <p className="text-xs text-[#6B7A99] mb-1">Total In</p>
+              <p className="text-xs text-[#6B7280] mb-1">Total In</p>
               <p className="font-accounting text-lg font-bold amount-positive">{formatCurrency(totalIncome)}</p>
             </div>
             <div className="bg-[#f5f4f2] border border-[#dde4ef] rounded-lg p-4">
-              <p className="text-xs text-[#6B7A99] mb-1">Total Out</p>
+              <p className="text-xs text-[#6B7280] mb-1">Total Out</p>
               <p className="font-accounting text-lg font-bold amount-negative">{formatCurrency(totalExpenses)}</p>
             </div>
             <div className="bg-[#f5f4f2] border border-[#dde4ef] rounded-lg p-4">
-              <p className="text-xs text-[#6B7A99] mb-1">Net</p>
+              <p className="text-xs text-[#6B7280] mb-1">Net</p>
               <p className={`font-accounting text-lg font-bold ${netProfit >= 0 ? "amount-positive" : "amount-negative"}`}>
                 {netProfit >= 0 ? "+" : ""}
                 {formatCurrency(netProfit)}
@@ -1615,7 +1615,7 @@ export default function BookkeepingClient({
               {/* Assign account */}
               {bankAccounts.length > 0 && (
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-[#6B7A99] flex-shrink-0">Assign account:</span>
+                  <span className="text-xs text-[#6B7280] flex-shrink-0">Assign account:</span>
                   <select
                     value={bulkAccountId}
                     disabled={isBulkAssigning}
@@ -1638,7 +1638,7 @@ export default function BookkeepingClient({
 
               {/* Assign category */}
               <div className="flex items-center gap-2">
-                <span className="text-xs text-[#6B7A99] flex-shrink-0">Assign category:</span>
+                <span className="text-xs text-[#6B7280] flex-shrink-0">Assign category:</span>
                 <select
                   value={bulkCategoryId}
                   onChange={(e) => {
@@ -1687,7 +1687,7 @@ export default function BookkeepingClient({
               {/* Deselect all */}
               <button
                 onClick={() => setSelectedIds(new Set())}
-                className="text-sm text-[#6B7A99] hover:text-[#193764] transition-colors flex-shrink-0"
+                className="text-sm text-[#6B7280] hover:text-[#193764] transition-colors flex-shrink-0"
               >
                 Deselect all
               </button>
@@ -1696,7 +1696,7 @@ export default function BookkeepingClient({
               <button
                 onClick={handleBulkDelete}
                 disabled={isBulkDeleting}
-                className="p-1.5 rounded text-[#6B7A99] hover:text-[#EF4444] hover:bg-[#EF4444]/10 transition-colors disabled:opacity-40 flex-shrink-0"
+                className="p-1.5 rounded text-[#6B7280] hover:text-[#EF4444] hover:bg-[#EF4444]/10 transition-colors disabled:opacity-40 flex-shrink-0"
                 title="Delete selected transactions"
               >
                 <Trash2 size={15} />
@@ -1711,7 +1711,7 @@ export default function BookkeepingClient({
             <h3 className="font-syne text-sm font-semibold text-[#193764] mb-4">New Transaction</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-4">
               <div>
-                <label className="text-xs text-[#6B7A99] mb-1 block">Date</label>
+                <label className="text-xs text-[#6B7280] mb-1 block">Date</label>
                 <input
                   type="date"
                   value={newTxForm.date}
@@ -1720,7 +1720,7 @@ export default function BookkeepingClient({
                 />
               </div>
               <div>
-                <label className="text-xs text-[#6B7A99] mb-1 block">Payee</label>
+                <label className="text-xs text-[#6B7280] mb-1 block">Payee</label>
                 <PayeeCombobox
                   payeeName={newTxForm.payee_name}
                   onChange={(payee_id, payee_name) =>
@@ -1734,7 +1734,7 @@ export default function BookkeepingClient({
                 />
               </div>
               <div className="lg:col-span-3 sm:col-span-2">
-                <label className="text-xs text-[#6B7A99] mb-1 block">Description *</label>
+                <label className="text-xs text-[#6B7280] mb-1 block">Description *</label>
                 <input
                   type="text"
                   placeholder="e.g. Office supplies from Staples"
@@ -1745,7 +1745,7 @@ export default function BookkeepingClient({
                 />
               </div>
               <div>
-                <label className="text-xs text-[#6B7A99] mb-1 block">Amount *</label>
+                <label className="text-xs text-[#6B7280] mb-1 block">Amount *</label>
                 <input
                   type="number"
                   min="0.01"
@@ -1757,7 +1757,7 @@ export default function BookkeepingClient({
                 />
               </div>
               <div>
-                <label className="text-xs text-[#6B7A99] mb-1 block">Type</label>
+                <label className="text-xs text-[#6B7280] mb-1 block">Type</label>
                 <select
                   value={newTxForm.type}
                   onChange={(e) =>
@@ -1770,7 +1770,7 @@ export default function BookkeepingClient({
                 </select>
               </div>
               <div>
-                <label className="text-xs text-[#6B7A99] mb-1 block">Category</label>
+                <label className="text-xs text-[#6B7280] mb-1 block">Category</label>
                 <select
                   value={newTxForm.category}
                   onChange={(e) => setNewTxForm((f) => ({ ...f, category: e.target.value }))}
@@ -1799,7 +1799,7 @@ export default function BookkeepingClient({
               </div>
               {bankAccounts.length > 0 && (
                 <div>
-                  <label className="text-xs text-[#6B7A99] mb-1 block">Account</label>
+                  <label className="text-xs text-[#6B7280] mb-1 block">Account</label>
                   <select
                     value={newTxForm.account_id}
                     onChange={(e) => setNewTxForm((f) => ({ ...f, account_id: e.target.value }))}
@@ -1825,7 +1825,7 @@ export default function BookkeepingClient({
               </button>
               <button
                 onClick={() => { setShowAddForm(false); setNewTxError(null); }}
-                className="px-4 py-2 border border-[#dde4ef] text-[#6B7A99] hover:text-[#193764] text-sm rounded-lg transition-colors"
+                className="px-4 py-2 border border-[#dde4ef] text-[#6B7280] hover:text-[#193764] text-sm rounded-lg transition-colors"
               >
                 Cancel
               </button>
@@ -1837,18 +1837,18 @@ export default function BookkeepingClient({
         {transactions.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <div className="w-16 h-16 rounded-full bg-[#e8eef6] flex items-center justify-center mb-4">
-              <BookOpen size={28} className="text-[#6B7A99]" />
+              <BookOpen size={28} className="text-[#6B7280]" />
             </div>
             <p className="font-syne font-semibold text-[#193764] text-lg mb-1">
               No transactions yet
             </p>
-            <p className="text-sm text-[#6B7A99]">
+            <p className="text-sm text-[#6B7280]">
               Upload a CSV from your bank to get started
             </p>
           </div>
         ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
-            <p className="text-[#6B7A99]">No transactions match your filters</p>
+            <p className="text-[#6B7280]">No transactions match your filters</p>
           </div>
         ) : (
           <>
@@ -1877,14 +1877,14 @@ export default function BookkeepingClient({
                         className="rounded border-[#dde4ef] accent-[#4F7FFF] cursor-pointer"
                       />
                     </th>
-                    <th className="px-4 py-3 text-[#6B7A99] font-medium text-left">Date</th>
-                    <th className="px-4 py-3 text-[#6B7A99] font-medium text-left">Payee</th>
-                    <th className="px-4 py-3 text-[#6B7A99] font-medium text-left">Account</th>
-                    <th className="px-4 py-3 text-[#6B7A99] font-medium text-left">Description</th>
-                    <th className="px-4 py-3 text-[#6B7A99] font-medium text-left">Category</th>
+                    <th className="px-4 py-3 text-[#6B7280] font-medium text-left">Date</th>
+                    <th className="px-4 py-3 text-[#6B7280] font-medium text-left">Payee</th>
+                    <th className="px-4 py-3 text-[#6B7280] font-medium text-left">Account</th>
+                    <th className="px-4 py-3 text-[#6B7280] font-medium text-left">Description</th>
+                    <th className="px-4 py-3 text-[#6B7280] font-medium text-left">Category</th>
                     <th className="px-2 py-3" />
-                    <th className="px-4 py-3 text-[#6B7A99] font-medium text-left">Type</th>
-                    <th className="px-4 py-3 text-[#6B7A99] font-medium text-right">Amount</th>
+                    <th className="px-4 py-3 text-[#6B7280] font-medium text-left">Type</th>
+                    <th className="px-4 py-3 text-[#6B7280] font-medium text-right">Amount</th>
                     <th className="px-4 py-3" />
                   </tr>
                 </thead>
@@ -1992,7 +1992,7 @@ export default function BookkeepingClient({
                               >
                                 <span className="text-sm text-[#193764] truncate" title={t.payee_name}>{t.payee_name}</span>
                                 {!t.is_opening_balance && (
-                                  <Pencil size={11} className="text-[#6B7A99] opacity-0 group-hover/payee:opacity-100 flex-shrink-0 ml-auto transition-opacity" />
+                                  <Pencil size={11} className="text-[#6B7280] opacity-0 group-hover/payee:opacity-100 flex-shrink-0 ml-auto transition-opacity" />
                                 )}
                               </div>
                             )}
@@ -2001,7 +2001,7 @@ export default function BookkeepingClient({
                           {/* Account */}
                           <td className="px-4 py-3 truncate overflow-hidden" title={linkedAccount?.name}>
                             {linkedAccount ? (
-                              <span className="text-sm text-[#6B7A99] truncate block">
+                              <span className="text-sm text-[#6B7280] truncate block">
                                 {linkedAccount.name}
                               </span>
                             ) : isAssigning ? (
@@ -2023,7 +2023,7 @@ export default function BookkeepingClient({
                                 </select>
                                 <button
                                   onClick={() => setAssigningTxId(null)}
-                                  className="text-[#6B7A99] hover:text-[#193764]"
+                                  className="text-[#6B7280] hover:text-[#193764]"
                                 >
                                   <X size={12} />
                                 </button>
@@ -2093,7 +2093,7 @@ export default function BookkeepingClient({
                                       setEditingDescriptionId(t.id);
                                       setEditingDescriptionValue(t.description);
                                     }}
-                                    className="opacity-0 group-hover:opacity-100 text-[#6B7A99] hover:text-[#4F7FFF] transition-opacity flex-shrink-0"
+                                    className="opacity-0 group-hover:opacity-100 text-[#6B7280] hover:text-[#4F7FFF] transition-opacity flex-shrink-0"
                                     title="Edit description"
                                   >
                                     <Pencil size={12} />
@@ -2106,7 +2106,7 @@ export default function BookkeepingClient({
                           {/* Category */}
                           <td className="px-4 py-3">
                             {isSplitParent ? (
-                              <span className="text-xs text-[#6B7A99] italic">Split transaction</span>
+                              <span className="text-xs text-[#6B7280] italic">Split transaction</span>
                             ) : (
                               <select
                                 value={t.category}
@@ -2156,7 +2156,7 @@ export default function BookkeepingClient({
                                 className={`p-1 rounded transition-colors ${
                                   splitPanelTxId === t.id
                                     ? "text-[#A855F7] bg-[#A855F7]/10"
-                                    : "text-[#6B7A99] hover:text-[#A855F7] hover:bg-[#A855F7]/10"
+                                    : "text-[#6B7280] hover:text-[#A855F7] hover:bg-[#A855F7]/10"
                                 }`}
                                 title="Split transaction"
                               >
@@ -2234,7 +2234,7 @@ export default function BookkeepingClient({
                             <button
                               onClick={() => handleDelete(t.id)}
                               disabled={deletingId === t.id}
-                              className="p-1.5 rounded text-[#6B7A99] hover:text-[#EF4444] hover:bg-[#EF4444]/10 transition-colors disabled:opacity-40"
+                              className="p-1.5 rounded text-[#6B7280] hover:text-[#EF4444] hover:bg-[#EF4444]/10 transition-colors disabled:opacity-40"
                               title={isSplitParent ? "Delete transaction and all splits" : "Delete transaction"}
                             >
                               <Trash2 size={14} />
@@ -2283,7 +2283,7 @@ export default function BookkeepingClient({
                               {/* Description: indented */}
                               <td className="px-4 py-2 min-w-0 truncate overflow-hidden">
                                 <div className="flex items-center gap-2 pl-4 border-l-2 border-[#A855F7]/40">
-                                  <span className="truncate text-sm text-[#6B7A99]" title={child.description}>
+                                  <span className="truncate text-sm text-[#6B7280]" title={child.description}>
                                     {child.description}
                                   </span>
                                 </div>
@@ -2347,7 +2347,7 @@ export default function BookkeepingClient({
                                 {isLastChild && (
                                   <button
                                     onClick={() => handleUnsplit(t.id)}
-                                    className="text-xs text-[#6B7A99] hover:text-[#EF4444] transition-colors whitespace-nowrap"
+                                    className="text-xs text-[#6B7280] hover:text-[#EF4444] transition-colors whitespace-nowrap"
                                     title="Remove split and restore original transaction"
                                   >
                                     × Unsplit
@@ -2367,7 +2367,7 @@ export default function BookkeepingClient({
             {/* Pagination */}
             {totalPages > 1 && (
               <div className="flex items-center justify-between mt-4 pt-4 border-t border-[#dde4ef]">
-                <p className="text-sm text-[#6B7A99]">
+                <p className="text-sm text-[#6B7280]">
                   Showing {(page - 1) * PAGE_SIZE + 1}–
                   {Math.min(page * PAGE_SIZE, filtered.length)} of {filtered.length}
                 </p>
@@ -2375,7 +2375,7 @@ export default function BookkeepingClient({
                   <button
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
                     disabled={page === 1}
-                    className="p-1.5 rounded border border-[#dde4ef] text-[#6B7A99] hover:text-[#193764] hover:border-[#4F7FFF]/50 disabled:opacity-40 transition-colors"
+                    className="p-1.5 rounded border border-[#dde4ef] text-[#6B7280] hover:text-[#193764] hover:border-[#4F7FFF]/50 disabled:opacity-40 transition-colors"
                   >
                     <ChevronLeft size={16} />
                   </button>
@@ -2385,7 +2385,7 @@ export default function BookkeepingClient({
                   <button
                     onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                     disabled={page === totalPages}
-                    className="p-1.5 rounded border border-[#dde4ef] text-[#6B7A99] hover:text-[#193764] hover:border-[#4F7FFF]/50 disabled:opacity-40 transition-colors"
+                    className="p-1.5 rounded border border-[#dde4ef] text-[#6B7280] hover:text-[#193764] hover:border-[#4F7FFF]/50 disabled:opacity-40 transition-colors"
                   >
                     <ChevronRight size={16} />
                   </button>
@@ -2414,7 +2414,7 @@ export default function BookkeepingClient({
             <h3 className="font-syne font-bold text-[#193764] text-base mb-1">
               Assign Payee
             </h3>
-            <p className="text-sm text-[#6B7A99] mb-5">
+            <p className="text-sm text-[#6B7280] mb-5">
               Assign a payee to {selectedIds.size} selected transaction{selectedIds.size !== 1 ? "s" : ""}
             </p>
             {/* Extra bottom padding so the dropdown list has room to render below the input */}
@@ -2448,7 +2448,7 @@ export default function BookkeepingClient({
                   bulkPayeeRef.current = { payee_id: null, payee_name: "" };
                   setBulkPayeeDisplay("");
                 }}
-                className="px-4 py-2 border border-[#dde4ef] text-[#6B7A99] hover:text-[#193764] text-sm rounded-lg transition-colors"
+                className="px-4 py-2 border border-[#dde4ef] text-[#6B7280] hover:text-[#193764] text-sm rounded-lg transition-colors"
               >
                 Cancel
               </button>

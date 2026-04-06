@@ -86,6 +86,8 @@ const config = {
   			surface: '#f5f4f2',
   		},
   		fontFamily: {
+  			sans: ['Plus Jakarta Sans', '-apple-system', 'BlinkMacSystemFont', 'Arial', 'sans-serif'],
+  			mono: ['Roboto Mono', 'Courier New', 'Courier', 'monospace'],
   			syne: ['var(--font-syne)', 'sans-serif'],
   			grotesk: ['var(--font-space-grotesk)', 'sans-serif'],
   		},

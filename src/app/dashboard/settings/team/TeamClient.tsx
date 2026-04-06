@@ -15,7 +15,7 @@ const ROLE_BADGE: Record<string, string> = {
   owner:      "bg-[#4F7FFF]/10 text-[#4F7FFF] border border-[#4F7FFF]/20",
   accountant: "bg-[#A855F7]/10 text-[#A855F7]",
   bookkeeper: "bg-[#22C55E]/10 text-[#22C55E]",
-  readonly:   "bg-[#6B7A99]/10 text-[#6B7A99]",
+  readonly:   "bg-[#6B7280]/10 text-[#6B7280]",
 };
 
 const ROLE_DESC: Record<string, string> = {
@@ -178,7 +178,7 @@ export default function TeamClient({
             </h2>
             <form onSubmit={handleInvite} className="flex flex-wrap gap-3 items-end">
               <div className="flex-1 min-w-[200px]">
-                <label className="block text-xs text-[#6B7A99] mb-1.5">Email address</label>
+                <label className="block text-xs text-[#6B7280] mb-1.5">Email address</label>
                 <input
                   type="email"
                   value={inviteEmail}
@@ -187,11 +187,11 @@ export default function TeamClient({
                   placeholder="colleague@example.com"
                   className="w-full bg-[#f5f4f2] border border-[#dde4ef] text-[#193764] text-sm
                     rounded-lg px-3 py-2 focus:outline-none focus:border-[#4F7FFF]
-                    placeholder:text-[#6B7A99]"
+                    placeholder:text-[#6B7280]"
                 />
               </div>
               <div>
-                <label className="block text-xs text-[#6B7A99] mb-1.5">Role</label>
+                <label className="block text-xs text-[#6B7280] mb-1.5">Role</label>
                 <select
                   value={inviteRole}
                   onChange={(e) => setInviteRole(e.target.value)}
@@ -224,11 +224,11 @@ export default function TeamClient({
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-[#dde4ef]">
-                  <th className="text-left px-6 py-3 text-[#6B7A99] font-medium">Name / Email</th>
-                  <th className="text-left px-4 py-3 text-[#6B7A99] font-medium">Role</th>
-                  <th className="text-left px-4 py-3 text-[#6B7A99] font-medium">Status</th>
+                  <th className="text-left px-6 py-3 text-[#6B7280] font-medium">Name / Email</th>
+                  <th className="text-left px-4 py-3 text-[#6B7280] font-medium">Role</th>
+                  <th className="text-left px-4 py-3 text-[#6B7280] font-medium">Status</th>
                   {isOwner && (
-                    <th className="text-right px-6 py-3 text-[#6B7A99] font-medium">Actions</th>
+                    <th className="text-right px-6 py-3 text-[#6B7280] font-medium">Actions</th>
                   )}
                 </tr>
               </thead>
@@ -243,7 +243,7 @@ export default function TeamClient({
                       <div>
                         <p className="font-medium text-[#193764]">{member.display_name}</p>
                         {member.email && member.email !== member.display_name && (
-                          <p className="text-xs text-[#6B7A99]">{member.email}</p>
+                          <p className="text-xs text-[#6B7280]">{member.email}</p>
                         )}
                       </div>
                     </td>
@@ -256,7 +256,7 @@ export default function TeamClient({
                           {member.role === "owner" && <Crown size={10} />}
                           {ROLE_LABEL[member.role] ?? member.role}
                         </span>
-                        <p className="text-xs text-[#6B7A99] mt-0.5">
+                        <p className="text-xs text-[#6B7280] mt-0.5">
                           {ROLE_DESC[member.role] ?? ""}
                         </p>
                       </div>
@@ -270,7 +270,7 @@ export default function TeamClient({
                     {isOwner && (
                       <td className="px-6 py-3 text-right">
                         {member.user_id === currentUserId ? (
-                          <span className="text-xs text-[#6B7A99] italic">You</span>
+                          <span className="text-xs text-[#6B7280] italic">You</span>
                         ) : (
                           <div className="flex items-center justify-end gap-2">
                             <select
@@ -288,7 +288,7 @@ export default function TeamClient({
                             <button
                               onClick={() => handleRemoveMember(member.user_id)}
                               disabled={memberPending}
-                              className="p-1.5 text-[#6B7A99] hover:text-[#EF4444]
+                              className="p-1.5 text-[#6B7280] hover:text-[#EF4444]
                                 hover:bg-[#EF4444]/10 rounded-lg transition-colors
                                 disabled:opacity-50"
                               title="Remove member"
@@ -318,12 +318,12 @@ export default function TeamClient({
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-[#dde4ef]">
-                    <th className="text-left px-6 py-3 text-[#6B7A99] font-medium">Email</th>
-                    <th className="text-left px-4 py-3 text-[#6B7A99] font-medium">Role</th>
-                    <th className="text-left px-4 py-3 text-[#6B7A99] font-medium">Invited</th>
-                    <th className="text-left px-4 py-3 text-[#6B7A99] font-medium">Expires</th>
+                    <th className="text-left px-6 py-3 text-[#6B7280] font-medium">Email</th>
+                    <th className="text-left px-4 py-3 text-[#6B7280] font-medium">Role</th>
+                    <th className="text-left px-4 py-3 text-[#6B7280] font-medium">Invited</th>
+                    <th className="text-left px-4 py-3 text-[#6B7280] font-medium">Expires</th>
                     {isOwner && (
-                      <th className="text-right px-6 py-3 text-[#6B7A99] font-medium">Actions</th>
+                      <th className="text-right px-6 py-3 text-[#6B7280] font-medium">Actions</th>
                     )}
                   </tr>
                 </thead>
@@ -345,11 +345,11 @@ export default function TeamClient({
                             {ROLE_LABEL[inv.role] ?? inv.role}
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-[#6B7A99] text-xs">
+                        <td className="px-4 py-3 text-[#6B7280] text-xs">
                           {new Date(inv.created_at).toLocaleDateString()}
                         </td>
                         <td className="px-4 py-3">
-                          <span className={`text-xs ${isExpired ? "text-[#EF4444]" : "text-[#6B7A99]"}`}>
+                          <span className={`text-xs ${isExpired ? "text-[#EF4444]" : "text-[#6B7280]"}`}>
                             {isExpired
                               ? "Expired"
                               : new Date(inv.expires_at).toLocaleDateString()}
@@ -361,7 +361,7 @@ export default function TeamClient({
                               <button
                                 onClick={() => handleResendInvite(inv)}
                                 disabled={memberPending}
-                                className="p-1.5 text-[#6B7A99] hover:text-[#4F7FFF]
+                                className="p-1.5 text-[#6B7280] hover:text-[#4F7FFF]
                                   hover:bg-[#4F7FFF]/10 rounded-lg transition-colors
                                   disabled:opacity-50"
                                 title="Resend invitation"
@@ -371,7 +371,7 @@ export default function TeamClient({
                               <button
                                 onClick={() => handleCancelInvite(inv.id)}
                                 disabled={memberPending}
-                                className="p-1.5 text-[#6B7A99] hover:text-[#EF4444]
+                                className="p-1.5 text-[#6B7280] hover:text-[#EF4444]
                                   hover:bg-[#EF4444]/10 rounded-lg transition-colors
                                   disabled:opacity-50"
                                 title="Cancel invitation"

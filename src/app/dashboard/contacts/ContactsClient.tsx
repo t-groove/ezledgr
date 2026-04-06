@@ -33,7 +33,7 @@ type FilterTab = "all" | "customer" | "vendor";
 const TYPE_BADGE: Record<string, string> = {
   customer: "bg-[#22C55E]/10 text-[#22C55E]",
   vendor: "bg-[#4F7FFF]/10 text-[#4F7FFF]",
-  both: "bg-[#6B7A99]/10 text-[#6B7A99]",
+  both: "bg-[#6B7280]/10 text-[#6B7280]",
 };
 
 const TYPE_LABEL: Record<string, string> = {
@@ -111,7 +111,7 @@ export default function ContactsClient({ initialContacts }: ContactsClientProps)
     `px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
       filterTab === tab
         ? "bg-[#e8eef6] text-[#193764]"
-        : "text-[#6B7A99] hover:text-[#193764]"
+        : "text-[#6B7280] hover:text-[#193764]"
     }`;
 
   return (
@@ -120,7 +120,7 @@ export default function ContactsClient({ initialContacts }: ContactsClientProps)
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-6">
         <div>
           <h1 className="font-syne text-3xl font-bold text-[#193764]">Contacts</h1>
-          <p className="text-sm text-[#6B7A99] mt-1">
+          <p className="text-sm text-[#6B7280] mt-1">
             Manage your customers, vendors, and other contacts
           </p>
         </div>
@@ -137,7 +137,7 @@ export default function ContactsClient({ initialContacts }: ContactsClientProps)
       <div className="flex gap-1 mb-5">
         <button className={tabCls("all")} onClick={() => setFilterTab("all")}>
           All{" "}
-          <span className="ml-1 text-xs text-[#6B7A99]">({contacts.length})</span>
+          <span className="ml-1 text-xs text-[#6B7280]">({contacts.length})</span>
         </button>
         <button className={tabCls("customer")} onClick={() => setFilterTab("customer")}>
           Customers
@@ -151,10 +151,10 @@ export default function ContactsClient({ initialContacts }: ContactsClientProps)
       {contacts.length === 0 ? (
         <div className="bg-white border border-[#dde4ef] rounded-xl flex flex-col items-center justify-center py-20 text-center">
           <div className="w-16 h-16 rounded-full bg-[#e8eef6] flex items-center justify-center mb-4">
-            <Users size={28} className="text-[#6B7A99]" />
+            <Users size={28} className="text-[#6B7280]" />
           </div>
           <p className="font-syne font-semibold text-[#193764] text-lg mb-1">No contacts yet</p>
-          <p className="text-sm text-[#6B7A99] mb-5">
+          <p className="text-sm text-[#6B7280] mb-5">
             Add customers, vendors, and other contacts to link them to transactions.
           </p>
           <button
@@ -167,7 +167,7 @@ export default function ContactsClient({ initialContacts }: ContactsClientProps)
         </div>
       ) : filtered.length === 0 ? (
         <div className="bg-white border border-[#dde4ef] rounded-xl flex items-center justify-center py-16">
-          <p className="text-[#6B7A99]">No contacts match this filter.</p>
+          <p className="text-[#6B7280]">No contacts match this filter.</p>
         </div>
       ) : (
         <div className="bg-white border border-[#dde4ef] rounded-xl overflow-hidden">
@@ -175,11 +175,11 @@ export default function ContactsClient({ initialContacts }: ContactsClientProps)
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-[#dde4ef] bg-[#e8eef6]">
-                  <th className="px-5 py-3 text-left text-[#6B7A99] font-medium">Name</th>
-                  <th className="px-4 py-3 text-left text-[#6B7A99] font-medium">Type</th>
-                  <th className="px-4 py-3 text-left text-[#6B7A99] font-medium">Email</th>
-                  <th className="px-4 py-3 text-left text-[#6B7A99] font-medium">Phone</th>
-                  <th className="px-4 py-3 text-right text-[#6B7A99] font-medium">Actions</th>
+                  <th className="px-5 py-3 text-left text-[#6B7280] font-medium">Name</th>
+                  <th className="px-4 py-3 text-left text-[#6B7280] font-medium">Type</th>
+                  <th className="px-4 py-3 text-left text-[#6B7280] font-medium">Email</th>
+                  <th className="px-4 py-3 text-left text-[#6B7280] font-medium">Phone</th>
+                  <th className="px-4 py-3 text-right text-[#6B7280] font-medium">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -192,7 +192,7 @@ export default function ContactsClient({ initialContacts }: ContactsClientProps)
                     <td className="px-5 py-3">
                       <p className="font-medium text-[#193764]">{c.display_name}</p>
                       {c.company_name && (
-                        <p className="text-xs text-[#6B7A99] mt-0.5">{c.company_name}</p>
+                        <p className="text-xs text-[#6B7280] mt-0.5">{c.company_name}</p>
                       )}
                     </td>
 
@@ -208,7 +208,7 @@ export default function ContactsClient({ initialContacts }: ContactsClientProps)
                     </td>
 
                     {/* Email */}
-                    <td className="px-4 py-3 text-[#6B7A99]">
+                    <td className="px-4 py-3 text-[#6B7280]">
                       {c.email ? (
                         <a
                           href={`mailto:${c.email}`}
@@ -222,7 +222,7 @@ export default function ContactsClient({ initialContacts }: ContactsClientProps)
                     </td>
 
                     {/* Phone */}
-                    <td className="px-4 py-3 text-[#6B7A99]">
+                    <td className="px-4 py-3 text-[#6B7280]">
                       {c.phone || c.mobile ? (
                         <span>{c.phone || c.mobile}</span>
                       ) : (
@@ -234,7 +234,7 @@ export default function ContactsClient({ initialContacts }: ContactsClientProps)
                     <td className="px-4 py-3 text-right">
                       {confirmDeleteId === c.id ? (
                         <div className="flex items-center justify-end gap-2">
-                          <span className="text-xs text-[#6B7A99]">Delete?</span>
+                          <span className="text-xs text-[#6B7280]">Delete?</span>
                           <button
                             onClick={() => handleDeleteConfirm(c.id)}
                             disabled={deletingId === c.id}
@@ -244,7 +244,7 @@ export default function ContactsClient({ initialContacts }: ContactsClientProps)
                           </button>
                           <button
                             onClick={() => setConfirmDeleteId(null)}
-                            className="px-2.5 py-1 border border-[#dde4ef] text-[#6B7A99] hover:text-[#193764] text-xs rounded-lg transition-colors"
+                            className="px-2.5 py-1 border border-[#dde4ef] text-[#6B7280] hover:text-[#193764] text-xs rounded-lg transition-colors"
                           >
                             No
                           </button>
@@ -253,14 +253,14 @@ export default function ContactsClient({ initialContacts }: ContactsClientProps)
                         <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button
                             onClick={() => openEdit(c)}
-                            className="p-1.5 rounded text-[#6B7A99] hover:text-[#4F7FFF] hover:bg-[#4F7FFF]/10 transition-colors"
+                            className="p-1.5 rounded text-[#6B7280] hover:text-[#4F7FFF] hover:bg-[#4F7FFF]/10 transition-colors"
                             title="Edit contact"
                           >
                             <Pencil size={14} />
                           </button>
                           <button
                             onClick={() => setConfirmDeleteId(c.id)}
-                            className="p-1.5 rounded text-[#6B7A99] hover:text-[#EF4444] hover:bg-[#EF4444]/10 transition-colors"
+                            className="p-1.5 rounded text-[#6B7280] hover:text-[#EF4444] hover:bg-[#EF4444]/10 transition-colors"
                             title="Delete contact"
                           >
                             <Trash2 size={14} />

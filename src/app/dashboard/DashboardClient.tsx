@@ -50,7 +50,7 @@ const TYPE_COLORS: Record<string, string> = {
   savings: "bg-[#22C55E]/10 text-[#22C55E]",
   credit_card: "bg-purple-500/10 text-purple-400",
   cash: "bg-[#F59E0B]/10 text-[#F59E0B]",
-  other: "bg-[#6B7A99]/20 text-[#6B7A99]",
+  other: "bg-[#6B7280]/20 text-[#6B7280]",
 };
 
 const ENTITY_TYPES = [
@@ -78,7 +78,7 @@ function KpiCard({ label, value, color, icon, iconBg, subtext }: KpiCardProps) {
   return (
     <div className="bg-white border border-[#dde4ef] rounded-xl p-5 flex flex-col gap-3">
       <div className="flex items-start justify-between">
-        <p className="text-sm text-[#6B7A99]">{label}</p>
+        <p className="text-sm text-[#6B7280]">{label}</p>
         <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 ${iconBg}`}>
           {icon}
         </div>
@@ -86,7 +86,7 @@ function KpiCard({ label, value, color, icon, iconBg, subtext }: KpiCardProps) {
       <p className="font-accounting text-2xl font-bold leading-none" style={{ color }}>
         {value}
       </p>
-      <p className="text-xs text-[#6B7A99]">{subtext}</p>
+      <p className="text-xs text-[#6B7280]">{subtext}</p>
     </div>
   );
 }
@@ -127,7 +127,7 @@ function ActionItem({
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-sm font-semibold text-[#193764] mb-0.5">{title}</p>
-        <p className="text-xs text-[#6B7A99]">{description}</p>
+        <p className="text-xs text-[#6B7280]">{description}</p>
       </div>
       <Link
         href={linkHref}
@@ -172,22 +172,22 @@ function OnboardingCard() {
         <h1 className="font-syne text-2xl font-bold text-[#193764] mb-1">
           Welcome to EZ Ledgr!
         </h1>
-        <p className="text-sm text-[#6B7A99] mb-6">Let&apos;s set up your business.</p>
+        <p className="text-sm text-[#6B7280] mb-6">Let&apos;s set up your business.</p>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>
-            <label className="block text-sm text-[#6B7A99] mb-1.5">Business name</label>
+            <label className="block text-sm text-[#6B7280] mb-1.5">Business name</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Acme LLC"
               required
-              className="w-full bg-[#f5f4f2] border border-[#dde4ef] text-[#193764] text-sm rounded-lg px-3 py-2.5 focus:outline-none focus:border-[#4F7FFF] placeholder:text-[#6B7A99]"
+              className="w-full bg-[#f5f4f2] border border-[#dde4ef] text-[#193764] text-sm rounded-lg px-3 py-2.5 focus:outline-none focus:border-[#4F7FFF] placeholder:text-[#6B7280]"
             />
           </div>
           <div>
-            <label className="block text-sm text-[#6B7A99] mb-1.5">Entity type</label>
+            <label className="block text-sm text-[#6B7280] mb-1.5">Entity type</label>
             <select
               value={entityType}
               onChange={(e) => setEntityType(e.target.value)}
@@ -269,7 +269,7 @@ export default function DashboardClient({
         <h1 className="font-syne text-3xl font-bold text-[#193764]">
           {greeting()}, {userName}
         </h1>
-        <p className="text-sm text-[#6B7A99] mt-1">
+        <p className="text-sm text-[#6B7280] mt-1">
           Here&apos;s your business overview for {currentYear}
         </p>
       </header>
@@ -318,9 +318,9 @@ export default function DashboardClient({
           <KpiCard
             label="Open Invoices"
             value={formatCurrency(openInvoices)}
-            color="#6B7A99"
-            iconBg="bg-[#6B7A99]/10"
-            icon={<Receipt size={18} className="text-[#6B7A99]" />}
+            color="#6B7280"
+            iconBg="bg-[#6B7280]/10"
+            icon={<Receipt size={18} className="text-[#6B7280]" />}
             subtext="Invoicing coming soon"
           />
         </div>
@@ -330,7 +330,7 @@ export default function DashboardClient({
       <section>
         <div className="mb-4">
           <h2 className="font-syne text-xl font-semibold text-[#193764]">Action Items</h2>
-          <p className="text-sm text-[#6B7A99] mt-0.5">Things that need your attention</p>
+          <p className="text-sm text-[#6B7280] mt-0.5">Things that need your attention</p>
         </div>
 
         <div className="flex flex-col gap-3">
@@ -397,9 +397,9 @@ export default function DashboardClient({
 
         {bankAccounts.length === 0 ? (
           <div className="bg-white border border-[#dde4ef] rounded-xl p-8 text-center">
-            <Building2 size={32} className="text-[#6B7A99] mx-auto mb-3" />
+            <Building2 size={32} className="text-[#6B7280] mx-auto mb-3" />
             <p className="text-[#193764] font-medium mb-1">No bank accounts connected yet</p>
-            <p className="text-sm text-[#6B7A99] mb-4">
+            <p className="text-sm text-[#6B7280] mb-4">
               Add a bank account to start organizing your transactions.
             </p>
             <Link
@@ -418,7 +418,7 @@ export default function DashboardClient({
               >
                 <div className="flex items-start justify-between mb-1">
                   {acc.bank_name && acc.bank_name !== "None" ? (
-                    <p className="text-xs text-[#6B7A99]">{acc.bank_name}</p>
+                    <p className="text-xs text-[#6B7280]">{acc.bank_name}</p>
                   ) : (
                     <span />
                   )}
@@ -429,7 +429,7 @@ export default function DashboardClient({
                           ? "amount-positive"
                           : acc.net < 0
                           ? "amount-negative"
-                          : "text-[#6B7A99]"
+                          : "text-[#6B7280]"
                       }`}
                     >
                       {acc.net > 0 ? "+" : ""}
@@ -447,7 +447,7 @@ export default function DashboardClient({
                     {TYPE_LABELS[acc.account_type] ?? "Other"}
                   </span>
                   {acc.last_four && (
-                    <span className="text-sm text-[#6B7A99] font-mono">
+                    <span className="text-sm text-[#6B7280] font-mono">
                       ••••{acc.last_four}
                     </span>
                   )}
