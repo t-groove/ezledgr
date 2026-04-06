@@ -1,3 +1,6 @@
+-- Cleanup job scheduled in migration 016_plaid_staging_cleanup.sql
+-- Rows older than 1 hour are automatically deleted by pg_cron
+
 -- Temporary staging table for Plaid access tokens.
 -- A token is written here by exchange-token/route.ts immediately after the
 -- public_token exchange and is deleted by save-account-mappings/route.ts
