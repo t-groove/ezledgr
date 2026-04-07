@@ -225,29 +225,42 @@ export default function DashboardSidebar() {
 
         {/* Dropdown — opens upward */}
         {userMenuOpen && (
-          <div className="absolute bottom-full left-3 right-3 mb-2 bg-[#111827] border
-            border-[#1E2A45] rounded-lg shadow-xl py-1 z-50">
-            <button
-              onClick={() => { setUserMenuOpen(false); router.push('/dashboard/settings') }}
-              className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-[#E8ECF4]
-                hover:bg-[#1E2A45] transition-colors text-left"
-            >
-              <Settings size={15} className="text-[#6B7A99]" />
-              Settings
-            </button>
-            <div className="my-1 border-t border-[#1E2A45]" />
-            <button
-              onClick={async () => {
-                setUserMenuOpen(false)
-                await supabase.auth.signOut()
-                router.push('/')
-              }}
-              className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-[#EF4444]
-                hover:bg-[#EF4444]/10 transition-colors text-left"
-            >
-              <LogOut size={15} />
-              Sign out
-            </button>
+          <div
+            className="absolute bottom-full left-3 right-3 mb-2 bg-white border border-[#dde4ef] rounded-[10px] z-50 overflow-hidden"
+            style={{ boxShadow: '0 4px 16px rgba(25,55,100,0.10)' }}
+          >
+            {/* User info header */}
+            <div className="px-3 py-2.5 border-b border-[#dde4ef]">
+              {displayName && (
+                <p className="text-sm font-medium text-[#193764] font-sans truncate">{displayName}</p>
+              )}
+              {email && (
+                <p className="text-xs text-[#6B7280] font-sans truncate">{email}</p>
+              )}
+            </div>
+            <div className="py-1">
+              <button
+                onClick={() => { setUserMenuOpen(false); router.push('/dashboard/settings') }}
+                className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-[#193764] font-sans
+                  hover:bg-[#e8eef6] transition-colors text-left"
+              >
+                <Settings size={15} className="text-[#193764]" />
+                Settings
+              </button>
+              <div className="my-1 border-t border-[#dde4ef]" />
+              <button
+                onClick={async () => {
+                  setUserMenuOpen(false)
+                  await supabase.auth.signOut()
+                  router.push('/')
+                }}
+                className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-[#C0392B] font-sans
+                  hover:bg-[#fdecea] transition-colors text-left"
+              >
+                <LogOut size={15} />
+                Sign out
+              </button>
+            </div>
           </div>
         )}
 

@@ -198,9 +198,9 @@ export default function SettingsClient({
 
   // ── Tab button style ───────────────────────────────────────────────────────
   const tabClass = (t: string) =>
-    `px-5 py-2 rounded-lg text-sm transition-colors ${
+    `px-5 py-1.5 rounded-md text-sm transition-colors ${
       activeTab === t
-        ? "bg-[#193764] border border-[#193764] text-white font-medium"
+        ? "bg-[#193764] text-white font-medium"
         : "text-[#6B7280] hover:text-[#193764]"
     }`;
 
@@ -218,7 +218,7 @@ export default function SettingsClient({
         </div>
 
         {/* Tab switcher */}
-        <div className="flex gap-2 flex-wrap">
+        <div className="inline-flex bg-white border border-[#dde4ef] rounded-lg p-1 gap-1 flex-wrap">
           <button className={tabClass("personal")} onClick={() => setActiveTab("personal")}>
             Profile
           </button>
