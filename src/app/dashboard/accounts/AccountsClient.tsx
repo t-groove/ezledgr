@@ -500,7 +500,7 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="font-syne text-3xl font-bold text-[#193764]">Bank Accounts</h1>
+          <h1 className="font-sans text-3xl font-bold text-[#193764]">Bank Accounts</h1>
           <p className="text-sm text-[#6B7A99] mt-1">
             Organize your transactions by bank account
           </p>
@@ -517,7 +517,7 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
       {/* Add Account choice modal */}
       {showAddModal && (
         <div className="bg-white border border-[#dde4ef] rounded-xl p-6 mb-6">
-          <h3 className="font-syne font-bold text-lg text-[#193764] mb-2">Add Bank Account</h3>
+          <h3 className="font-sans font-bold text-lg text-[#193764] mb-2">Add Bank Account</h3>
           <p className="text-sm text-[#6B7A99] mb-6">
             Connect your bank automatically or add manually.
           </p>
@@ -528,7 +528,7 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
               <div className="w-10 h-10 rounded-lg bg-[#4F7FFF]/10 flex items-center justify-center mb-3">
                 <Link2 size={20} className="text-[#4F7FFF]" />
               </div>
-              <h4 className="font-syne font-semibold text-[#193764] mb-1">Connect Bank</h4>
+              <h4 className="font-sans font-semibold text-[#193764] mb-1">Connect Bank</h4>
               <p className="text-xs text-[#6B7A99] mb-4">
                 Sync transactions automatically via Plaid. Supports 12,000+ US banks.
               </p>
@@ -591,7 +591,7 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
               <div className="w-10 h-10 rounded-lg bg-[#6B7A99]/10 flex items-center justify-center mb-3">
                 <PencilLine size={20} className="text-[#6B7A99]" />
               </div>
-              <h4 className="font-syne font-semibold text-[#193764] mb-1">Add Manually</h4>
+              <h4 className="font-sans font-semibold text-[#193764] mb-1">Add Manually</h4>
               <p className="text-xs text-[#6B7A99] mb-4">
                 Add account details manually and import transactions via CSV.
               </p>
@@ -624,7 +624,7 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
           <div className="bg-white border border-[#dde4ef] rounded-2xl w-full max-w-lg max-h-[90vh] flex flex-col shadow-2xl overflow-y-auto">
             <div className="flex items-center justify-between px-6 py-5 border-b border-[#dde4ef]">
-              <h2 className="font-syne text-lg font-semibold text-[#193764]">Edit Account</h2>
+              <h2 className="font-sans text-lg font-semibold text-[#193764]">Edit Account</h2>
               <button
                 onClick={closeForm}
                 className="p-1 text-[#6B7A99] hover:text-[#193764] transition-colors"
@@ -793,7 +793,7 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
           <div className="w-16 h-16 rounded-full bg-[#e8eef6] flex items-center justify-center mb-4">
             <Building2 size={28} className="text-[#6B7A99]" />
           </div>
-          <p className="font-syne font-semibold text-[#193764] text-lg mb-1">
+          <p className="font-sans font-semibold text-[#193764] text-lg mb-1">
             No bank accounts yet
           </p>
           <p className="text-sm text-[#6B7A99] mb-6">
@@ -998,7 +998,7 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
             {/* Modal header */}
             <div className="flex items-center justify-between px-6 py-5 border-b border-[#dde4ef]">
               <div>
-                <h2 className="font-syne font-bold text-xl text-[#193764]">Map Your Accounts</h2>
+                <h2 className="font-sans font-bold text-xl text-[#193764]">Map Your Accounts</h2>
                 <p className="text-sm text-[#6B7A99] mt-0.5">
                   {plaidConnectionData.institutionName} · Choose what to do with each account
                 </p>

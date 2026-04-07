@@ -74,7 +74,7 @@ function MonthlyTooltip({ active, payload, label }: {
   const profit   = payload.find((p) => p.dataKey === "profit")?.value   ?? 0;
   return (
     <div className="bg-white border border-[#dde4ef] rounded-lg p-3 text-sm shadow-xl">
-      <p className="font-syne font-semibold text-[#193764] mb-2">{label}</p>
+      <p className="font-sans font-semibold text-[#193764] mb-2">{label}</p>
       <p className="text-[#22C55E]">Income: {formatCurrency(income)}</p>
       <p className="text-[#EF4444]">Expenses: {formatCurrency(expenses)}</p>
       <p style={{ color: profit >= 0 ? "#4F7FFF" : "#EF4444" }}>
@@ -93,7 +93,7 @@ function ProfitTooltip({ active, payload, label }: {
   const profit = payload[0]?.value ?? 0;
   return (
     <div className="bg-white border border-[#dde4ef] rounded-lg p-3 text-sm shadow-xl">
-      <p className="font-syne font-semibold text-[#193764] mb-1">{label}</p>
+      <p className="font-sans font-semibold text-[#193764] mb-1">{label}</p>
       <p style={{ color: profit >= 0 ? "#4F7FFF" : "#EF4444" }}>
         Net Profit: {formatCurrency(profit)}
       </p>
@@ -142,7 +142,7 @@ function CategoryBreakdown({
 }) {
   return (
     <div className="bg-white border border-[#dde4ef] rounded-xl p-6">
-      <h2 className="font-syne text-lg font-semibold text-[#193764] mb-4">
+      <h2 className="font-sans text-lg font-semibold text-[#193764] mb-4">
         {title}
       </h2>
       {data.length === 0 ? (
@@ -302,7 +302,7 @@ export default function ReportsClient({ initialData, initialYear, initialAccount
       {/* ── Header ────────────────────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-8">
         <div>
-          <h1 className="font-syne text-3xl font-bold text-[#193764]">
+          <h1 className="font-sans text-3xl font-bold text-[#193764]">
             Reports
           </h1>
           <p className="text-sm text-[#6B7280] mt-1">
@@ -467,7 +467,7 @@ export default function ReportsClient({ initialData, initialYear, initialAccount
 
           {/* ── Monthly Overview (ComposedChart) ───────────────────────────── */}
           <div className="bg-white border border-[#dde4ef] rounded-xl p-6 mb-6">
-            <h2 className="font-syne text-lg font-semibold text-[#193764] mb-4">
+            <h2 className="font-sans text-lg font-semibold text-[#193764] mb-4">
               Monthly Overview
             </h2>
             <ResponsiveContainer width="100%" height={320}>
@@ -519,7 +519,7 @@ export default function ReportsClient({ initialData, initialYear, initialAccount
 
           {/* ── Profit Trend (AreaChart) ───────────────────────────────────── */}
           <div className="bg-white border border-[#dde4ef] rounded-xl p-6 mb-6">
-            <h2 className="font-syne text-lg font-semibold text-[#193764] mb-4">
+            <h2 className="font-sans text-lg font-semibold text-[#193764] mb-4">
               Profit Trend
             </h2>
             <ResponsiveContainer width="100%" height={200}>
@@ -578,7 +578,7 @@ export default function ReportsClient({ initialData, initialYear, initialAccount
 
           {/* ── Monthly Detail Table ───────────────────────────────────────── */}
           <div className="bg-white border border-[#dde4ef] rounded-xl p-6">
-            <h2 className="font-syne text-lg font-semibold text-[#193764] mb-4">
+            <h2 className="font-sans text-lg font-semibold text-[#193764] mb-4">
               Monthly Detail
             </h2>
             <div className="overflow-x-auto">

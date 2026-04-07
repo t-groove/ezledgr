@@ -119,7 +119,7 @@ export default function ContactsClient({ initialContacts }: ContactsClientProps)
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-6">
         <div>
-          <h1 className="font-syne text-3xl font-bold text-[#193764]">Contacts</h1>
+          <h1 className="font-sans text-3xl font-bold text-[#193764]">Contacts</h1>
           <p className="text-sm text-[#6B7280] mt-1">
             Manage your customers, vendors, and other contacts
           </p>
@@ -153,7 +153,7 @@ export default function ContactsClient({ initialContacts }: ContactsClientProps)
           <div className="w-16 h-16 rounded-full bg-[#e8eef6] flex items-center justify-center mb-4">
             <Users size={28} className="text-[#6B7280]" />
           </div>
-          <p className="font-syne font-semibold text-[#193764] text-lg mb-1">No contacts yet</p>
+          <p className="font-sans font-semibold text-[#193764] text-lg mb-1">No contacts yet</p>
           <p className="text-sm text-[#6B7280] mb-5">
             Add customers, vendors, and other contacts to link them to transactions.
           </p>

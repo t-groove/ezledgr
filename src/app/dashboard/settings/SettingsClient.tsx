@@ -213,7 +213,7 @@ export default function SettingsClient({
       <div className="flex flex-col gap-6">
         {/* Header */}
         <div>
-          <h1 className="font-syne text-3xl font-bold text-[#193764]">Settings</h1>
+          <h1 className="font-sans text-3xl font-bold text-[#193764]">Settings</h1>
           <p className="text-sm text-[#6B7280] mt-1">{business.name}</p>
         </div>
 
@@ -235,7 +235,7 @@ export default function SettingsClient({
 
             {/* Avatar section */}
             <div className="bg-white border border-[#dde4ef] rounded-xl p-6">
-              <h3 className="font-syne font-semibold text-[#193764] mb-4">Profile Photo</h3>
+              <h3 className="font-sans font-semibold text-[#193764] mb-4">Profile Photo</h3>
               <div className="flex items-center gap-5">
                 <div className="relative w-20 h-20 flex-shrink-0">
                   <div className="w-20 h-20 rounded-full bg-[#e8eef6] flex items-center justify-center overflow-hidden">
@@ -274,7 +274,7 @@ export default function SettingsClient({
 
             {/* Personal information form */}
             <div className="bg-white border border-[#dde4ef] rounded-xl p-6">
-              <h3 className="font-syne font-semibold text-[#193764] mb-5">Personal Information</h3>
+              <h3 className="font-sans font-semibold text-[#193764] mb-5">Personal Information</h3>
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm text-[#6B7280] mb-1.5">Full name</label>
@@ -345,7 +345,7 @@ export default function SettingsClient({
             <div className="bg-white border border-[#dde4ef] rounded-xl p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="font-syne font-semibold text-[#193764]">Password</h3>
+                  <h3 className="font-sans font-semibold text-[#193764]">Password</h3>
                   <p className="text-sm text-[#6B7280] mt-0.5">Update your account password</p>
                 </div>
                 <a
@@ -372,7 +372,7 @@ export default function SettingsClient({
                 <AlertTriangle size={18} className="text-[#EF4444]" />
               </div>
               <div>
-                <h2 className="font-syne text-lg font-semibold text-[#193764]">Danger Zone</h2>
+                <h2 className="font-sans text-lg font-semibold text-[#193764]">Danger Zone</h2>
                 <p className="text-xs text-[#6B7280]">These actions are irreversible</p>
               </div>
             </div>
@@ -573,7 +573,7 @@ function MFASettings() {
         <div className="flex items-center gap-3">
           <Shield size={18} className="text-[#4F7FFF]" />
           <div>
-            <h3 className="font-syne font-semibold text-[#193764]">
+            <h3 className="font-sans font-semibold text-[#193764]">
               Two-Factor Authentication
             </h3>
             <p className="text-sm text-[#6B7280] mt-0.5">

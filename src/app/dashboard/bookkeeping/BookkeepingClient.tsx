@@ -317,7 +317,7 @@ function UploadPanel({ bankAccounts, onImportSuccess, onAccountCreated }: Upload
         <div className="flex flex-col sm:flex-row gap-6 items-start">
           {/* Left: text content */}
           <div className="flex-1">
-            <h2 className="font-syne text-xl font-bold text-[#193764] mb-1">
+            <h2 className="font-sans text-xl font-bold text-[#193764] mb-1">
               Import Bank Transactions
             </h2>
             <p className="text-sm text-[#6B7280]">
@@ -367,7 +367,7 @@ function UploadPanel({ bankAccounts, onImportSuccess, onAccountCreated }: Upload
         </div>
       ) : (
         <div>
-          <h2 className="font-syne text-xl font-bold text-[#193764] mb-1">
+          <h2 className="font-sans text-xl font-bold text-[#193764] mb-1">
             Import Bank Transactions
           </h2>
           <p className="text-sm text-[#6B7280] mb-3">
@@ -488,7 +488,7 @@ function UploadPanel({ bankAccounts, onImportSuccess, onAccountCreated }: Upload
       {showAccountPopup && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-[#f5f4f2]/80 backdrop-blur-sm rounded-xl">
           <div className="bg-white border border-[#dde4ef] rounded-xl p-6 w-full max-w-md mx-4 shadow-2xl">
-            <h3 className="font-syne font-bold text-lg text-[#193764] mb-1">
+            <h3 className="font-sans font-bold text-lg text-[#193764] mb-1">
               Which account is this?
             </h3>
             <p className="text-sm text-[#6B7280] mb-5">
@@ -1442,7 +1442,7 @@ export default function BookkeepingClient({
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
           <div className="flex items-center gap-3">
-            <h2 className="font-syne text-xl font-bold text-[#193764]">Transactions</h2>
+            <h2 className="font-sans text-xl font-bold text-[#193764]">Transactions</h2>
             <span className="bg-[#e8eef6] text-[#6B7280] text-xs font-medium px-2.5 py-0.5 rounded-full">
               {filtered.length}
             </span>
@@ -1708,7 +1708,7 @@ export default function BookkeepingClient({
         {/* Create Transaction Form */}
         {showAddForm && (
           <div className="mb-5 bg-[#f5f4f2] border border-[#dde4ef] rounded-xl p-5">
-            <h3 className="font-syne text-sm font-semibold text-[#193764] mb-4">New Transaction</h3>
+            <h3 className="font-sans text-sm font-semibold text-[#193764] mb-4">New Transaction</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-4">
               <div>
                 <label className="text-xs text-[#6B7280] mb-1 block">Date</label>
@@ -1839,7 +1839,7 @@ export default function BookkeepingClient({
             <div className="w-16 h-16 rounded-full bg-[#e8eef6] flex items-center justify-center mb-4">
               <BookOpen size={28} className="text-[#6B7280]" />
             </div>
-            <p className="font-syne font-semibold text-[#193764] text-lg mb-1">
+            <p className="font-sans font-semibold text-[#193764] text-lg mb-1">
               No transactions yet
             </p>
             <p className="text-sm text-[#6B7280]">
@@ -2411,7 +2411,7 @@ export default function BookkeepingClient({
           }}
         >
           <div className="bg-white border border-[#dde4ef] rounded-xl shadow-2xl w-full max-w-md mx-4 p-6">
-            <h3 className="font-syne font-bold text-[#193764] text-base mb-1">
+            <h3 className="font-sans font-bold text-[#193764] text-base mb-1">
               Assign Payee
             </h3>
             <p className="text-sm text-[#6B7280] mb-5">

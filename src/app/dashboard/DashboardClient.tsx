@@ -169,7 +169,7 @@ function OnboardingCard() {
         <div className="w-12 h-12 rounded-full bg-[#4F7FFF]/10 flex items-center justify-center mb-6">
           <Building2 size={24} className="text-[#4F7FFF]" />
         </div>
-        <h1 className="font-syne text-2xl font-bold text-[#193764] mb-1">
+        <h1 className="font-sans text-2xl font-bold text-[#193764] mb-1">
           Welcome to EZ Ledgr!
         </h1>
         <p className="text-sm text-[#6B7280] mb-6">Let&apos;s set up your business.</p>
@@ -266,7 +266,7 @@ export default function DashboardClient({
     <div className="flex flex-col gap-10">
       {/* ── Page header ─────────────────────────────────────────────────── */}
       <header>
-        <h1 className="font-syne text-3xl font-bold text-[#193764]">
+        <h1 className="font-sans text-3xl font-bold text-[#193764]">
           {greeting()}, {userName}
         </h1>
         <p className="text-sm text-[#6B7280] mt-1">
@@ -277,7 +277,7 @@ export default function DashboardClient({
       {/* ── Section 1: YTD P&L ──────────────────────────────────────────── */}
       <section>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-syne text-xl font-semibold text-[#193764]">
+          <h2 className="font-sans text-xl font-semibold text-[#193764]">
             Year-to-date Performance
           </h2>
           <Link href="/dashboard/reports" className="text-sm text-[#4F7FFF] hover:underline">
@@ -329,7 +329,7 @@ export default function DashboardClient({
       {/* ── Section 2: Action Items ───────────────────────────────────────── */}
       <section>
         <div className="mb-4">
-          <h2 className="font-syne text-xl font-semibold text-[#193764]">Action Items</h2>
+          <h2 className="font-sans text-xl font-semibold text-[#193764]">Action Items</h2>
           <p className="text-sm text-[#6B7280] mt-0.5">Things that need your attention</p>
         </div>
 
@@ -389,7 +389,7 @@ export default function DashboardClient({
       {/* ── Section 3: Bank Accounts ─────────────────────────────────────── */}
       <section>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-syne text-xl font-semibold text-[#193764]">Bank Accounts</h2>
+          <h2 className="font-sans text-xl font-semibold text-[#193764]">Bank Accounts</h2>
           <Link href="/dashboard/accounts" className="text-sm text-[#4F7FFF] hover:underline">
             Manage accounts →
           </Link>
@@ -437,7 +437,7 @@ export default function DashboardClient({
                     </p>
                   )}
                 </div>
-                <p className="font-syne font-semibold text-[#193764] text-base mb-3">{acc.name}</p>
+                <p className="font-sans font-semibold text-[#193764] text-base mb-3">{acc.name}</p>
                 <div className="flex items-center gap-2 mb-4">
                   <span
                     className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${

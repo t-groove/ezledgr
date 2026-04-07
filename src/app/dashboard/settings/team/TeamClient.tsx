@@ -173,7 +173,7 @@ export default function TeamClient({
         {/* Invite form */}
         {isOwner && (
           <div className="bg-white border border-[#dde4ef] rounded-xl p-6">
-            <h2 className="font-syne text-lg font-semibold text-[#193764] mb-4">
+            <h2 className="font-sans text-lg font-semibold text-[#193764] mb-4">
               Invite Team Member
             </h2>
             <form onSubmit={handleInvite} className="flex flex-wrap gap-3 items-end">
@@ -218,7 +218,7 @@ export default function TeamClient({
         {/* Members table */}
         <div className="bg-white border border-[#dde4ef] rounded-xl overflow-hidden">
           <div className="px-6 py-4 border-b border-[#dde4ef]">
-            <h2 className="font-syne text-lg font-semibold text-[#193764]">Team Members</h2>
+            <h2 className="font-sans text-lg font-semibold text-[#193764]">Team Members</h2>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -310,7 +310,7 @@ export default function TeamClient({
         {invitations.length > 0 && (
           <div className="bg-white border border-[#dde4ef] rounded-xl overflow-hidden">
             <div className="px-6 py-4 border-b border-[#dde4ef]">
-              <h2 className="font-syne text-lg font-semibold text-[#193764]">
+              <h2 className="font-sans text-lg font-semibold text-[#193764]">
                 Pending Invitations
               </h2>
             </div>

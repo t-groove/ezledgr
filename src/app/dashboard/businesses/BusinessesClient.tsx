@@ -91,7 +91,7 @@ export default function BusinessesClient({ initialBusinesses, activeBusinessId }
       {/* ── Header ────────────────────────────────────────────────────────── */}
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="font-syne text-3xl font-bold text-[#193764]">Businesses</h1>
+          <h1 className="font-sans text-3xl font-bold text-[#193764]">Businesses</h1>
           <p className="text-sm text-[#6B7280] mt-1">Manage your business accounts</p>
         </div>
         <button
@@ -110,7 +110,7 @@ export default function BusinessesClient({ initialBusinesses, activeBusinessId }
           <div className="w-14 h-14 rounded-full bg-[#4F7FFF]/10 flex items-center justify-center mb-5">
             <Briefcase size={26} className="text-[#193764]" />
           </div>
-          <h2 className="font-syne text-xl font-bold text-[#193764] mb-2">No businesses yet</h2>
+          <h2 className="font-sans text-xl font-bold text-[#193764] mb-2">No businesses yet</h2>
           <p className="text-sm text-[#6B7280] leading-relaxed mb-6">
             Create your first business to get started.
           </p>
@@ -152,7 +152,7 @@ export default function BusinessesClient({ initialBusinesses, activeBusinessId }
 
                 {/* Business details */}
                 <div className="flex-1">
-                  <p className="font-syne font-semibold text-[#193764] text-base mb-1">
+                  <p className="font-sans font-semibold text-[#193764] text-base mb-1">
                     {bm.business.name}
                   </p>
                   {bm.business.entity_type && (
@@ -202,7 +202,7 @@ export default function BusinessesClient({ initialBusinesses, activeBusinessId }
 
             {/* Modal header */}
             <div className="mb-6">
-              <h2 className="font-syne text-xl font-bold text-[#193764]">Add Business</h2>
+              <h2 className="font-sans text-xl font-bold text-[#193764]">Add Business</h2>
               <p className="text-sm text-[#6B7280] mt-1">Create a new business account</p>
             </div>
 

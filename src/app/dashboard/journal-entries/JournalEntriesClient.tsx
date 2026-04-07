@@ -330,7 +330,7 @@ export default function JournalEntriesClient({ initialEntries }: Props) {
       {/* ── Header ──────────────────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-6">
         <div>
-          <h1 className="font-syne text-3xl font-bold text-[#193764]">Journal Entries</h1>
+          <h1 className="font-sans text-3xl font-bold text-[#193764]">Journal Entries</h1>
           <p className="text-sm text-[#6B7A99] mt-1">Non-cash accounting adjustments</p>
         </div>
         {!showForm && (
@@ -361,7 +361,7 @@ export default function JournalEntriesClient({ initialEntries }: Props) {
           {entryMode === "select" && (
             <div>
               <div className="flex items-center justify-between mb-5">
-                <h2 className="font-syne text-xl font-bold text-[#193764]">New Journal Entry</h2>
+                <h2 className="font-sans text-xl font-bold text-[#193764]">New Journal Entry</h2>
                 <button
                   onClick={closeForm}
                   className="text-sm text-[#6B7A99] hover:text-[#193764] transition-colors"
@@ -379,7 +379,7 @@ export default function JournalEntriesClient({ initialEntries }: Props) {
                     <TrendingDown size={22} className="text-[#A855F7]" />
                   </div>
                   <div>
-                    <p className="font-syne font-semibold text-[#193764] mb-1">Depreciation Entry</p>
+                    <p className="font-sans font-semibold text-[#193764] mb-1">Depreciation Entry</p>
                     <p className="text-xs text-[#6B7A99]">Record asset depreciation</p>
                   </div>
                 </button>
@@ -391,7 +391,7 @@ export default function JournalEntriesClient({ initialEntries }: Props) {
                     <FileText size={22} className="text-[#4F7FFF]" />
                   </div>
                   <div>
-                    <p className="font-syne font-semibold text-[#193764] mb-1">Manual Journal Entry</p>
+                    <p className="font-sans font-semibold text-[#193764] mb-1">Manual Journal Entry</p>
                     <p className="text-xs text-[#6B7A99]">Custom debit/credit entry</p>
                   </div>
                 </button>
@@ -409,7 +409,7 @@ export default function JournalEntriesClient({ initialEntries }: Props) {
                 >
                   <ChevronLeft size={18} />
                 </button>
-                <h2 className="font-syne text-xl font-bold text-[#193764]">Depreciation Entry</h2>
+                <h2 className="font-sans text-xl font-bold text-[#193764]">Depreciation Entry</h2>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
@@ -616,7 +616,7 @@ export default function JournalEntriesClient({ initialEntries }: Props) {
                 >
                   <ChevronLeft size={18} />
                 </button>
-                <h2 className="font-syne text-xl font-bold text-[#193764]">Manual Journal Entry</h2>
+                <h2 className="font-sans text-xl font-bold text-[#193764]">Manual Journal Entry</h2>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
