@@ -423,15 +423,7 @@ export default function DashboardClient({
                     <span />
                   )}
                   {acc.transaction_count > 0 && (
-                    <p
-                      className={`font-accounting font-bold text-2xl leading-none mt-1 ${
-                        acc.net > 0
-                          ? "amount-positive"
-                          : acc.net < 0
-                          ? "amount-negative"
-                          : "text-[#6B7280]"
-                      }`}
-                    >
+                    <p className="font-accounting font-bold text-2xl leading-none mt-1 text-[#193764]">
                       {acc.net > 0 ? "+" : ""}
                       {formatCurrency(acc.net)}
                     </p>

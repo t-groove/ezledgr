@@ -886,15 +886,7 @@ export default function AccountsClient({ initialAccounts, businessId }: Props) {
                   <p className="text-[11px] text-[#6B7A99] mb-1 font-medium uppercase tracking-wide">
                     EZ Ledgr Balance
                   </p>
-                  <p
-                    className={`font-accounting text-2xl font-semibold ${
-                      acc.net > 0
-                        ? "amount-positive"
-                        : acc.net < 0
-                        ? "amount-negative"
-                        : "text-[#193764]"
-                    }`}
-                  >
+                  <p className="font-accounting text-2xl font-semibold text-[#193764]">
                     {formatCurrency(acc.net)}
                   </p>
                   <p className="text-[11px] text-[#6B7A99] mt-1">

@@ -113,6 +113,10 @@
   font-feature-settings: "tnum";
 }
 
+/* Use .amount-positive and .amount-negative ONLY on summary callout tiles
+   where the sign of the number is the primary message (e.g. YTD Net Profit,
+   Transactions summary bar Net total). Do NOT use on table rows, ledger
+   line items, account lists, or report line items — those use text-[#193764]. */
 .amount-positive {
   color: var(--color-credit-dark);
 }

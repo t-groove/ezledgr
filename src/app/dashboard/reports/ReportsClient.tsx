@@ -75,9 +75,9 @@ function MonthlyTooltip({ active, payload, label }: {
   return (
     <div className="bg-white border border-[#dde4ef] rounded-lg p-3 text-sm shadow-xl">
       <p className="font-sans font-semibold text-[#193764] mb-2">{label}</p>
-      <p className="text-[#22C55E]">Income: {formatCurrency(income)}</p>
-      <p className="text-[#EF4444]">Expenses: {formatCurrency(expenses)}</p>
-      <p style={{ color: profit >= 0 ? "#4F7FFF" : "#EF4444" }}>
+      <p className="text-[#193764]">Income: {formatCurrency(income)}</p>
+      <p className="text-[#193764]">Expenses: {formatCurrency(expenses)}</p>
+      <p className="text-[#193764]">
         Profit: {formatCurrency(profit)}
       </p>
     </div>
@@ -94,7 +94,7 @@ function ProfitTooltip({ active, payload, label }: {
   return (
     <div className="bg-white border border-[#dde4ef] rounded-lg p-3 text-sm shadow-xl">
       <p className="font-sans font-semibold text-[#193764] mb-1">{label}</p>
-      <p style={{ color: profit >= 0 ? "#4F7FFF" : "#EF4444" }}>
+      <p className="text-[#193764]">
         Net Profit: {formatCurrency(profit)}
       </p>
     </div>
@@ -610,27 +610,16 @@ export default function ReportsClient({ initialData, initialYear, initialAccount
                       style={{ backgroundColor: i % 2 === 1 ? "#f5f4f2" : undefined }}
                     >
                       <td className="py-3 px-4 text-[#193764]">{row.month}</td>
-                      <td className="py-3 px-4 text-right text-[#22C55E]">
+                      <td className="py-3 px-4 text-right text-[#193764]">
                         {formatCurrency(row.income)}
                       </td>
-                      <td className="py-3 px-4 text-right text-[#EF4444]">
+                      <td className="py-3 px-4 text-right text-[#193764]">
                         {formatCurrency(row.expenses)}
                       </td>
-                      <td
-                        className="py-3 px-4 text-right font-medium"
-                        style={{ color: row.profit >= 0 ? "#22C55E" : "#EF4444" }}
-                      >
+                      <td className="py-3 px-4 text-right font-medium text-[#193764]">
                         {formatCurrency(row.profit)}
                       </td>
-                      <td
-                        className="py-3 px-4 text-right"
-                        style={{
-                          color:
-                            isNaN(row.margin) || row.margin >= 0
-                              ? "#22C55E"
-                              : "#EF4444",
-                        }}
-                      >
+                      <td className="py-3 px-4 text-right text-[#193764]">
                         {formatPct(row.margin)}
                       </td>
                     </tr>
@@ -639,27 +628,16 @@ export default function ReportsClient({ initialData, initialYear, initialAccount
                 <tfoot>
                   <tr className="border-t-2 border-[#4F7FFF]">
                     <td className="py-3 px-4 font-bold text-[#193764]">Total</td>
-                    <td className="py-3 px-4 text-right font-bold text-[#22C55E]">
+                    <td className="py-3 px-4 text-right font-bold text-[#193764]">
                       {formatCurrency(totals.income)}
                     </td>
-                    <td className="py-3 px-4 text-right font-bold text-[#EF4444]">
+                    <td className="py-3 px-4 text-right font-bold text-[#193764]">
                       {formatCurrency(totals.expenses)}
                     </td>
-                    <td
-                      className="py-3 px-4 text-right font-bold"
-                      style={{ color: totals.profit >= 0 ? "#22C55E" : "#EF4444" }}
-                    >
+                    <td className="py-3 px-4 text-right font-bold text-[#193764]">
                       {formatCurrency(totals.profit)}
                     </td>
-                    <td
-                      className="py-3 px-4 text-right font-bold"
-                      style={{
-                        color:
-                          isNaN(totals.profitMargin) || totals.profitMargin >= 0
-                            ? "#22C55E"
-                            : "#EF4444",
-                      }}
-                    >
+                    <td className="py-3 px-4 text-right font-bold text-[#193764]">
                       {formatPct(totals.profitMargin)}
                     </td>
                   </tr>

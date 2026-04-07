@@ -2214,9 +2214,7 @@ export default function BookkeepingClient({
                               />
                             ) : (
                               <span
-                                className={`font-accounting ${isSplitParent ? "cursor-default" : "cursor-pointer hover:underline"} ${
-                                  t.type === "income" ? "amount-positive" : "amount-negative"
-                                }`}
+                                className={`font-accounting text-[#193764] ${isSplitParent ? "cursor-default" : "cursor-pointer hover:underline"}`}
                                 onClick={() => {
                                   if (!isSplitParent)
                                     setEditingCell({ id: t.id, field: "amount", value: String(t.amount) });
@@ -2336,7 +2334,7 @@ export default function BookkeepingClient({
 
                               {/* Amount */}
                               <td className="px-4 py-2 text-right font-medium whitespace-nowrap">
-                                <span className={`font-accounting ${child.type === "income" ? "amount-positive" : "amount-negative"}`}>
+                                <span className="font-accounting text-[#193764]">
                                   {child.type === "income" ? "+" : "-"}
                                   {formatCurrency(Number(child.amount))}
                                 </span>
