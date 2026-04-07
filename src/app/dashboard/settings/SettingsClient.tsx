@@ -14,7 +14,7 @@ const ROLE_BADGE: Record<string, string> = {
   owner:      "bg-[#4F7FFF]/10 text-[#4F7FFF] border border-[#4F7FFF]/20",
   accountant: "bg-[#A855F7]/10 text-[#A855F7]",
   bookkeeper: "bg-[#22C55E]/10 text-[#22C55E]",
-  readonly:   "bg-[#6B7A99]/10 text-[#6B7A99]",
+  readonly:   "bg-[#6B7280]/10 text-[#6B7280]",
 };
 
 const ROLE_DESC: Record<string, string> = {
@@ -200,8 +200,8 @@ export default function SettingsClient({
   const tabClass = (t: string) =>
     `px-5 py-2 rounded-lg text-sm transition-colors ${
       activeTab === t
-        ? "bg-[#111827] border border-[#1E2A45] text-[#E8ECF4] font-medium"
-        : "text-[#6B7A99] hover:text-[#E8ECF4]"
+        ? "bg-[#193764] border border-[#193764] text-white font-medium"
+        : "text-[#6B7280] hover:text-[#193764]"
     }`;
 
   const avatarInitial = (name || email).charAt(0).toUpperCase();
@@ -213,8 +213,8 @@ export default function SettingsClient({
       <div className="flex flex-col gap-6">
         {/* Header */}
         <div>
-          <h1 className="font-syne text-3xl font-bold text-[#E8ECF4]">Settings</h1>
-          <p className="text-sm text-[#6B7A99] mt-1">{business.name}</p>
+          <h1 className="font-syne text-3xl font-bold text-[#193764]">Settings</h1>
+          <p className="text-sm text-[#6B7280] mt-1">{business.name}</p>
         </div>
 
         {/* Tab switcher */}
@@ -234,19 +234,19 @@ export default function SettingsClient({
           <div className="space-y-6 max-w-xl">
 
             {/* Avatar section */}
-            <div className="bg-[#111827] border border-[#1E2A45] rounded-xl p-6">
-              <h3 className="font-syne font-semibold text-[#E8ECF4] mb-4">Profile Photo</h3>
+            <div className="bg-white border border-[#dde4ef] rounded-xl p-6">
+              <h3 className="font-syne font-semibold text-[#193764] mb-4">Profile Photo</h3>
               <div className="flex items-center gap-5">
                 <div className="relative w-20 h-20 flex-shrink-0">
-                  <div className="w-20 h-20 rounded-full bg-[#1E2A45] flex items-center justify-center overflow-hidden">
+                  <div className="w-20 h-20 rounded-full bg-[#e8eef6] flex items-center justify-center overflow-hidden">
                     {avatarUrl ? (
                       <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
                     ) : (
-                      <span className="text-2xl font-bold text-[#6B7A99]">{avatarInitial}</span>
+                      <span className="text-2xl font-bold text-[#6B7280]">{avatarInitial}</span>
                     )}
                   </div>
                   {isUploading && (
-                    <div className="absolute inset-0 rounded-full bg-[#0A0F1E]/70 flex items-center justify-center">
+                    <div className="absolute inset-0 rounded-full bg-[#f5f4f2]/70 flex items-center justify-center">
                       <svg className="animate-spin w-6 h-6 text-[#4F7FFF]" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
@@ -256,7 +256,7 @@ export default function SettingsClient({
                 </div>
                 <div>
                   <label className={isUploading ? "cursor-not-allowed opacity-60" : "cursor-pointer"}>
-                    <span className="bg-[#1E2A45] hover:bg-[#4F7FFF]/20 text-[#E8ECF4] px-4 py-2 rounded-lg text-sm transition-colors inline-block">
+                    <span className="bg-[#e8eef6] hover:bg-[#4F7FFF]/20 text-[#193764] px-4 py-2 rounded-lg text-sm transition-colors inline-block">
                       {isUploading ? "Uploading…" : "Upload photo"}
                     </span>
                     <input
@@ -267,17 +267,17 @@ export default function SettingsClient({
                       onChange={handleAvatarUpload}
                     />
                   </label>
-                  <p className="text-xs text-[#6B7A99] mt-1.5">JPG, PNG or WebP. Max 2MB.</p>
+                  <p className="text-xs text-[#6B7280] mt-1.5">JPG, PNG or WebP. Max 2MB.</p>
                 </div>
               </div>
             </div>
 
             {/* Personal information form */}
-            <div className="bg-[#111827] border border-[#1E2A45] rounded-xl p-6">
-              <h3 className="font-syne font-semibold text-[#E8ECF4] mb-5">Personal Information</h3>
+            <div className="bg-white border border-[#dde4ef] rounded-xl p-6">
+              <h3 className="font-syne font-semibold text-[#193764] mb-5">Personal Information</h3>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm text-[#6B7A99] mb-1.5">Full name</label>
+                  <label className="block text-sm text-[#6B7280] mb-1.5">Full name</label>
                   <input
                     type="text"
                     value={name}
@@ -286,17 +286,17 @@ export default function SettingsClient({
                   />
                 </div>
                 <div>
-                  <label className="block text-sm text-[#6B7A99] mb-1.5">Email address</label>
+                  <label className="block text-sm text-[#6B7280] mb-1.5">Email address</label>
                   <input
                     type="email"
                     value={email}
                     readOnly
                     className="input-style opacity-60 cursor-not-allowed"
                   />
-                  <p className="text-xs text-[#6B7A99] mt-1">Email cannot be changed</p>
+                  <p className="text-xs text-[#6B7280] mt-1">Email cannot be changed</p>
                 </div>
                 <div>
-                  <label className="block text-sm text-[#6B7A99] mb-1.5">Phone number</label>
+                  <label className="block text-sm text-[#6B7280] mb-1.5">Phone number</label>
                   <input
                     type="tel"
                     value={phone}
@@ -306,7 +306,7 @@ export default function SettingsClient({
                   />
                 </div>
                 <div>
-                  <label className="block text-sm text-[#6B7A99] mb-1.5">Job title</label>
+                  <label className="block text-sm text-[#6B7280] mb-1.5">Job title</label>
                   <input
                     type="text"
                     value={jobTitle}
@@ -316,7 +316,7 @@ export default function SettingsClient({
                   />
                 </div>
                 <div>
-                  <label className="block text-sm text-[#6B7A99] mb-1.5">Timezone</label>
+                  <label className="block text-sm text-[#6B7280] mb-1.5">Timezone</label>
                   <select
                     value={timezone}
                     onChange={(e) => setTimezone(e.target.value)}
@@ -333,7 +333,7 @@ export default function SettingsClient({
                   <button
                     onClick={handleSaveProfile}
                     disabled={isSaving}
-                    className="bg-[#4F7FFF] hover:bg-[#3D6FEF] disabled:opacity-50 text-white font-medium rounded-lg px-6 py-2.5 text-sm transition-colors"
+                    className="bg-[#2F7FC8] hover:bg-[#2568a8] disabled:opacity-50 text-white font-medium rounded-lg px-6 py-2.5 text-sm transition-colors"
                   >
                     {isSaving ? "Saving..." : "Save changes"}
                   </button>
@@ -342,15 +342,15 @@ export default function SettingsClient({
             </div>
 
             {/* Password section */}
-            <div className="bg-[#111827] border border-[#1E2A45] rounded-xl p-6">
+            <div className="bg-white border border-[#dde4ef] rounded-xl p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="font-syne font-semibold text-[#E8ECF4]">Password</h3>
-                  <p className="text-sm text-[#6B7A99] mt-0.5">Update your account password</p>
+                  <h3 className="font-syne font-semibold text-[#193764]">Password</h3>
+                  <p className="text-sm text-[#6B7280] mt-0.5">Update your account password</p>
                 </div>
                 <a
                   href="/dashboard/change-password"
-                  className="text-sm text-[#4F7FFF] hover:underline"
+                  className="text-sm text-[#2F7FC8] hover:underline"
                 >
                   Change password →
                 </a>
@@ -366,22 +366,22 @@ export default function SettingsClient({
 
         {/* ── Danger Zone Tab ──────────────────────────────────────────────── */}
         {activeTab === "danger" && isOwner && (
-          <div className="bg-[#111827] border border-[#EF4444]/30 rounded-xl p-6 max-w-xl">
+          <div className="bg-white border border-[#EF4444]/30 rounded-xl p-6 max-w-xl">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-full bg-[#EF4444]/10 flex items-center justify-center">
                 <AlertTriangle size={18} className="text-[#EF4444]" />
               </div>
               <div>
-                <h2 className="font-syne text-lg font-semibold text-[#E8ECF4]">Danger Zone</h2>
-                <p className="text-xs text-[#6B7A99]">These actions are irreversible</p>
+                <h2 className="font-syne text-lg font-semibold text-[#193764]">Danger Zone</h2>
+                <p className="text-xs text-[#6B7280]">These actions are irreversible</p>
               </div>
             </div>
 
             <div className="border border-[#EF4444]/20 rounded-lg p-4">
-              <p className="text-sm font-medium text-[#E8ECF4] mb-1">Delete this business</p>
-              <p className="text-xs text-[#6B7A99] mb-4">
+              <p className="text-sm font-medium text-[#193764] mb-1">Delete this business</p>
+              <p className="text-xs text-[#6B7280] mb-4">
                 This will permanently delete all transactions, accounts, and reports for{" "}
-                <span className="font-medium text-[#E8ECF4]">{business.name}</span>. This action
+                <span className="font-medium text-[#193764]">{business.name}</span>. This action
                 cannot be undone.
               </p>
 
@@ -395,9 +395,9 @@ export default function SettingsClient({
                 </button>
               ) : (
                 <div className="flex flex-col gap-3">
-                  <p className="text-xs text-[#6B7A99]">
+                  <p className="text-xs text-[#6B7280]">
                     Type{" "}
-                    <span className="font-mono font-semibold text-[#E8ECF4]">
+                    <span className="font-mono font-semibold text-[#193764]">
                       {business.name}
                     </span>{" "}
                     to confirm deletion.
@@ -407,7 +407,7 @@ export default function SettingsClient({
                     value={deleteInput}
                     onChange={(e) => setDeleteInput(e.target.value)}
                     placeholder={business.name}
-                    className="w-full bg-[#0A0F1E] border border-[#EF4444]/30 text-[#E8ECF4] text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-[#EF4444] placeholder:text-[#6B7A99]"
+                    className="w-full bg-[#f5f4f2] border border-[#EF4444]/30 text-[#193764] text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-[#EF4444] placeholder:text-[#6B7280]"
                   />
                   <div className="flex gap-2">
                     <button
@@ -422,7 +422,7 @@ export default function SettingsClient({
                         setDeleteConfirm(false);
                         setDeleteInput("");
                       }}
-                      className="px-4 py-2 text-[#6B7A99] hover:text-[#E8ECF4] text-sm rounded-lg transition-colors"
+                      className="px-4 py-2 text-[#6B7280] hover:text-[#193764] text-sm rounded-lg transition-colors"
                     >
                       Cancel
                     </button>
@@ -438,9 +438,9 @@ export default function SettingsClient({
       <style>{`
         .input-style {
           width: 100%;
-          background: #0A0F1E;
-          border: 1px solid #1E2A45;
-          color: #E8ECF4;
+          background: #f5f4f2;
+          border: 1px solid #dde4ef;
+          color: #193764;
           font-size: 0.875rem;
           border-radius: 0.5rem;
           padding: 0.5rem 0.75rem;
@@ -450,7 +450,7 @@ export default function SettingsClient({
           border-color: #4F7FFF;
         }
         .input-style::placeholder {
-          color: #6B7A99;
+          color: #6B7280;
         }
         select.input-style {
           cursor: pointer;
@@ -465,7 +465,7 @@ export default function SettingsClient({
 function FormField({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <label className="block text-xs text-[#6B7A99] mb-1.5">{label}</label>
+      <label className="block text-xs text-[#6B7280] mb-1.5">{label}</label>
       {children}
     </div>
   );
@@ -568,15 +568,15 @@ function MFASettings() {
   const isEnabled = factors.some(f => f.status === 'verified');
 
   return (
-    <div className="bg-[#111827] border border-[#1E2A45] rounded-xl p-6">
+    <div className="bg-white border border-[#dde4ef] rounded-xl p-6">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <Shield size={18} className="text-[#4F7FFF]" />
           <div>
-            <h3 className="font-syne font-semibold text-[#E8ECF4]">
+            <h3 className="font-syne font-semibold text-[#193764]">
               Two-Factor Authentication
             </h3>
-            <p className="text-sm text-[#6B7A99] mt-0.5">
+            <p className="text-sm text-[#6B7280] mt-0.5">
               Add an extra layer of security to your account
             </p>
           </div>
@@ -584,7 +584,7 @@ function MFASettings() {
         <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
           isEnabled
             ? 'bg-[#22C55E]/10 text-[#22C55E]'
-            : 'bg-[#6B7A99]/10 text-[#6B7A99]'
+            : 'bg-[#6B7280]/10 text-[#6B7280]'
         }`}>
           {isEnabled ? '✓ Enabled' : 'Disabled'}
         </span>
@@ -603,7 +603,7 @@ function MFASettings() {
       {/* Not enrolled — show enable button */}
       {!isEnabled && !qrCode && (
         <div>
-          <p className="text-sm text-[#6B7A99] mb-4">
+          <p className="text-sm text-[#6B7280] mb-4">
             Use an authenticator app like Google Authenticator or Authy to
             generate one-time codes when signing in.
           </p>
@@ -621,10 +621,10 @@ function MFASettings() {
       {/* QR code enrollment step */}
       {qrCode && (
         <div>
-          <p className="text-sm text-[#E8ECF4] font-medium mb-2">
+          <p className="text-sm text-[#193764] font-medium mb-2">
             Step 1: Scan this QR code
           </p>
-          <p className="text-sm text-[#6B7A99] mb-4">
+          <p className="text-sm text-[#6B7280] mb-4">
             Open Google Authenticator, Authy, or any TOTP app and scan the
             QR code below.
           </p>
@@ -637,16 +637,16 @@ function MFASettings() {
             <summary className="text-sm text-[#4F7FFF] cursor-pointer hover:underline">
               Can&apos;t scan? Enter code manually
             </summary>
-            <div className="mt-2 bg-[#0A0F1E] border border-[#1E2A45] rounded-lg px-3 py-2">
-              <p className="text-xs text-[#6B7A99] mb-1">Manual entry key:</p>
-              <p className="font-mono text-sm text-[#E8ECF4] break-all">{secret}</p>
+            <div className="mt-2 bg-[#f5f4f2] border border-[#dde4ef] rounded-lg px-3 py-2">
+              <p className="text-xs text-[#6B7280] mb-1">Manual entry key:</p>
+              <p className="font-mono text-sm text-[#193764] break-all">{secret}</p>
             </div>
           </details>
 
-          <p className="text-sm text-[#E8ECF4] font-medium mb-2">
+          <p className="text-sm text-[#193764] font-medium mb-2">
             Step 2: Enter the 6-digit code
           </p>
-          <p className="text-sm text-[#6B7A99] mb-3">
+          <p className="text-sm text-[#6B7280] mb-3">
             Enter the code shown in your authenticator app to verify setup.
           </p>
 
@@ -658,7 +658,7 @@ function MFASettings() {
               value={verifyCode}
               onChange={e => setVerifyCode(e.target.value.replace(/[^0-9]/g, ''))}
               placeholder="000000"
-              className="bg-[#0A0F1E] border border-[#1E2A45] text-[#E8ECF4]
+              className="bg-[#f5f4f2] border border-[#dde4ef] text-[#193764]
                 rounded-lg px-4 py-2.5 text-center font-mono tracking-widest
                 text-lg focus:outline-none focus:ring-2 focus:ring-[#4F7FFF] w-40"
             />
@@ -678,7 +678,7 @@ function MFASettings() {
               setSecret(null);
               setFactorId(null);
             }}
-            className="text-sm text-[#6B7A99] hover:text-[#E8ECF4] transition-colors mt-3 block"
+            className="text-sm text-[#6B7280] hover:text-[#193764] transition-colors mt-3 block"
           >
             Cancel
           </button>
@@ -688,7 +688,7 @@ function MFASettings() {
       {/* Enrolled — show disable option */}
       {isEnabled && !qrCode && (
         <div>
-          <p className="text-sm text-[#6B7A99] mb-4">
+          <p className="text-sm text-[#6B7280] mb-4">
             Your account is protected with two-factor authentication. You&apos;ll
             need your authenticator app each time you sign in.
           </p>
@@ -697,20 +697,20 @@ function MFASettings() {
             .map(factor => (
               <div
                 key={factor.id}
-                className="flex items-center justify-between bg-[#0A0F1E]
-                  border border-[#1E2A45] rounded-lg px-4 py-3 mb-3"
+                className="flex items-center justify-between bg-[#f5f4f2]
+                  border border-[#dde4ef] rounded-lg px-4 py-3 mb-3"
               >
                 <div>
-                  <p className="text-sm text-[#E8ECF4] font-medium">
+                  <p className="text-sm text-[#193764] font-medium">
                     {factor.friendly_name ?? 'Authenticator App'}
                   </p>
-                  <p className="text-xs text-[#6B7A99]">
+                  <p className="text-xs text-[#6B7280]">
                     Added {new Date(factor.created_at).toLocaleDateString()}
                   </p>
                 </div>
                 <button
                   onClick={() => handleUnenroll(factor.id)}
-                  className="text-sm text-[#EF4444] hover:underline transition-colors"
+                  className="text-sm text-[#C0392B] hover:underline transition-colors"
                 >
                   Remove
                 </button>
