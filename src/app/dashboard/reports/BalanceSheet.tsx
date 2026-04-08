@@ -16,10 +16,9 @@ function fmt(v: number): string {
   return fmtCurrency.format(v);
 }
 
-function amtColor(v: number, isContra = false): string {
-  if (v === 0) return "text-[#6B7A99]";
-  if (isContra || v < 0) return "text-[#EF4444]";
-  return "text-[#E8ECF4]";
+// All balance sheet figures are ledger rows — use navy universally.
+function amtColor(_v: number, _isContra = false): string {
+  return "text-[#193764]";
 }
 
 // ── CSV export ────────────────────────────────────────────────────────────────
@@ -93,7 +92,7 @@ function downloadCSV(data: BalanceSheetData) {
 
 function SectionHeader({ label }: { label: string }) {
   return (
-    <div className="bg-[#0A0F1E] px-4 py-2 text-[#6B7A99] text-xs font-semibold uppercase tracking-wider">
+    <div className="bg-[#e8eef6] px-4 py-2 text-[#193764] text-xs font-semibold uppercase font-sans" style={{ letterSpacing: '0.06em' }}>
       {label}
     </div>
   );
@@ -101,7 +100,7 @@ function SectionHeader({ label }: { label: string }) {
 
 function SubSectionHeader({ label }: { label: string }) {
   return (
-    <div className="pl-4 px-4 py-2 text-[#E8ECF4] text-sm font-medium">
+    <div className="pl-4 px-4 py-2 text-[#193764] text-sm font-medium font-sans">
       {label}
     </div>
   );
@@ -110,16 +109,16 @@ function SubSectionHeader({ label }: { label: string }) {
 function LineItem({ label, amount, isContra = false }: BalanceSheetItem) {
   const color = amtColor(amount, isContra);
   return (
-    <div className="flex justify-between items-center pl-8 px-4 py-2 text-sm hover:bg-[#1E2A45]/20 transition-colors">
-      <span className="text-[#E8ECF4]">{label}</span>
-      <span className={`tabular-nums ${color}`}>{fmt(amount)}</span>
+    <div className="flex justify-between items-center pl-8 px-4 py-2 text-sm hover:bg-[#f0f4fa] transition-colors">
+      <span className="text-[#193764] font-sans">{label}</span>
+      <span className={`font-accounting tabular-nums ${color}`}>{fmt(amount)}</span>
     </div>
   );
 }
 
 function EmptyItem({ label }: { label: string }) {
   return (
-    <div className="flex justify-between items-center pl-8 px-4 py-2 text-sm text-[#6B7A99] italic">
+    <div className="flex justify-between items-center pl-8 px-4 py-2 text-sm text-[#6B7280] font-sans italic">
       <span>{label}</span>
       <span>—</span>
     </div>
@@ -129,9 +128,9 @@ function EmptyItem({ label }: { label: string }) {
 function TotalRow({ label, amount }: { label: string; amount: number }) {
   const color = amtColor(amount);
   return (
-    <div className="flex justify-between items-center border-t border-[#1E2A45] px-4 py-2 font-semibold">
-      <span className="text-[#E8ECF4] text-sm">{label}</span>
-      <span className={`tabular-nums text-sm ${color}`}>{fmt(amount)}</span>
+    <div className="flex justify-between items-center border-t border-[#dde4ef] bg-[#f0f4fa] px-4 py-2 font-semibold">
+      <span className="text-[#193764] text-sm font-sans">{label}</span>
+      <span className={`font-accounting tabular-nums text-sm ${color}`}>{fmt(amount)}</span>
     </div>
   );
 }
@@ -139,16 +138,15 @@ function TotalRow({ label, amount }: { label: string; amount: number }) {
 function GrandTotalRow({ label, amount }: { label: string; amount: number }) {
   const color = amtColor(amount);
   return (
-    <div className="flex justify-between items-center border-t-2 border-[#E8ECF4]/20 bg-[#0A0F1E] px-4 py-3 font-bold font-syne text-base">
-      <span className="text-[#E8ECF4]">{label}</span>
-      <span className={`tabular-nums ${color}`}>{fmt(amount)}</span>
+    <div className="flex justify-between items-center border-t-2 border-[#193764] bg-[#e8eef6] px-4 py-3 font-bold font-sans text-base">
+      <span className="text-[#193764]">{label}</span>
+      <span className={`font-accounting tabular-nums ${color}`}>{fmt(amount)}</span>
     </div>
   );
 }
 
 function CashAccountRow({ acc }: { acc: CashAccount }) {
-  const color =
-    acc.balance > 0 ? "text-[#E8ECF4]" : acc.balance < 0 ? "text-[#EF4444]" : "text-[#6B7A99]";
+  const color = "text-[#193764]";
   const bankLine = [
     acc.bankName && acc.bankName !== "None" ? acc.bankName : "",
     acc.lastFour ? `••••${acc.lastFour}` : "",
@@ -156,12 +154,12 @@ function CashAccountRow({ acc }: { acc: CashAccount }) {
     .filter(Boolean)
     .join(" ");
   return (
-    <div className="flex justify-between items-center pl-8 px-4 py-2 hover:bg-[#1E2A45]/20 transition-colors">
+    <div className="flex justify-between items-center pl-8 px-4 py-2 hover:bg-[#f0f4fa] transition-colors">
       <div>
-        <div className="text-sm text-[#E8ECF4]">{acc.name}</div>
-        {bankLine && <div className="text-xs text-[#6B7A99]">{bankLine}</div>}
+        <div className="text-sm text-[#193764] font-sans">{acc.name}</div>
+        {bankLine && <div className="text-xs text-[#6B7280] font-sans">{bankLine}</div>}
       </div>
-      <span className={`tabular-nums text-sm ${color}`}>
+      <span className={`font-accounting tabular-nums text-sm ${color}`}>
         {acc.balance === 0 ? "—" : fmtCurrency.format(acc.balance)}
       </span>
     </div>
@@ -201,135 +199,140 @@ export default function BalanceSheet({ data, asOfDate, onDateChange, businessNam
         }
       `}</style>
 
-      <div className="w-full bg-[#111827] border border-[#1E2A45] rounded-xl p-6">
-        {/* Statement header */}
-        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-6">
+      <div className="w-full bg-white border border-[#dde4ef] rounded-xl overflow-hidden">
+        {/* ── Navy header band ─────────────────────────────────────────────── */}
+        <div className="bg-[#193764] px-6 py-6 flex flex-col sm:flex-row sm:items-start justify-between gap-4">
           <div>
-            <h2 className="font-syne text-xl font-bold text-[#E8ECF4]">{businessName}</h2>
-            <p className="text-sm text-[#6B7A99]">Balance Sheet</p>
-            <p className="text-sm text-[#6B7A99] mt-0.5">As of {displayDate}</p>
+            <h2 className="font-sans text-xl font-semibold text-white">{businessName}</h2>
+            <p className="text-sm text-[#b8ccdf]">Balance Sheet</p>
+            <p className="text-sm text-[#b8ccdf] mt-0.5">As of {displayDate}</p>
           </div>
           <div className="flex items-center gap-2 flex-wrap no-print">
             <input
               type="date"
               value={asOfDate}
               onChange={(e) => onDateChange(e.target.value)}
-              className="bg-[#0A0F1E] border border-[#1E2A45] text-[#E8ECF4] text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-[#4F7FFF]"
+              className="bg-white/15 border border-white/30 text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-white/60"
             />
             <button
               onClick={() => window.print()}
-              className="flex items-center gap-2 px-3 py-2 text-sm text-[#6B7A99] border border-[#1E2A45] rounded-lg hover:text-[#E8ECF4] hover:border-[#4F7FFF] transition-colors"
+              className="flex items-center gap-2 px-3 py-2 text-sm text-white bg-white/15 border border-white/30 rounded-lg hover:bg-white/25 transition-colors"
             >
               Print
             </button>
             <button
               onClick={() => downloadCSV(data)}
-              className="flex items-center gap-2 px-3 py-2 text-sm text-[#6B7A99] border border-[#1E2A45] rounded-lg hover:text-[#E8ECF4] hover:border-[#4F7FFF] transition-colors"
+              className="flex items-center gap-2 px-3 py-2 text-sm text-white bg-white/15 border border-white/30 rounded-lg hover:bg-white/25 transition-colors"
             >
               Export CSV
             </button>
           </div>
         </div>
 
-        {/* ── Stacked single-column layout ────────────────────────────────── */}
-        <div className="w-full space-y-0 border border-[#1E2A45] rounded-lg overflow-hidden">
+        {/* ── Report body ───────────────────────────────────────────────────── */}
+        <div>
+          {/* Stacked single-column layout */}
+          <div className="w-full space-y-0 border-b border-[#dde4ef] overflow-hidden">
 
-          {/* 1. ASSETS ────────────────────────────────────────────────────── */}
-          <SectionHeader label="Assets" />
+            {/* 1. ASSETS */}
+            <SectionHeader label="Assets" />
 
-          <SubSectionHeader label="Current Assets" />
-          {data.cashByAccount.length === 0 ? (
-            <EmptyItem label="No bank accounts connected" />
-          ) : (
-            data.cashByAccount.map((acc) => (
-              <CashAccountRow key={acc.id} acc={acc} />
-            ))
-          )}
-
-          {/* Fixed Assets — only shown when journal entries use asset accounts */}
-          {data.hasFixedAssets && (
-            <>
-              <SubSectionHeader label="Fixed Assets" />
-              {data.fixedAssets.map((item) => (
-                <LineItem key={item.label} {...item} />
-              ))}
-              <TotalRow label="Total Fixed Assets" amount={data.totalFixedAssets} />
-            </>
-          )}
-
-          <GrandTotalRow label="Total Assets" amount={data.totalAssets} />
-
-          {/* Divider */}
-          <div className="border-t-2 border-[#1E2A45]" />
-
-          {/* 2. LIABILITIES ───────────────────────────────────────────────── */}
-          <SectionHeader label="Liabilities" />
-
-          <SubSectionHeader label="Current Liabilities" />
-          {data.currentLiabilities.length === 0 ? (
-            <EmptyItem label="No liability transactions" />
-          ) : (
-            data.currentLiabilities.map((item) => (
-              <LineItem key={item.label} {...item} />
-            ))
-          )}
-          <TotalRow label="Total Current Liabilities" amount={data.totalCurrentLiabilities} />
-          <TotalRow label="Total Liabilities" amount={data.totalLiabilities} />
-
-          {/* 3. EQUITY ────────────────────────────────────────────────────── */}
-          <SectionHeader label="Equity" />
-
-          {data.equityItems.map((item) => (
-            <LineItem key={item.label} {...item} />
-          ))}
-          {/* Retained Earnings = prior years' cumulative net income */}
-          <div className="flex justify-between items-center pl-8 px-4 py-2 text-sm hover:bg-[#1E2A45]/20 transition-colors">
-            <div>
-              <div className="text-[#E8ECF4]">Retained Earnings</div>
-              <div className="text-xs text-[#6B7A99]">Prior years&apos; cumulative net income</div>
-            </div>
-            <span className={`tabular-nums ${amtColor(data.retainedEarnings)}`}>{fmt(data.retainedEarnings)}</span>
-          </div>
-          <LineItem label="Current Year Net Income" amount={data.currentYearNetIncome} isContra={false} />
-          <TotalRow label="Total Equity" amount={data.totalEquity} />
-
-          {/* 4. TOTAL LIABILITIES + EQUITY ───────────────────────────────── */}
-          <GrandTotalRow label="Total Liabilities + Equity" amount={data.totalLiabilitiesAndEquity} />
-        </div>
-
-        {/* 5. Balance check banner ──────────────────────────────────────── */}
-        <div
-          className={`mt-4 px-4 py-3 rounded-lg text-sm ${
-            inBalance
-              ? "bg-[#22C55E]/10 border border-[#22C55E]/30 text-[#22C55E]"
-              : "bg-[#F59E0B]/10 border border-[#F59E0B]/30 text-[#F59E0B]"
-          }`}
-        >
-          <div className="flex items-center gap-2">
-            <span className="text-base">{inBalance ? "✓" : "⚠"}</span>
-            {inBalance ? (
-              <span>
-                Assets ({fmt(data.totalAssets)}) = Liabilities + Equity ({fmt(data.totalLiabilitiesAndEquity)}) — Balance sheet is in balance
-              </span>
+            <SubSectionHeader label="Current Assets" />
+            {data.cashByAccount.length === 0 ? (
+              <EmptyItem label="No bank accounts connected" />
             ) : (
-              <span>Out of balance by {fmt(diff)}</span>
+              data.cashByAccount.map((acc) => (
+                <CashAccountRow key={acc.id} acc={acc} />
+              ))
             )}
-          </div>
-          {!inBalance && (
-            <p className="mt-1 text-xs opacity-80 pl-6">
-              This may be due to transactions categorized as Assets or Equity that aren&apos;t fully reflected.
-              Check your Owner Contributions and Owner Draw categories.
-            </p>
-          )}
-        </div>
 
-        {/* 6. Optional depreciation note ───────────────────────────────── */}
-        <p className="text-xs text-[#6B7A99] italic text-center mt-4">
-          Want to track fixed assets and depreciation?{" "}
-          <a href="/dashboard/journal-entries" className="underline hover:text-[#4F7FFF] transition-colors">
-            Use Journal Entries →
-          </a>
-        </p>
+            {/* Fixed Assets — only shown when journal entries use asset accounts */}
+            {data.hasFixedAssets && (
+              <>
+                <SubSectionHeader label="Fixed Assets" />
+                {data.fixedAssets.map((item) => (
+                  <LineItem key={item.label} {...item} />
+                ))}
+                <TotalRow label="Total Fixed Assets" amount={data.totalFixedAssets} />
+              </>
+            )}
+
+            <GrandTotalRow label="Total Assets" amount={data.totalAssets} />
+
+            {/* Divider */}
+            <div className="border-t-2 border-[#dde4ef]" />
+
+            {/* 2. LIABILITIES */}
+            <SectionHeader label="Liabilities" />
+
+            <SubSectionHeader label="Current Liabilities" />
+            {data.currentLiabilities.length === 0 ? (
+              <EmptyItem label="No liability transactions" />
+            ) : (
+              data.currentLiabilities.map((item) => (
+                <LineItem key={item.label} {...item} />
+              ))
+            )}
+            <TotalRow label="Total Current Liabilities" amount={data.totalCurrentLiabilities} />
+            <TotalRow label="Total Liabilities" amount={data.totalLiabilities} />
+
+            {/* 3. EQUITY */}
+            <SectionHeader label="Equity" />
+
+            {data.equityItems.map((item) => (
+              <LineItem key={item.label} {...item} />
+            ))}
+            {/* Retained Earnings = prior years' cumulative net income */}
+            <div className="flex justify-between items-center pl-8 px-4 py-2 text-sm hover:bg-[#f0f4fa] transition-colors">
+              <div>
+                <div className="text-[#193764] font-sans">Retained Earnings</div>
+                <div className="text-xs text-[#6B7280] font-sans">Prior years&apos; cumulative net income</div>
+              </div>
+              <span className={`font-accounting tabular-nums ${amtColor(data.retainedEarnings)}`}>{fmt(data.retainedEarnings)}</span>
+            </div>
+            <LineItem label="Current Year Net Income" amount={data.currentYearNetIncome} isContra={false} />
+            <TotalRow label="Total Equity" amount={data.totalEquity} />
+
+            {/* 4. TOTAL LIABILITIES + EQUITY */}
+            <GrandTotalRow label="Total Liabilities + Equity" amount={data.totalLiabilitiesAndEquity} />
+          </div>
+
+          {/* 5. Balance check banner */}
+          <div className="px-6 pt-4 pb-2">
+            <div
+              className={`px-4 py-3 rounded-lg text-sm font-sans ${
+                inBalance
+                  ? "bg-[#e6f7ee] border border-[#b3e2c5] text-[#1a7a40]"
+                  : "bg-[#F59E0B]/10 border border-[#F59E0B]/30 text-[#F59E0B]"
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-base">{inBalance ? "✓" : "⚠"}</span>
+                {inBalance ? (
+                  <span>
+                    Assets ({fmt(data.totalAssets)}) = Liabilities + Equity ({fmt(data.totalLiabilitiesAndEquity)}) — Balance sheet is in balance
+                  </span>
+                ) : (
+                  <span>Out of balance by {fmt(diff)}</span>
+                )}
+              </div>
+              {!inBalance && (
+                <p className="mt-1 text-xs opacity-80 pl-6">
+                  This may be due to transactions categorized as Assets or Equity that aren&apos;t fully reflected.
+                  Check your Owner Contributions and Owner Draw categories.
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* 6. Optional depreciation note */}
+          <p className="text-xs text-[#6B7280] font-sans italic text-center px-6 pb-4">
+            Want to track fixed assets and depreciation?{" "}
+            <a href="/dashboard/journal-entries" className="text-[#2F7FC8] underline hover:text-[#193764] transition-colors">
+              Use Journal Entries →
+            </a>
+          </p>
+        </div>
       </div>
     </>
   );
