@@ -7,10 +7,8 @@ import {
   TrendingUp,
   TrendingDown,
   DollarSign,
-  FileText,
   Tag,
   Building2,
-  CheckCircle,
   ArrowRight,
   Receipt,
 } from "lucide-react";
@@ -91,23 +89,9 @@ function KpiCard({ label, value, color, icon, iconBg, subtext }: KpiCardProps) {
   );
 }
 
-// ── Action Item Card ──────────────────────────────────────────────────────────
+// ── Uncategorized Transactions Card ──────────────────────────────────────────
 
-interface ActionItemProps {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-  linkHref: string;
-  linkLabel: string;
-}
-
-function ActionItem({
-  icon,
-  title,
-  description,
-  linkHref,
-  linkLabel,
-}: ActionItemProps) {
+function UncategorizedCard({ count }: { count: number }) {
   return (
     <div
       className="flex items-center gap-4 p-5"
@@ -117,18 +101,22 @@ function ActionItem({
         className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
         style={{ backgroundColor: '#D9770625' }}
       >
-        <span style={{ color: '#D97706' }}>{icon}</span>
+        <Tag size={20} style={{ color: '#D97706' }} />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold mb-0.5" style={{ color: '#78350f' }}>{title}</p>
-        <p className="text-xs" style={{ color: '#92400e' }}>{description}</p>
+        <p className="text-sm font-semibold mb-0.5" style={{ color: '#78350f' }}>
+          {count} transaction{count !== 1 ? "s" : ""} need categorization
+        </p>
+        <p className="text-xs" style={{ color: '#92400e' }}>
+          Uncategorized transactions affect the accuracy of your P&amp;L report.
+        </p>
       </div>
       <Link
-        href={linkHref}
-        className="text-sm font-semibold whitespace-nowrap flex-shrink-0 text-white"
-        style={{ backgroundColor: '#D97706', borderRadius: '6px', padding: '6px 14px' }}
+        href="/dashboard/bookkeeping?category=Uncategorized"
+        className="font-semibold whitespace-nowrap flex-shrink-0 text-white"
+        style={{ backgroundColor: '#D97706', borderRadius: '6px', padding: '6px 14px', fontSize: '13px' }}
       >
-        {linkLabel}
+        Categorize now →
       </Link>
     </div>
   );
@@ -321,52 +309,15 @@ export default function DashboardClient({
       </section>
 
       {/* ── Section 2: Action Items ───────────────────────────────────────── */}
-      <section>
-        <div className="mb-4">
-          <h2 className="font-sans text-xl font-semibold text-[#193764]">Action Items</h2>
-          <p className="text-sm text-[#6B7280] mt-0.5">Things that need your attention</p>
-        </div>
-
-        <div className="flex flex-col gap-3">
-          {uncategorizedCount === 0 && bankAccounts.length > 0 && (
-            <ActionItem
-              icon={<CheckCircle size={20} />}
-              title="You're all caught up!"
-              description="All transactions are categorized and your accounts are connected."
-              linkHref="/dashboard/bookkeeping"
-              linkLabel="View transactions →"
-            />
-          )}
-
-          {uncategorizedCount > 0 && (
-            <ActionItem
-              icon={<Tag size={20} />}
-              title={`${uncategorizedCount} transaction${uncategorizedCount !== 1 ? "s" : ""} need categorization`}
-              description="Uncategorized transactions affect the accuracy of your P&L report."
-              linkHref="/dashboard/bookkeeping?category=Uncategorized"
-              linkLabel="Categorize now →"
-            />
-          )}
-
-          {bankAccounts.length === 0 && (
-            <ActionItem
-              icon={<Building2 size={20} />}
-              title="Connect your first bank account"
-              description="Add a bank account to start organizing your transactions."
-              linkHref="/dashboard/accounts"
-              linkLabel="Add account →"
-            />
-          )}
-
-          <ActionItem
-            icon={<FileText size={20} />}
-            title="View your P&L report"
-            description="See your full profit and loss breakdown with charts and category analysis."
-            linkHref="/dashboard/reports"
-            linkLabel="View report →"
-          />
-        </div>
-      </section>
+      {uncategorizedCount > 0 && (
+        <section>
+          <div className="mb-4">
+            <h2 className="font-sans text-xl font-semibold text-[#193764]">Action Items</h2>
+            <p className="text-sm text-[#6B7280] mt-0.5">Things that need your attention</p>
+          </div>
+          <UncategorizedCard count={uncategorizedCount} />
+        </section>
+      )}
 
       {/* ── Section 3: Bank Accounts ─────────────────────────────────────── */}
       <section>
