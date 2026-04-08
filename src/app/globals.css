@@ -127,3 +127,8 @@
 .amount-negative {
   color: var(--color-debit);
 }
+
+/* Native date inputs: force navy text so the date value is readable on light bg */
+input[type="date"] { color: #193764; }
+input[type="date"]::-webkit-datetime-edit { color: #193764; }
+input[type="date"]::-webkit-calendar-picker-indicator { opacity: 0.5; }

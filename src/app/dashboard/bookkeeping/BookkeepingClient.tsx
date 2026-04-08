@@ -425,22 +425,20 @@ function UploadPanel({ bankAccounts, onImportSuccess, onAccountCreated }: Upload
                     </td>
                     <td className="px-4 py-3">
                       <span
-                        className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                        className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium font-sans border ${
                           t.type === "income"
-                            ? "bg-[#22C55E]/10 text-[#22C55E]"
-                            : "bg-[#EF4444]/10 text-[#EF4444]"
+                            ? "bg-[#e6f7ee] text-[#1a7a40] border-[#b3e2c5]"
+                            : "bg-[#fdecea] text-[#922b21] border-[#f1b0aa]"
                         }`}
                       >
                         {t.type === "income" ? "Income" : "Expense"}
                       </span>
                     </td>
-                    <td
-                      className={`px-4 py-3 font-medium whitespace-nowrap ${
-                        t.type === "income" ? "text-[#22C55E]" : "text-[#EF4444]"
-                      }`}
-                    >
-                      {t.type === "income" ? "+" : "-"}
-                      {formatCurrency(t.amount)}
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <span className="font-accounting text-[#193764]">
+                        {t.type === "income" ? "+" : "-"}
+                        {formatCurrency(t.amount)}
+                      </span>
                     </td>
                   </tr>
                 ))}
@@ -1874,7 +1872,7 @@ export default function BookkeepingClient({
                         type="checkbox"
                         checked={allPageSelected}
                         onChange={togglePageSelect}
-                        className="rounded border-[#dde4ef] accent-[#4F7FFF] cursor-pointer"
+                        className="appearance-none w-4 h-4 rounded-full border border-[#dde4ef] bg-white cursor-pointer checked:bg-[#2F7FC8] checked:border-[#2F7FC8] hover:border-[#2F7FC8] hover:bg-[#e8eef6] transition-colors"
                       />
                     </th>
                     <th className="px-4 py-3 text-[#6B7280] font-medium text-left">Date</th>
@@ -1914,7 +1912,7 @@ export default function BookkeepingClient({
                               type="checkbox"
                               checked={selectedIds.has(t.id)}
                               onChange={() => toggleSelect(t.id)}
-                              className="rounded border-[#dde4ef] accent-[#4F7FFF] cursor-pointer"
+                              className="appearance-none w-4 h-4 rounded-full border border-[#dde4ef] bg-white cursor-pointer checked:bg-[#2F7FC8] checked:border-[#2F7FC8] hover:border-[#2F7FC8] hover:bg-[#e8eef6] transition-colors"
                             />
                           </td>
 
@@ -2173,10 +2171,10 @@ export default function BookkeepingClient({
                               </span>
                             ) : (
                               <span
-                                className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                                className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium font-sans border ${
                                   t.type === "income"
-                                    ? "bg-[#22C55E]/10 text-[#22C55E]"
-                                    : "bg-[#EF4444]/10 text-[#EF4444]"
+                                    ? "bg-[#e6f7ee] text-[#1a7a40] border-[#b3e2c5]"
+                                    : "bg-[#fdecea] text-[#922b21] border-[#f1b0aa]"
                                 }`}
                               >
                                 {t.type === "income" ? "Income" : "Expense"}
@@ -2322,10 +2320,10 @@ export default function BookkeepingClient({
                               {/* Type */}
                               <td className="px-4 py-2">
                                 <span
-                                  className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                                  className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium font-sans border ${
                                     child.type === "income"
-                                      ? "bg-[#22C55E]/10 text-[#22C55E]"
-                                      : "bg-[#EF4444]/10 text-[#EF4444]"
+                                      ? "bg-[#e6f7ee] text-[#1a7a40] border-[#b3e2c5]"
+                                      : "bg-[#fdecea] text-[#922b21] border-[#f1b0aa]"
                                   }`}
                                 >
                                   {child.type === "income" ? "Income" : "Expense"}
