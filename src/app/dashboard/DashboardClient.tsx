@@ -94,9 +94,6 @@ function KpiCard({ label, value, color, icon, iconBg, subtext }: KpiCardProps) {
 // ── Action Item Card ──────────────────────────────────────────────────────────
 
 interface ActionItemProps {
-  color: string;
-  bgColor: string;
-  borderColor: string;
   icon: React.ReactNode;
   title: string;
   description: string;
@@ -105,9 +102,6 @@ interface ActionItemProps {
 }
 
 function ActionItem({
-  color,
-  bgColor,
-  borderColor,
   icon,
   title,
   description,
@@ -116,23 +110,23 @@ function ActionItem({
 }: ActionItemProps) {
   return (
     <div
-      className="flex items-start gap-4 rounded-xl p-5 border"
-      style={{ backgroundColor: bgColor, borderColor }}
+      className="flex items-center gap-4 p-5"
+      style={{ backgroundColor: '#fef3c7', border: '1.5px solid #D97706', borderRadius: '10px' }}
     >
       <div
         className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
-        style={{ backgroundColor: color + "20" }}
+        style={{ backgroundColor: '#D9770625' }}
       >
-        <span style={{ color }}>{icon}</span>
+        <span style={{ color: '#D97706' }}>{icon}</span>
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold text-[#193764] mb-0.5">{title}</p>
-        <p className="text-xs text-[#6B7280]">{description}</p>
+        <p className="text-sm font-semibold mb-0.5" style={{ color: '#78350f' }}>{title}</p>
+        <p className="text-xs" style={{ color: '#92400e' }}>{description}</p>
       </div>
       <Link
         href={linkHref}
-        className="text-sm font-medium whitespace-nowrap flex-shrink-0 hover:underline"
-        style={{ color }}
+        className="text-sm font-semibold whitespace-nowrap flex-shrink-0 text-white"
+        style={{ backgroundColor: '#D97706', borderRadius: '6px', padding: '6px 14px' }}
       >
         {linkLabel}
       </Link>
@@ -336,9 +330,6 @@ export default function DashboardClient({
         <div className="flex flex-col gap-3">
           {uncategorizedCount === 0 && bankAccounts.length > 0 && (
             <ActionItem
-              color="#22C55E"
-              bgColor="#22C55E0D"
-              borderColor="#22C55E30"
               icon={<CheckCircle size={20} />}
               title="You're all caught up!"
               description="All transactions are categorized and your accounts are connected."
@@ -349,9 +340,6 @@ export default function DashboardClient({
 
           {uncategorizedCount > 0 && (
             <ActionItem
-              color="#F59E0B"
-              bgColor="#F59E0B0D"
-              borderColor="#F59E0B30"
               icon={<Tag size={20} />}
               title={`${uncategorizedCount} transaction${uncategorizedCount !== 1 ? "s" : ""} need categorization`}
               description="Uncategorized transactions affect the accuracy of your P&L report."
@@ -362,9 +350,6 @@ export default function DashboardClient({
 
           {bankAccounts.length === 0 && (
             <ActionItem
-              color="#4F7FFF"
-              bgColor="#4F7FFF0D"
-              borderColor="#4F7FFF30"
               icon={<Building2 size={20} />}
               title="Connect your first bank account"
               description="Add a bank account to start organizing your transactions."
@@ -374,9 +359,6 @@ export default function DashboardClient({
           )}
 
           <ActionItem
-            color="#4F7FFF"
-            bgColor="#4F7FFF0D"
-            borderColor="#4F7FFF30"
             icon={<FileText size={20} />}
             title="View your P&L report"
             description="See your full profit and loss breakdown with charts and category analysis."

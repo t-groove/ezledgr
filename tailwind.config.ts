@@ -82,6 +82,11 @@ const config = {
   				light: '#fdecea',
   				dark: '#922b21',
   			},
+  			action: {
+  				DEFAULT: '#D97706',
+  				light: '#fef3c7',
+  				dark: '#78350f',
+  			},
   			slate: '#6B7280',
   			surface: '#f5f4f2',
   		},
