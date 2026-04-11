@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Briefcase, Building2, Check, Plus } from "lucide-react";
 import { useBusinessContext } from "@/lib/business/context";
 import { getUserBusinesses } from "@/lib/business/actions";
@@ -22,6 +23,7 @@ interface Props {
 }
 
 export default function BusinessesClient({ initialBusinesses, activeBusinessId }: Props) {
+  const router = useRouter();
   const { switchBusiness, currentBusiness, businesses: ctxBusinesses } = useBusinessContext();
 
   // Local list — seeded from context (if already loaded) or SSR prop.
@@ -36,13 +38,14 @@ export default function BusinessesClient({ initialBusinesses, activeBusinessId }
   const [modalOpen, setModalOpen] = useState(false);
 
   function handleSuccess(businessId: string) {
-    // Re-fetch businesses list so the new card appears immediately, then
-    // switch active business (which also calls router.refresh internally)
+    // Re-fetch businesses list so the new card appears, switch the active
+    // business (also calls router.refresh internally), then navigate to dashboard.
     getUserBusinesses().then(members => {
       setBusinesses(members);
       const newBiz = members.find(m => m.business_id === businessId);
       switchBusiness(businessId, newBiz?.business.name ?? "");
     });
+    router.push("/dashboard");
   }
 
   return (

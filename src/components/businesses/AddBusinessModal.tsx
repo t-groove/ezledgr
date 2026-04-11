@@ -70,7 +70,7 @@ export default function AddBusinessModal({ isOpen, onClose, onSuccess }: Props) 
     return true;
   }
 
-  async function doSubmit(skipBank = false) {
+  async function doSubmit() {
     setSubmitError(null);
     startTransition(async () => {
       const sp = isSoleProp(data.entityType);
@@ -95,16 +95,8 @@ export default function AddBusinessModal({ isOpen, onClose, onSuccess }: Props) 
       }
 
       onSuccess(result.businessId);
-
-      if (skipBank || data.bankChoice === "manual") {
-        handleClose();
-      } else if (data.bankChoice === "plaid") {
-        router.push("/dashboard/accounts?connect=true");
-      } else if (data.bankChoice === "csv") {
-        router.push("/dashboard/transactions?import=true");
-      } else {
-        handleClose();
-      }
+      handleClose();
+      router.push("/dashboard");
     });
   }
 
@@ -270,7 +262,7 @@ export default function AddBusinessModal({ isOpen, onClose, onSuccess }: Props) 
           {step === TOTAL_STEPS && (
             <button
               type="button"
-              onClick={() => doSubmit(true)}
+              onClick={() => doSubmit()}
               disabled={isPending}
               className="text-[13px] text-[#6B7280] hover:text-[#193764] transition-colors text-center disabled:opacity-50"
             >

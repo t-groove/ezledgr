@@ -98,10 +98,8 @@ export default function OnboardingClient() {
         return;
       }
 
-      if (data.bankChoice === "plaid") {
-        router.push("/dashboard/accounts?connect=true");
-      } else if (data.bankChoice === "csv") {
-        router.push("/dashboard/transactions?import=true");
+      if (data.bankChoice === "manual_account") {
+        router.push("/dashboard/accounts");
       } else {
         router.push("/dashboard");
       }
