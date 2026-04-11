@@ -54,7 +54,7 @@ export async function seedBusinessCoA(
   // 2. Fetch all template accounts, sorted so parents always precede children
   const { data: templateAccounts, error: accError } = await supabase
     .from('coa_template_accounts')
-    .select('id, parent_id, account_number, name, description, account_type, sub_type, irs_form_line, is_system, is_postable, sort_order')
+    .select('id, parent_number, account_number, name, description, account_type, sub_type, irs_form_line, is_system, sort_order')
     .eq('template_set_id', templateSet.id)
     .order('sort_order', { ascending: true })
 
@@ -64,53 +64,53 @@ export async function seedBusinessCoA(
     return { success: false, accountsCreated: 0, errors: [msg] }
   }
 
-  // Maps template account ID → the chart_of_accounts ID just inserted for that account.
-  // Built incrementally so Pass 2 can resolve parent_id from Pass 1 results.
-  const templateIdToCoaId = new Map<string, string>()
+  // Maps template account_number → the chart_of_accounts ID just inserted for that account.
+  // Built incrementally so Pass 2 can resolve parent_number from Pass 1 results.
+  const parentMap: Record<string, string> = {}
   let accountsCreated = 0
 
-  // 3a. Pass 1 — top-level accounts (parent_id IS NULL in the template)
-  const topLevel = templateAccounts.filter(a => a.parent_id === null)
+  // 3a. Pass 1 — top-level accounts (parent_number IS NULL in the template)
+  const topLevel = templateAccounts.filter(a => a.parent_number === null)
 
-  for (const account of topLevel) {
+  for (const tmpl of topLevel) {
     const { data: inserted, error: insertError } = await supabase
       .from('chart_of_accounts')
       .insert({
         business_id: businessId,
         parent_id: null,
-        account_number: account.account_number,
-        name: account.name,
-        description: account.description,
-        account_type: account.account_type,
-        sub_type: account.sub_type,
-        irs_form_line: account.irs_form_line,
-        is_system: account.is_system,
-        is_postable: account.is_postable ?? true,
+        account_number: tmpl.account_number,
+        name: tmpl.name,
+        description: tmpl.description,
+        account_type: tmpl.account_type,
+        sub_type: tmpl.sub_type,
+        irs_form_line: tmpl.irs_form_line,
+        is_system: tmpl.is_system,
+        is_postable: !tmpl.is_system,
         is_active: true,
-        sort_order: account.sort_order,
+        sort_order: tmpl.sort_order,
       })
       .select('id')
       .single()
 
     if (insertError || !inserted) {
-      const msg = `Failed to insert account ${account.account_number}: ${insertError?.message ?? 'no data returned'}`
+      const msg = `Failed to insert account ${tmpl.account_number}: ${insertError?.message ?? 'no data returned'}`
       console.error('[seedBusinessCoA]', msg)
       errors.push(msg)
       continue
     }
 
-    templateIdToCoaId.set(account.id, inserted.id)
+    parentMap[tmpl.account_number] = inserted.id
     accountsCreated++
   }
 
-  // 3b. Pass 2 — sub-accounts (parent_id IS NOT NULL in the template)
-  const subAccounts = templateAccounts.filter(a => a.parent_id !== null)
+  // 3b. Pass 2 — sub-accounts (parent_number IS NOT NULL in the template)
+  const subAccounts = templateAccounts.filter(a => a.parent_number !== null)
 
-  for (const account of subAccounts) {
-    const coaParentId = templateIdToCoaId.get(account.parent_id)
+  for (const tmpl of subAccounts) {
+    const coaParentId = parentMap[tmpl.parent_number]
 
     if (!coaParentId) {
-      const msg = `Skipping sub-account ${account.account_number} — parent template ID "${account.parent_id}" not found in inserted accounts`
+      const msg = `Skipping sub-account ${tmpl.account_number} — parent account_number "${tmpl.parent_number}" not found in inserted accounts`
       console.warn('[seedBusinessCoA]', msg)
       errors.push(msg)
       continue
@@ -121,29 +121,29 @@ export async function seedBusinessCoA(
       .insert({
         business_id: businessId,
         parent_id: coaParentId,
-        account_number: account.account_number,
-        name: account.name,
-        description: account.description,
-        account_type: account.account_type,
-        sub_type: account.sub_type,
-        irs_form_line: account.irs_form_line,
-        is_system: account.is_system,
-        is_postable: account.is_postable ?? true,
+        account_number: tmpl.account_number,
+        name: tmpl.name,
+        description: tmpl.description,
+        account_type: tmpl.account_type,
+        sub_type: tmpl.sub_type,
+        irs_form_line: tmpl.irs_form_line,
+        is_system: tmpl.is_system,
+        is_postable: !tmpl.is_system,
         is_active: true,
-        sort_order: account.sort_order,
+        sort_order: tmpl.sort_order,
       })
       .select('id')
       .single()
 
     if (insertError || !inserted) {
-      const msg = `Failed to insert sub-account ${account.account_number}: ${insertError?.message ?? 'no data returned'}`
+      const msg = `Failed to insert sub-account ${tmpl.account_number}: ${insertError?.message ?? 'no data returned'}`
       console.error('[seedBusinessCoA]', msg)
       errors.push(msg)
       continue
     }
 
     // Add to map in case there are grandchild accounts
-    templateIdToCoaId.set(account.id, inserted.id)
+    parentMap[tmpl.account_number] = inserted.id
     accountsCreated++
   }
 
