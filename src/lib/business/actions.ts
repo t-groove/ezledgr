@@ -2,6 +2,7 @@
 
 import { createClient } from "../../../supabase/server";
 import { createAdminClient } from "../supabase/admin";
+import { seedBusinessCoA } from "../coa/seed-business-coa";
 import { cookies } from "next/headers";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
@@ -253,6 +254,17 @@ export async function createBusiness(data: {
     });
 
     if (memberError) return { success: false, error: memberError.message };
+
+    // Step 3: Seed the chart of accounts from the matching template.
+    // Runs with service role to bypass RLS. Failure is non-fatal — the
+    // business record and membership are already committed.
+    const seedResult = await seedBusinessCoA(business.id, data.entity_type ?? "LLC");
+    if (!seedResult.success) {
+      console.error(
+        `[createBusiness] CoA seeding incomplete for business ${business.id}:`,
+        seedResult.errors
+      );
+    }
 
     return { success: true, business: business as Business };
   } catch (err) {
