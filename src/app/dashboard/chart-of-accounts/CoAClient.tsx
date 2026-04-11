@@ -528,7 +528,9 @@ export default function CoAClient({
                       {parent.name}
                     </span>
                     {parent.is_system && (
-                      <Shield size={11} className="text-[#6B7A99] flex-shrink-0" title="System account" />
+                      <span title="System account">
+                        <Shield size={11} className="text-[#6B7A99] flex-shrink-0" />
+                      </span>
                     )}
                   </div>
                   {/* Type */}
@@ -586,7 +588,9 @@ export default function CoAClient({
                       />
                       <span className="text-sm text-[#193764] truncate">{child.name}</span>
                       {child.is_system && (
-                        <Shield size={11} className="text-[#6B7A99] ml-1.5 flex-shrink-0" title="System account" />
+                        <span title="System account">
+                          <Shield size={11} className="text-[#6B7A99] ml-1.5 flex-shrink-0" />
+                        </span>
                       )}
                     </div>
                     {/* Type */}
