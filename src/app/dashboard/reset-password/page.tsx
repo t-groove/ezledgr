@@ -21,14 +21,14 @@ export default async function ResetPassword(props: {
     <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-8">
       <div className="w-full max-w-md space-y-6">
         <div className="text-center">
-          <Link href="/" className="font-syne text-2xl font-bold text-foreground hover:text-primary transition-colors">
+          <Link href="/" className="font-sans text-2xl font-bold text-foreground hover:text-primary transition-colors">
             EZ Ledgr
           </Link>
         </div>
         <div className="rounded-xl border border-border bg-card p-8 shadow-lg">
           <form className="flex flex-col space-y-6">
             <div className="space-y-2 text-center">
-              <h1 className="font-syne text-3xl font-bold tracking-tight text-foreground">Reset password</h1>
+              <h1 className="font-sans text-3xl font-bold tracking-tight text-foreground">Reset password</h1>
               <p className="text-sm text-muted-foreground">
                 Please enter your new password below.
               </p>

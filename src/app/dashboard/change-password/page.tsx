@@ -57,7 +57,7 @@ export default function ChangePasswordPage() {
         </Link>
 
         <div className="bg-[#111827] border border-[#1E2A45] rounded-xl p-8">
-          <h1 className="font-syne text-2xl font-bold text-[#E8ECF4] mb-1">
+          <h1 className="font-sans text-2xl font-bold text-[#E8ECF4] mb-1">
             Change password
           </h1>
           <p className="text-sm text-[#6B7A99] mb-6">

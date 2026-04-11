@@ -25,7 +25,7 @@ export default async function TeamPage() {
     <main className="w-full min-h-screen">
       <div className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 py-8">
         <header className="mb-8">
-          <h1 className="font-syne text-3xl font-bold text-[#E8ECF4]">Team Members</h1>
+          <h1 className="font-sans text-3xl font-bold text-[#E8ECF4]">Team Members</h1>
           <p className="text-sm text-[#6B7A99] mt-1">{businessResult.data.name}</p>
         </header>
         <TeamClient

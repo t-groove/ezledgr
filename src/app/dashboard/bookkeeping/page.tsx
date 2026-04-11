@@ -29,7 +29,7 @@ export default async function BookkeepingPage({
     <main className="w-full min-h-screen">
       <div className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-12 py-8">
         <header className="mb-6">
-          <h1 className="font-syne text-3xl font-bold text-[#E8ECF4]">Transactions</h1>
+          <h1 className="font-sans text-3xl font-bold text-[#E8ECF4]">Transactions</h1>
           <p className="text-sm text-[#6B7A99] mt-1">
             Track and categorize your transactions
           </p>

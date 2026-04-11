@@ -122,7 +122,7 @@ export default function ContactFormModal({
       <div className="bg-[#111827] border border-[#1E2A45] rounded-xl w-full max-w-2xl shadow-2xl flex flex-col max-h-[90vh]">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#1E2A45] flex-shrink-0">
-          <h2 className="font-syne font-bold text-lg text-[#E8ECF4]">
+          <h2 className="font-sans font-bold text-lg text-[#E8ECF4]">
             {isEditing ? "Edit Contact" : "New Contact"}
           </h2>
           <button
