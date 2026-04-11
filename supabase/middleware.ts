@@ -59,7 +59,10 @@ export const updateSession = async (request: NextRequest) => {
     }
 
     // protected routes
-    if (pathname.startsWith("/dashboard") && error) {
+    if (
+      (pathname.startsWith("/dashboard") || pathname.startsWith("/onboarding")) &&
+      error
+    ) {
       return NextResponse.redirect(new URL("/sign-in", request.url));
     }
 

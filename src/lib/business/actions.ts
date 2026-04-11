@@ -800,6 +800,111 @@ export async function acceptInvitation(
   }
 }
 
+// ── createBusinessFull ─────────────────────────────────────────────────────────
+// Full guided-flow creation: all fields, owners table, CoA name patching, cookie.
+
+export async function createBusinessFull(data: {
+  name: string;
+  entity_type: string;
+  address?: string;
+  accounting_method: string;
+  tax_year_end: string;
+  industry?: string;
+  owners: Array<{ name: string; ownership_percentage: number }>;
+}): Promise<{ success: true; businessId: string } | { success: false; error: string }> {
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return { success: false, error: "Not authenticated" };
+
+    // Step 1: Create the business record
+    const { data: business, error: bizError } = await supabase
+      .from("businesses")
+      .insert({
+        name: data.name,
+        owner_id: user.id,
+        entity_type: data.entity_type,
+        address: data.address ?? null,
+        accounting_method: data.accounting_method,
+        tax_year_end: data.tax_year_end,
+        industry: data.industry ?? null,
+      })
+      .select()
+      .single();
+
+    if (bizError || !business) {
+      return { success: false, error: bizError?.message ?? "Failed to create business" };
+    }
+
+    // Step 2: Add creator as owner member
+    const { error: memberError } = await supabase.from("business_members").insert({
+      business_id: business.id,
+      user_id: user.id,
+      role: "owner",
+      accepted_at: new Date().toISOString(),
+    });
+    if (memberError) return { success: false, error: memberError.message };
+
+    // Step 3: Seed chart of accounts
+    const seedResult = await seedBusinessCoA(business.id, data.entity_type);
+    if (!seedResult.success) {
+      console.error("[createBusinessFull] CoA seeding incomplete:", seedResult.errors);
+    }
+
+    const adminClient = createAdminClient();
+
+    // Step 4: Insert owners into business_owners
+    if (data.owners.length > 0) {
+      const { error: ownersError } = await adminClient.from("business_owners").insert(
+        data.owners.map(o => ({
+          business_id: business.id,
+          name: o.name,
+          ownership_percentage: o.ownership_percentage,
+        }))
+      );
+      if (ownersError) {
+        console.error("[createBusinessFull] Failed to insert owners:", ownersError);
+      }
+    }
+
+    // Step 5: Patch placeholder CoA account names (non-Sole Proprietor entities)
+    if (data.entity_type !== "Sole Proprietor" && data.owners.length > 0) {
+      const { data: placeholderAccounts } = await adminClient
+        .from("chart_of_accounts")
+        .select("id, name")
+        .eq("business_id", business.id)
+        .or(
+          "name.ilike.%[Add%,name.ilike.%[Partner%,name.ilike.%[Member%,name.ilike.%[Shareholder%"
+        );
+
+      for (const account of placeholderAccounts ?? []) {
+        const bracketMatch = (account.name as string).match(/\[([^\]]+)\]/);
+        if (!bracketMatch) continue;
+        const bracketContent = bracketMatch[1];
+        // Extract a 1-based index from bracket text (e.g. "Partner 2 Name" → index 1)
+        const numMatch = bracketContent.match(/\d+/);
+        const ownerIndex = numMatch ? parseInt(numMatch[0], 10) - 1 : 0;
+        const owner = data.owners[Math.min(ownerIndex, data.owners.length - 1)];
+        if (!owner?.name) continue;
+        const newName = (account.name as string).replace(/\[[^\]]+\]/, owner.name);
+        await adminClient
+          .from("chart_of_accounts")
+          .update({ name: newName })
+          .eq("id", account.id);
+      }
+    }
+
+    // Step 6: Set active business cookie
+    await setActiveBusiness(business.id);
+
+    return { success: true, businessId: business.id };
+  } catch (err) {
+    return { success: false, error: String(err) };
+  }
+}
+
 // ── deleteBusiness ─────────────────────────────────────────────────────────────
 
 export async function deleteBusiness(

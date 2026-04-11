@@ -1,22 +1,13 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { Briefcase, Building2, Check, Plus, X, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { Briefcase, Building2, Check, Plus } from "lucide-react";
 import { useBusinessContext } from "@/lib/business/context";
-import { createBusiness } from "@/lib/business/actions";
+import { getUserBusinesses } from "@/lib/business/actions";
 import type { BusinessMember } from "@/lib/business/actions";
+import AddBusinessModal from "@/components/businesses/AddBusinessModal";
 
 // TODO: gate business creation behind an active subscription check
-
-const ENTITY_TYPES = [
-  "LLC",
-  "S-Corp",
-  "C-Corp",
-  "Sole Proprietor",
-  "Partnership",
-  "Non-Profit",
-  "Other",
-];
 
 const ROLE_LABELS: Record<string, string> = {
   owner: "Owner",
@@ -34,7 +25,6 @@ export default function BusinessesClient({ initialBusinesses, activeBusinessId }
   const { switchBusiness, currentBusiness, businesses: ctxBusinesses } = useBusinessContext();
 
   // Local list — seeded from context (if already loaded) or SSR prop.
-  // We append to this immediately on create so the card shows without a reload.
   const [businesses, setBusinesses] = useState<BusinessMember[]>(
     () => ctxBusinesses.length > 0 ? ctxBusinesses : initialBusinesses
   );
@@ -44,45 +34,14 @@ export default function BusinessesClient({ initialBusinesses, activeBusinessId }
 
   // ── Add Business modal state ────────────────────────────────────────────────
   const [modalOpen, setModalOpen] = useState(false);
-  const [name, setName] = useState("");
-  const [entityType, setEntityType] = useState("LLC");
-  const [error, setError] = useState<string | null>(null);
-  const [isPending, startTransition] = useTransition();
 
-  function openModal() {
-    setName("");
-    setEntityType("LLC");
-    setError(null);
-    setModalOpen(true);
-  }
-
-  function handleCreate(e: React.FormEvent) {
-    e.preventDefault();
-    if (!name.trim()) return;
-    setError(null);
-    startTransition(async () => {
-      const result = await createBusiness({ name: name.trim(), entity_type: entityType });
-      if (result.success) {
-        // Append the new business to local state immediately so the card
-        // appears without waiting for a page reload or context re-fetch.
-        const newMember: BusinessMember = {
-          id: result.business.id,         // placeholder — membership id not returned by createBusiness
-          business_id: result.business.id,
-          user_id: "",                     // not needed for card display
-          role: "owner",
-          invited_email: null,
-          accepted_at: new Date().toISOString(),
-          is_active: true,
-          created_at: new Date().toISOString(),
-          business: result.business,
-        };
-        setBusinesses(prev => [...prev, newMember]);
-        setModalOpen(false);
-        // Switch to the newly created business automatically
-        await switchBusiness(result.business.id, result.business.name);
-      } else {
-        setError(result.error);
-      }
+  function handleSuccess(businessId: string) {
+    // Re-fetch businesses list so the new card appears immediately, then
+    // switch active business (which also calls router.refresh internally)
+    getUserBusinesses().then(members => {
+      setBusinesses(members);
+      const newBiz = members.find(m => m.business_id === businessId);
+      switchBusiness(businessId, newBiz?.business.name ?? "");
     });
   }
 
@@ -95,7 +54,7 @@ export default function BusinessesClient({ initialBusinesses, activeBusinessId }
           <p className="text-sm text-[#6B7280] mt-1">Manage your business accounts</p>
         </div>
         <button
-          onClick={openModal}
+          onClick={() => setModalOpen(true)}
           className="flex items-center gap-2 px-4 py-2 bg-[#2F7FC8] hover:bg-[#2568a8]
             text-white text-sm font-medium rounded-lg transition-colors"
         >
@@ -115,7 +74,7 @@ export default function BusinessesClient({ initialBusinesses, activeBusinessId }
             Create your first business to get started.
           </p>
           <button
-            onClick={openModal}
+            onClick={() => setModalOpen(true)}
             className="flex items-center gap-2 px-4 py-2 bg-[#2F7FC8] hover:bg-[#2568a8]
               text-white text-sm font-medium rounded-lg transition-colors"
           >
@@ -179,95 +138,11 @@ export default function BusinessesClient({ initialBusinesses, activeBusinessId }
         </div>
       )}
 
-      {/* ── Add Business Modal ─────────────────────────────────────────────── */}
-      {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          {/* Backdrop */}
-          <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-            onClick={() => setModalOpen(false)}
-          />
-
-          {/* Modal */}
-          <div className="relative w-full max-w-md bg-white border border-[#dde4ef]
-            rounded-2xl p-6 shadow-2xl">
-            {/* Close button */}
-            <button
-              onClick={() => setModalOpen(false)}
-              className="absolute top-4 right-4 p-1.5 rounded-lg text-[#6B7280]
-                hover:text-[#193764] hover:bg-[#f0f4fa] transition-colors"
-            >
-              <X size={16} />
-            </button>
-
-            {/* Modal header */}
-            <div className="mb-6">
-              <h2 className="font-sans text-xl font-bold text-[#193764]">Add Business</h2>
-              <p className="text-sm text-[#6B7280] mt-1">Create a new business account</p>
-            </div>
-
-            <form onSubmit={handleCreate} className="flex flex-col gap-4">
-              {/* Business name */}
-              <div>
-                <label className="block text-sm text-[#6B7280] mb-1.5">
-                  Business name <span className="text-[#EF4444]">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Acme LLC"
-                  required
-                  className="w-full bg-[#f5f4f2] border border-[#dde4ef] text-[#193764] text-sm
-                    rounded-lg px-3 py-2.5 focus:outline-none focus:border-[#4F7FFF]
-                    placeholder:text-[#6B7280]"
-                />
-              </div>
-
-              {/* Entity type */}
-              <div>
-                <label className="block text-sm text-[#6B7280] mb-1.5">Entity type</label>
-                <select
-                  value={entityType}
-                  onChange={(e) => setEntityType(e.target.value)}
-                  className="w-full bg-[#f5f4f2] border border-[#dde4ef] text-[#193764] text-sm
-                    rounded-lg px-3 py-2.5 focus:outline-none focus:border-[#4F7FFF] cursor-pointer"
-                >
-                  {ENTITY_TYPES.map((t) => (
-                    <option key={t} value={t}>{t}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Error */}
-              {error && (
-                <p className="text-sm text-[#EF4444] bg-[#EF4444]/10 border border-[#EF4444]/30
-                  rounded-lg px-3 py-2">
-                  {error}
-                </p>
-              )}
-
-              {/* Submit */}
-              <button
-                type="submit"
-                disabled={isPending || !name.trim()}
-                className="flex items-center justify-center gap-2 w-full py-2.5 px-4
-                  bg-[#2F7FC8] hover:bg-[#2568a8] disabled:opacity-50 disabled:cursor-not-allowed
-                  text-white text-sm font-medium rounded-lg transition-colors mt-2"
-              >
-                {isPending ? (
-                  <>
-                    <Loader2 size={15} className="animate-spin" />
-                    Creating…
-                  </>
-                ) : (
-                  "Create Business"
-                )}
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
+      <AddBusinessModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onSuccess={handleSuccess}
+      />
     </>
   );
 }
