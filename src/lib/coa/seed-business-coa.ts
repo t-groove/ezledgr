@@ -6,6 +6,26 @@ export interface SeedCoAResult {
   errors: string[]
 }
 
+const ENTITY_TYPE_MAP: Record<string, string> = {
+  'Sole Proprietor': 'sole_prop',
+  'Sole Proprietorship': 'sole_prop',
+  'LLC': 'sole_prop',
+  'Single-Member LLC': 'sole_prop',
+  'Partnership': 'partnership',
+  'Multi-Member LLC': 'partnership',
+  'S-Corp': 'corporation',
+  'C-Corp': 'corporation',
+  'Corporation': 'corporation',
+  'Non-Profit': 'nonprofit',
+  'Nonprofit': 'nonprofit',
+  'Non-profit': 'nonprofit',
+  // already-normalized values pass through
+  'sole_prop': 'sole_prop',
+  'partnership': 'partnership',
+  'corporation': 'corporation',
+  'nonprofit': 'nonprofit',
+}
+
 export async function seedBusinessCoA(
   businessId: string,
   entityType: string
@@ -13,15 +33,20 @@ export async function seedBusinessCoA(
   const errors: string[] = []
   const supabase = createAdminClient()
 
+  if (!(entityType in ENTITY_TYPE_MAP)) {
+    console.warn(`[seedBusinessCoA] Unknown entityType "${entityType}" — falling back to sole_prop`)
+  }
+  const normalizedType = ENTITY_TYPE_MAP[entityType] ?? 'sole_prop'
+
   // 1. Find the matching template set
   const { data: templateSet, error: setError } = await supabase
     .from('coa_template_sets')
     .select('id')
-    .eq('entity_type', entityType)
+    .eq('entity_type', normalizedType)
     .maybeSingle()
 
   if (setError || !templateSet) {
-    const msg = `No CoA template found for entity_type "${entityType}"`
+    const msg = `No CoA template found for entity_type "${normalizedType}" (original: "${entityType}")`
     console.warn('[seedBusinessCoA]', msg, setError ?? '')
     return { success: false, accountsCreated: 0, errors: [msg] }
   }
