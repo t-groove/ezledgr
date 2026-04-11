@@ -94,9 +94,9 @@ export default function AddBusinessModal({ isOpen, onClose, onSuccess }: Props) 
         return;
       }
 
+      router.push("/dashboard");
       onSuccess(result.businessId);
       handleClose();
-      router.push("/dashboard");
     });
   }
 
