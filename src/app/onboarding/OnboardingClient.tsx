@@ -179,37 +179,6 @@ export default function OnboardingClient() {
               )}
             </button>
 
-            {step === TOTAL_STEPS && (
-              <button
-                type="button"
-                onClick={() => {
-                  setSubmitError(null);
-                  startTransition(async () => {
-                    const sp = isSoleProp(data.entityType);
-                    const owners = data.owners.map(o => ({
-                      name: o.name,
-                      ownership_percentage: sp ? 100 : parseFloat(o.percentage) || 0,
-                    }));
-                    const result = await createBusinessFull({
-                      name: data.name.trim(),
-                      entity_type: data.entityType,
-                      address: data.address || undefined,
-                      accounting_method: data.accountingMethod,
-                      tax_year_end: data.fiscalYearEnd,
-                      industry: data.industry || undefined,
-                      owners,
-                    });
-                    if (!result.success) { setSubmitError(result.error); return; }
-                    router.push("/dashboard");
-                  });
-                }}
-                disabled={isPending}
-                className="w-full py-2 text-[13px] text-[#6B7280] hover:text-[#193764] bg-transparent border border-[#dde4ef] rounded-lg transition-colors disabled:opacity-50"
-              >
-                Skip for now — I&apos;ll connect later
-              </button>
-            )}
-
             {step > 1 && (
               <button
                 type="button"

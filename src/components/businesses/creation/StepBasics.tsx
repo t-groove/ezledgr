@@ -25,21 +25,21 @@ export default function StepBasics({ data, onChange }: Props) {
       {/* Business Name */}
       <div>
         <label className="block text-[13px] text-[#6B7280] mb-1">
-          Business name <span className="text-[#C0392B]">*</span>
+          Business name <span className="text-[#2F7FC8]">*</span>
         </label>
         <input
           type="text"
           value={data.name}
           onChange={e => onChange({ name: e.target.value })}
           placeholder="Acme LLC"
-          className="w-full bg-[#f5f4f2] border border-[#dde4ef] rounded-lg px-3 py-2.5 text-[14px] text-[#193764] placeholder:text-[#6B7280] focus:outline-none focus:border-[#2F7FC8] focus:ring-[3px] focus:ring-[rgba(47,127,200,0.15)] transition-all"
+          className="w-full bg-white border-[1.5px] border-[#2F7FC8] rounded-lg px-3 py-2.5 text-[14px] text-[#193764] placeholder:text-[#6B7280] focus:outline-none focus:border-[#2F7FC8] focus:ring-[3px] focus:ring-[rgba(47,127,200,0.15)] transition-all"
         />
       </div>
 
       {/* Entity Type */}
       <div>
         <label className="block text-[13px] text-[#6B7280] mb-2">
-          Entity type <span className="text-[#C0392B]">*</span>
+          Entity type <span className="text-[#2F7FC8]">*</span>
         </label>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
           {ENTITY_TYPE_CONFIGS.map(cfg => {
@@ -52,7 +52,7 @@ export default function StepBasics({ data, onChange }: Props) {
                 className={`flex flex-col items-center text-center gap-1 px-2 py-3 rounded-[10px] border-[1.5px] transition-all ${
                   isSelected
                     ? 'border-[#2F7FC8] bg-[#daeaf8]'
-                    : 'border-[#dde4ef] bg-white hover:border-[#2F7FC8]/50 hover:bg-[#f0f7fd]'
+                    : 'border-[rgba(47,127,200,0.4)] bg-white hover:border-[#2F7FC8] hover:bg-[#f0f7fd]'
                 }`}
               >
                 <span className="text-xl leading-none">{cfg.emoji}</span>

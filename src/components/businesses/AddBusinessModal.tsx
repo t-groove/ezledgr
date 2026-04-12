@@ -259,16 +259,6 @@ export default function AddBusinessModal({ isOpen, onClose, onSuccess }: Props) 
             </button>
           </div>
 
-          {step === TOTAL_STEPS && (
-            <button
-              type="button"
-              onClick={() => doSubmit()}
-              disabled={isPending}
-              className="text-[13px] text-[#6B7280] hover:text-[#193764] transition-colors text-center disabled:opacity-50"
-            >
-              Skip bank connection — go to dashboard
-            </button>
-          )}
         </div>
       </div>
     </div>

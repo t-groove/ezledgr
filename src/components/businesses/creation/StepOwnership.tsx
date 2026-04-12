@@ -54,7 +54,7 @@ export default function StepOwnership({ data, onChange, showValidationError }: P
               value={owner.name}
               onChange={e => updateOwner(owner.localId, 'name', e.target.value)}
               placeholder={soleProp ? 'Your full name' : `Owner ${idx + 1} name`}
-              className="flex-1 bg-[#f5f4f2] border border-[#dde4ef] rounded-lg px-3 py-2.5 text-[14px] text-[#193764] placeholder:text-[#6B7280] focus:outline-none focus:border-[#2F7FC8] focus:ring-[3px] focus:ring-[rgba(47,127,200,0.15)] transition-all"
+              className="flex-1 bg-white border-[1.5px] border-[#2F7FC8] rounded-lg px-3 py-2.5 text-[14px] text-[#193764] placeholder:text-[#6B7280] focus:outline-none focus:border-[#2F7FC8] focus:ring-[3px] focus:ring-[rgba(47,127,200,0.15)] transition-all"
             />
 
             {/* Percentage */}
@@ -70,7 +70,7 @@ export default function StepOwnership({ data, onChange, showValidationError }: P
                   value={owner.percentage}
                   onChange={e => updateOwner(owner.localId, 'percentage', e.target.value)}
                   placeholder="0"
-                  className="w-full bg-[#f5f4f2] border border-[#dde4ef] rounded-lg pl-3 pr-6 py-2.5 text-[14px] text-[#193764] placeholder:text-[#6B7280] focus:outline-none focus:border-[#2F7FC8] focus:ring-[3px] focus:ring-[rgba(47,127,200,0.15)] transition-all"
+                  className="w-full bg-white border-[1.5px] border-[#2F7FC8] rounded-lg pl-3 pr-6 py-2.5 text-[14px] text-[#193764] placeholder:text-[#6B7280] focus:outline-none focus:border-[#2F7FC8] focus:ring-[3px] focus:ring-[rgba(47,127,200,0.15)] transition-all"
                 />
                 <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[13px] text-[#6B7280] pointer-events-none">
                   %

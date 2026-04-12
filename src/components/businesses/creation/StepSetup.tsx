@@ -34,7 +34,7 @@ export default function StepSetup({ data, onChange }: Props) {
       {/* Accounting Method */}
       <div>
         <label className="block text-[13px] text-[#6B7280] mb-2">
-          Accounting method <span className="text-[#C0392B]">*</span>
+          Accounting method <span className="text-[#2F7FC8]">*</span>
         </label>
         <div className="grid grid-cols-2 gap-2">
           {METHOD_OPTIONS.map(opt => {
@@ -47,7 +47,7 @@ export default function StepSetup({ data, onChange }: Props) {
                 className={`flex flex-col items-start gap-1 p-3.5 rounded-[10px] border-[1.5px] text-left transition-all ${
                   isSelected
                     ? 'border-[#2F7FC8] bg-[#daeaf8]'
-                    : 'border-[#dde4ef] bg-white hover:border-[#2F7FC8]/50'
+                    : 'border-[rgba(47,127,200,0.4)] bg-white hover:border-[#2F7FC8]'
                 }`}
               >
                 <div className="flex items-center gap-2">
@@ -67,7 +67,9 @@ export default function StepSetup({ data, onChange }: Props) {
 
       {/* Fiscal Year End */}
       <div>
-        <label className="block text-[13px] text-[#6B7280] mb-1">Fiscal year end</label>
+        <label className="block text-[13px] text-[#6B7280] mb-1">
+          Fiscal year end <span className="text-[#6B7280]">(optional)</span>
+        </label>
         <select
           value={data.fiscalYearEnd}
           onChange={e => onChange({ fiscalYearEnd: e.target.value })}

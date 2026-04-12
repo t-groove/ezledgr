@@ -1,6 +1,6 @@
 "use client";
 
-import { Link2, Landmark, PenLine } from 'lucide-react';
+import { Link2, Landmark, Clock } from 'lucide-react';
 import type { BusinessCreationData, BankChoice } from './types';
 
 interface Props {
@@ -31,11 +31,11 @@ const BANK_OPTIONS: Array<{
     description: 'Set up an account manually, then import transactions via CSV',
   },
   {
-    value: 'manual',
-    Icon: PenLine,
-    label: 'Enter transactions manually',
+    value: 'skip',
+    Icon: Clock,
+    label: 'Skip bank connection for now',
     tag: null,
-    description: 'Add transactions one at a time',
+    description: 'You can connect or import transactions any time from the Accounts page',
   },
 ];
 
@@ -133,7 +133,7 @@ export function bankButtonLabel(bankChoice: BankChoice): string {
       return 'Connect with Plaid →';
     case 'manual_account':
       return 'Create Bank Account →';
-    case 'manual':
-      return 'Enter manually →';
+    case 'skip':
+      return 'Go to Dashboard →';
   }
 }

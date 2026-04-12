@@ -8,7 +8,7 @@ export type EntityType =
 
 export type AccountingMethod = 'cash' | 'accrual';
 
-export type BankChoice = 'plaid' | 'manual_account' | 'manual';
+export type BankChoice = 'plaid' | 'manual_account' | 'skip';
 
 export interface OwnerRow {
   localId: string;
